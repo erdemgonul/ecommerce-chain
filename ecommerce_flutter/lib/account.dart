@@ -8,33 +8,33 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'home.dart';
 
-
-
-
-class LoginPage extends StatefulWidget {
+class AccountPage extends StatefulWidget {
+  AccountPage(this.jwt, this.payload);
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _AccountPage createState() => _AccountPage();
+  factory AccountPage.fromBase64(String jwt) =>
+      AccountPage(
+          jwt,
+          json.decode(
+              ascii.decode(
+                  base64.decode(base64.normalize(jwt.split(".")[1]))
+              )
+          )
+      );
+
+  final String jwt;
+  final Map<String, dynamic> payload;
+
+
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _AccountPage extends State<AccountPage> {
+
 
   bool _isLoading = false;
   bool _rememberMe= false;
   String username="";
   String password="";
-
-  Future<String> attemptLogIn(String username, String password) async {
-    var res = await http.post(
-        "$SERVER_IP/api/v1/auth/signin",
-        body: jsonEncode({
-          "userName": username,
-          "password": password
-        }),headers: { "accept": "application/json", "content-type": "application/json" }
-    );
-    if(res.statusCode == 200) return res.body;
-    return null;
-  }
-
   void displayDialog(context, title, text) => showDialog(
     context: context,
     builder: (context) =>
@@ -133,18 +133,7 @@ class _LoginPageState extends State<LoginPage> {
       child: ElevatedButton(
         style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.blue) ),
         onPressed: username == "" || password == "" ? null : () async {
-          var jwt = await attemptLogIn(username, password);
-          if(jwt != null) {
-            storage.write(key: "jwt", value: jwt);
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => HomePage.fromBase64(jwt)
-                )
-            );
-          } else {
-            displayDialog(context, "An Error Occurred", "No account was found matching that username and password");
-          }
+
         },
         child: Text("Sign In", style: TextStyle(color: Colors.white)),
       ),
