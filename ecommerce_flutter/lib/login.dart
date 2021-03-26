@@ -1,6 +1,16 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 import 'package:ecommerce_flutter/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+import 'home.dart';
+
+
+const SERVER_IP = 'http://10.0.2.2:5000';
+final storage = FlutterSecureStorage();
 
 class LoginPage extends StatefulWidget {
   @override
@@ -11,8 +21,29 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _isLoading = false;
   bool _rememberMe= false;
-  String email="";
+  String username="";
   String password="";
+
+  Future<String> attemptLogIn(String username, String password) async {
+    var res = await http.post(
+        "$SERVER_IP/api/v1/auth/signin",
+        body: jsonEncode({
+          "userName": username,
+          "password": password
+        }),headers: { "accept": "application/json", "content-type": "application/json" }
+    );
+    if(res.statusCode == 200) return res.body;
+    return null;
+  }
+
+  void displayDialog(context, title, text) => showDialog(
+    context: context,
+    builder: (context) =>
+        AlertDialog(
+            title: Text(title),
+            content: Text(text)
+        ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
             style: TextStyle(color: Colors.black87),
             onChanged: (value) {
               setState(() {
-                email = value;
+                username = value;
               });
             },
             decoration: InputDecoration(
@@ -102,10 +133,19 @@ class _LoginPageState extends State<LoginPage> {
       margin: EdgeInsets.only(top: 15.0),
       child: ElevatedButton(
         style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.blue) ),
-        onPressed: email == "" || password == "" ? null : () {
-          setState(() {
-            _isLoading = true;
-          });
+        onPressed: username == "" || password == "" ? null : () async {
+          var jwt = await attemptLogIn(username, password);
+          if(jwt != null) {
+            storage.write(key: "jwt", value: jwt);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => HomePage.fromBase64(jwt)
+                )
+            );
+          } else {
+            displayDialog(context, "An Error Occurred", "No account was found matching that username and password");
+          }
         },
         child: Text("Sign In", style: TextStyle(color: Colors.white)),
       ),
