@@ -34,6 +34,10 @@ const self = {
                 return {error: 'Invalid Password'}
             }
 
+            if (!user._id) {
+                return {error: 'Invalid User'}
+            }
+
             const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
                 expiresIn: 86400 // 24 hours
             });

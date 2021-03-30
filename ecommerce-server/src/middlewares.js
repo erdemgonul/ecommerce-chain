@@ -57,9 +57,10 @@ verifyToken = (req, res, next) => {
   }
 
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) {
+    if (err || !decoded.id) {
       return res.status(401).send({ message: "Unauthorized!" });
     }
+    
     req.userId = decoded.id;
     next();
   });
