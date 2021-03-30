@@ -4,29 +4,25 @@ const userDAL = require('../dal/user')
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
-class authBAL {
-    constructor() {
-        this.userDal = new userDAL ();
-    }
-
+const self = {
     async signUp (userName, firstName, lastName, email, password) {
-        const userExists = await this.userDal.checkUsernameExists(userName);
+        const userExists = await userDAL.checkUsernameExists(userName);
 
         if (userExists) {
             return {error:'User already exists !'};
         }
 
-        const emailExists = await this.userDal.checkEmailExists(email);
+        const emailExists = await userDAL.checkEmailExists(email);
 
         if (emailExists) {
             return {error:'Email already exists !'};
         }
 
-        return await this.userDal.createUser(userName, firstName, lastName, email, password)
-    }
+        return await userDAL.createUser(userName, firstName, lastName, email, password)
+    },
 
     async signIn (username, password) {
-        const user = await this.userDal.getUserByUsername(username);
+        const user = await userDAL.getUserByUsername(username);
 
         if (user) {
             const passwordIsValid = bcrypt.compareSync(
@@ -38,6 +34,7 @@ class authBAL {
                 return {error: 'Invalid Password'}
             }
 
+            // TODO: IMPROVE JWT SIGNING
             const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
                 expiresIn: 86400 // 24 hours
             });
@@ -49,4 +46,4 @@ class authBAL {
     }
 }
 
-module.exports = authBAL;
+module.exports = self;

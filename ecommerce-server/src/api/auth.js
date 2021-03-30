@@ -3,10 +3,10 @@ const authBAL = require('../bal/auth');
 const router = express.Router();
 const Joi = require('joi');
 
-const authBal = new authBAL ();
-
 router.post('/signup', signUpSchema, async (req, res) => {
-    const result = await authBal.signUp(req.body.userName, req.body.firstName, req.body.lastName, req.body.email, req.body.password);
+    const result = await authBAL.signUp(req.body.userName, req.body.firstName, req.body.lastName, req.body.email, req.body.password);
+
+    console.log(result)
 
     if (result && !result.error) {
         res.send({success: true})
@@ -16,7 +16,7 @@ router.post('/signup', signUpSchema, async (req, res) => {
 });
 
 router.post('/signin', signInSchema, async (req, res) => {
-    const result = await authBal.signIn(req.body.userName, req.body.password);
+    const result = await authBAL.signIn(req.body.userName, req.body.password);
 
     if (result && !result.error) {
         res.send({success: true, accessToken: result})
