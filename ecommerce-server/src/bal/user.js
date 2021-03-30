@@ -48,29 +48,6 @@ const self = {
         }
 
         return await userDAL.updateUserDetails(userId, detailsToChange)
-    },
-
-    async signIn (username, password) {
-        const user = await userDAL.getUserByUsername(username);
-
-        if (user) {
-            const passwordIsValid = bcrypt.compareSync(
-                password,
-                user.password
-            );
-
-            if (!passwordIsValid) {
-                return {error: 'Invalid Password'}
-            }
-
-            const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-                expiresIn: 86400 // 24 hours
-            });
-
-            return token;
-        } else {
-            return {error: 'User does not exists !'}
-        }
     }
 }
 
