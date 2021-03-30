@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const config = require('./config');
 
 function notFound(req, res, next) {
   res.status(404);
@@ -19,6 +20,10 @@ function errorHandler(err, req, res, next) {
 }
 
 function validateRequest(req, res, next) {
+  if (!config.validation.endpointsToValidate.includes(req.originalUrl)) {
+    return next();
+  }
+
   const schemaPath = './validations' + req.originalUrl.substring(req.originalUrl.indexOf('/', 5), req.originalUrl.length);
   const schema = require(schemaPath)
 
@@ -39,9 +44,7 @@ function validateRequest(req, res, next) {
 }
 
 verifyToken = (req, res, next) => {
-  const noAuthEndpoints = ['/api/v1/auth/signup', '/api/v1/auth/signin']
-
-  if (noAuthEndpoints.includes(req.originalUrl)) {
+  if (config.auth.noAuthEndpoints.includes(req.originalUrl)) {
     return next();
   }
 

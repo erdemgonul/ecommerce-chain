@@ -5,7 +5,7 @@ const db = require("../models");
 const User = db.user;
 
 const self = {
-    checkUsernameExists : async (username) => {
+    isUsernameExists : async (username) => {
         try {
             const user = await User.findOne({
                 username: username
@@ -21,7 +21,7 @@ const self = {
         return false;
     },
 
-    checkEmailExists : async (email) => {
+    isEmailExists : async (email) => {
         try {
             const user = await User.findOne({
                 email: email

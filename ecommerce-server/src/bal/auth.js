@@ -6,13 +6,13 @@ const bcrypt = require("bcryptjs");
 
 const self = {
     async signUp (userName, firstName, lastName, email, password) {
-        const userExists = await userDAL.checkUsernameExists(userName);
+        const userExists = await userDAL.isUsernameExists(userName);
 
         if (userExists) {
             return {error:'User already exists !'};
         }
 
-        const emailExists = await userDAL.checkEmailExists(email);
+        const emailExists = await userDAL.isEmailExists(email);
 
         if (emailExists) {
             return {error:'Email already exists !'};
@@ -34,7 +34,6 @@ const self = {
                 return {error: 'Invalid Password'}
             }
 
-            // TODO: IMPROVE JWT SIGNING
             const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
                 expiresIn: 86400 // 24 hours
             });
