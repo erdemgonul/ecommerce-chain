@@ -2,10 +2,10 @@ const express = require('express');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
-const db = require("./models/index");
 
 require('dotenv').config();
 
+const db = require("./models/index");
 const middlewares = require('./middlewares');
 const api = require('./api');
 
@@ -30,14 +30,16 @@ db.mongoose
     });
 
 app.get('/', (req, res) => {
-  res.json({
-    message: '🦄🌈✨👋🌎🌍🌏✨🌈🦄'
-  });
+    res.json({
+        message: '🦄🌈✨👋🌎🌍🌏✨🌈🦄'
+    });
 });
+
+app.use(middlewares.validateRequest)
 
 app.use('/api/v1', api);
 
 app.use(middlewares.notFound);
-// app.use(middlewares.errorHandler);
+app.use(middlewares.errorHandler);
 
 module.exports = app;
