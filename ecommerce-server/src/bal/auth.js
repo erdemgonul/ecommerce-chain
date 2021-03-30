@@ -3,6 +3,7 @@
 const userDAL = require('../dal/user')
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const util = require('../util/index');
 
 const self = {
     async signUp (userName, firstName, lastName, email, password) {
@@ -38,7 +39,15 @@ const self = {
                 return {error: 'Invalid User'}
             }
 
-            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+            let lastTime = user.lastLogoutOn;
+
+            if (!user.lastLogoutOn) {
+                lastTime = user.createdOn;
+            }
+
+            const hashedString = util.authHashString(lastTime, user.password);
+
+            const token = jwt.sign({ id: user._id, hash: hashedString }, process.env.JWT_SECRET, {
                 expiresIn: 86400 // 24 hours
             });
 
@@ -46,6 +55,10 @@ const self = {
         } else {
             return {error: 'User does not exists !'}
         }
+    },
+
+    async logout (userId) {
+        return await userDAL.updateLastLogoutTime(userId);
     }
 }
 

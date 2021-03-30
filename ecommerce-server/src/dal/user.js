@@ -3,6 +3,7 @@
 const bcrypt = require("bcryptjs");
 const db = require("../models");
 const User = db.user;
+const moment = require('moment')
 
 const self = {
     isUsernameExists: async (username) => {
@@ -38,12 +39,15 @@ const self = {
     },
 
     createUser: async (userName, firstName, lastName, email, password) => {
+        const timestamp = moment.utc().toISOString();
+
         const user = new User({
             username: userName,
             email: email,
             firstName: firstName,
             lastName: lastName,
-            password: bcrypt.hashSync(password, 8)
+            password: bcrypt.hashSync(password, 8),
+            createdOn: timestamp
         });
 
         try {
@@ -90,6 +94,20 @@ const self = {
             const updatedUser = await User.findOneAndUpdate({
                 _id: userId
             }, detailsToChange);
+
+            if (updatedUser) {
+                return true
+            }
+        } catch (err) {
+            return err;
+        }
+    },
+
+    updateLastLogoutTime: async (userId) => {
+        try {
+            const updatedUser = await User.findOneAndUpdate({
+                _id: userId
+            }, {lastLogoutOn: moment.utc().toISOString()});
 
             if (updatedUser) {
                 return true

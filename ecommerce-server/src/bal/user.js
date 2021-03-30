@@ -8,6 +8,8 @@ const self = {
         const userDetails = await userDAL.getUserByUsername(username)
 
         if (userDetails) {
+            delete userDetails.createdOn;
+            delete userDetails.lastLogoutOn;
             delete userDetails.password;
             delete userDetails._id;
             delete userDetails.__v;
@@ -18,10 +20,16 @@ const self = {
         }
     },
 
-    async getUserDetailsById (userId) {
+    async getUserDetailsById (userId, fullDetails=false) {
         const userDetails = await userDAL.getUserByUserId(userId)
 
         if (userDetails) {
+            if (fullDetails) {
+                return userDetails;
+            }
+            
+            delete userDetails.createdOn;
+            delete userDetails.lastLogoutOn;
             delete userDetails.password;
             delete userDetails._id;
             delete userDetails.__v;
