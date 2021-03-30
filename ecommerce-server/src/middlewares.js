@@ -36,6 +36,7 @@ function validateRequest(req, res, next) {
   const { error, value } = schema.validate(req.body, options);
 
   if (error) {
+    res.status(422)
     next(new Error(`Validation error: ${error.details.map(x => x.message).join(', ')}`));
   } else {
     req.body = value;
