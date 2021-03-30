@@ -55,12 +55,12 @@ verifyToken = (req, res, next) => {
     let token = authHeader ? authHeader.substring(7) : null;
 
     if (!token) {
-        return res.status(403).send({message: "No token provided!"});
+        return res.status(403).send({error: "No token provided!"});
     }
 
     jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
         if (err || !decoded.id || !decoded.hash) {
-            return res.status(401).send({message: "Unauthorized!"});
+            return res.status(401).send({error: "Unauthorized!"});
         }
 
         const user = await userBAL.getUserDetailsById(decoded.id, true)
@@ -72,7 +72,7 @@ verifyToken = (req, res, next) => {
         }
 
         if (decoded.hash !== util.authHashString(lastTime, user.password)) {
-            return res.status(401).send({message: "Unauthorized!"});
+            return res.status(401).send({error: "Unauthorized!"});
         }
 
         req.userId = decoded.id;
