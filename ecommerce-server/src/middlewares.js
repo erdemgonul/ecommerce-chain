@@ -1,3 +1,5 @@
+const jwt = require("jsonwebtoken");
+
 function notFound(req, res, next) {
   res.status(404);
   const error = new Error(`🔍 - Not Found - ${req.originalUrl}`);
@@ -36,8 +38,32 @@ function validateRequest(req, res, next) {
   }
 }
 
+verifyToken = (req, res, next) => {
+  const noAuthEndpoints = ['/api/v1/auth/signup', '/api/v1/auth/signin']
+
+  if (noAuthEndpoints.includes(req.originalUrl)) {
+    return next();
+  }
+
+  const authHeader = req.headers["authorization"];
+  let token = authHeader ? authHeader.substring(7) : null;
+
+  if (!token) {
+    return res.status(403).send({ message: "No token provided!" });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({ message: "Unauthorized!" });
+    }
+    req.userId = decoded.id;
+    next();
+  });
+};
+
 module.exports = {
   notFound,
   errorHandler,
-  validateRequest
+  validateRequest,
+  verifyToken
 };

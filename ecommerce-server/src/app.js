@@ -36,6 +36,7 @@ app.get('/', (req, res) => {
 });
 
 app.use(middlewares.validateRequest)
+app.use(middlewares.verifyToken)
 
 app.use('/api/v1', api);
 
