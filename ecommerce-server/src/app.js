@@ -5,7 +5,7 @@ const cors = require('cors');
 
 require('dotenv').config();
 
-const db = require("./models/index");
+const db = require('./models/index');
 const middlewares = require('./middlewares');
 const api = require('./api');
 
@@ -17,26 +17,30 @@ app.use(cors());
 app.use(express.json());
 
 db.mongoose
-    .connect(`mongodb://${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_DB}`, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    })
-    .then(() => {
-      console.log("Successfully connect to MongoDB.");
-    })
-    .catch(err => {
-      console.error("Connection error", err);
-      process.exit();
-    });
+  .connect(`mongodb://${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_DB}`, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => {
+    /* eslint-disable no-console */
+    console.log('Successfully connect to MongoDB.');
+    /* eslint-disable no-console */
+  })
+  .catch((err) => {
+    /* eslint-disable no-console */
+    console.error('Connection error', err);
+    /* eslint-disable no-console */
+    process.exit();
+  });
 
 app.get('/', (req, res) => {
-    res.json({
-        message: '🦄🌈✨👋🌎🌍🌏✨🌈🦄'
-    });
+  res.json({
+    message: '🦄🌈✨👋🌎🌍🌏✨🌈🦄'
+  });
 });
 
-app.use(middlewares.validateRequest)
-app.use(middlewares.verifyToken)
+app.use(middlewares.validateRequest);
+app.use(middlewares.verifyToken);
 
 app.use('/api/v1', api);
 
