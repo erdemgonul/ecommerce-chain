@@ -134,6 +134,9 @@ class _LoginPageState extends State<LoginPage> {
         style: ButtonStyle(backgroundColor: MaterialStateProperty.all<Color>(Colors.blue) ),
         onPressed: username == "" || password == "" ? null : () async {
           var jwt = await attemptLogIn(username, password);
+          Map<String, dynamic> responseJson = json.decode(jwt);
+          print(responseJson['jwt']);
+          print(responseJson);
           if(jwt != null) {
             storage.write(key: "jwt", value: jwt);
             Navigator.push(
