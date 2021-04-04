@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:ecommerce_flutter/account.dart';
+import 'package:ecommerce_flutter/profile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -35,7 +35,7 @@ class HomePage extends StatelessWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => AccountPage(jwt, payload)));
+                        builder: (context) => ProfilePage(jwt, payload)));
               })
         ]),
         body: Center(

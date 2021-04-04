@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ecommerce_flutter/changePassword.dart';
 import 'package:ecommerce_flutter/progress.dart';
 import 'package:http/http.dart' as http;
 
@@ -7,10 +8,10 @@ import "package:flutter/material.dart";
 import 'baseConfig.dart';
 import 'model/user.dart';
 
-class AccountPage extends StatefulWidget {
-  AccountPage(this.jwt, this.payload);
+class ProfilePage extends StatefulWidget {
+  ProfilePage(this.jwt, this.payload);
 
-  factory AccountPage.fromBase64(String jwt) => AccountPage(
+  factory ProfilePage.fromBase64(String jwt) => ProfilePage(
       jwt,
       json.decode(
           ascii.decode(base64.decode(base64.normalize(jwt.split(".")[1])))));
@@ -23,7 +24,7 @@ class AccountPage extends StatefulWidget {
 
 }
 
-class _EditProfileState extends State<AccountPage> {
+class _EditProfileState extends State<ProfilePage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController displayNameController = TextEditingController();
   TextEditingController usernameController = TextEditingController();
@@ -67,28 +68,34 @@ class _EditProfileState extends State<AccountPage> {
     lastNameController.text = user.lastName;
     usernameController.text = user.username;
     emailController.text = user.email;
-
-
     username=user.firstName + " " + user.lastName;
-    print(userData.firstName);
     return res.statusCode;
   }
   Future<int> setUserData() async {
+    final myJsonAsString = '{}';
+    final reqBody = json.decode(myJsonAsString);
 
-    userData.email=emailController.text;
-    userData.username=usernameController.text;
-    userData.firstName=firstNameController.text;
-    userData.lastName=lastNameController.text;
+    if(userData.email != emailController.text){
+      reqBody["email"]=emailController.text;
+    }
+    if(userData.username != usernameController.text){
+      reqBody["username"]=usernameController.text;
+    }
+    if(userData.firstName != firstNameController.text){
+      reqBody["firstName"]=firstNameController.text;
+    }
+    if(userData.lastName != lastNameController.text){
+      reqBody["lastName"]=lastNameController.text;
+    }
 
     var jwtToken=await jwtOrEmpty;
     var res = await http.post(
         '$SERVER_IP/api/v1/user/change/details',
-        body: jsonEncode(userData),
+        body: jsonEncode(reqBody),
         headers: { "accept": "application/json", "content-type": "application/json",  'Authorization': 'Bearer $jwtToken'}
     );
-    print(res.body);
 
-    String a=json.decode(res.body)['success'];
+    var a=json.decode(res.body)['success'];
     if(a==true){
       print("başarılı");
     }else{
@@ -223,16 +230,7 @@ class _EditProfileState extends State<AccountPage> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(title: Text("My Profile"),
-      actions: <Widget>[
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(
-              Icons.done,
-              size: 30.0,
-              color: Colors.green,
-            ),
-          ),
-        ],
+
       ),
       body: isLoading
           ? circularProgress()
@@ -273,7 +271,12 @@ class _EditProfileState extends State<AccountPage> {
                   ),
                 ),
                 RaisedButton(
-                  onPressed: setUserData,
+                  onPressed: () =>  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ChangePasswordPage()
+                      )
+                  ),
                   child: Text(
                     "Change My Password",
                     style: TextStyle(
