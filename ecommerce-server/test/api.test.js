@@ -7,43 +7,48 @@ var successcheck = function (res) {
     if (res.body.success === false) return new Error("success false");
 }
 
+function appget(path) {
+    return request(app)
+        .get(path)
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/);
+}
+
+function apppost(path, data) {
+    return req = request(app)
+        .post(rootdir + path)
+        .send(data)
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/);
+}
+
 var datacheck = function (res) {
     var temp = res.body.data;
     if (temp.username !== "nadir" || temp.firstName !== "nadir" || temp.lastName !== "yuceer" || temp.email !== "nadir@gmail.com") return new Error("data does not match");
 }
 var datacheckafter = function (res) {
     var temp = res.body.data;
-    if (temp.username !== "ahmet" || temp.firstName !== "nadir" || temp.lastName !== "yuceer" || temp.email !== "nadir@gmail.com") return new Error("data does not match");
+    if (temp.username !== "nadir" || temp.firstName !== "ahmet" || temp.lastName !== "yuceer" || temp.email !== "nadir@gmail.com") return new Error("data does not match");
 }
 const rootdir = "/api/v1";
 
-
 describe('GET /api/v1', () => {
     it('responds with a json message', (done) => {
-        request(app)
-            .get(rootdir)
-            .set('Accept', 'application/json')
-            .expect('Content-Type', /json/)
-            .expect(200, {
-                message: 'API - 👋🌎🌍🌏'
-            }, done);
+        appget(rootdir).expect(200, {
+            message: 'API - 👋🌎🌍🌏'
+        }, done);
     });
 });
 
-describe('Sign-in, Sign-up and user_info management', () => {
+describe('Smooth Sign-up, Sign-in and user_info management', () => {
     it('signup', (done) => {
-        request(app)
-            .post(rootdir + '/auth/signup')
-            .send({
-                "userName": "nadir",
-                "firstName": "nadir",
-                "lastName": "yuceer",
-                "email": "nadir@gmail.com",
-                "password": "123456"
-            })
-            .set('Accept', 'application/json')
-            .expect('Content-Type', /json/)
-            .expect(200, {"success": true})
+        apppost('/auth/signup', {
+            "userName": "nadir",
+            "firstName": "nadir",
+            "lastName": "yuceer",
+            "email": "nadir@gmail.com",
+            "password": "123456"
+        }).expect(200, {"success": true})
             .end((err, res) => {
                 if (err) {
                     return done(err);
@@ -52,11 +57,7 @@ describe('Sign-in, Sign-up and user_info management', () => {
             });
     });
     it('sign-in responds with accesstoken', (done) => {
-        request(app)
-            .post(rootdir + '/auth/signin')
-            .send({"userName": "nadir", "password": "123456"})
-            .set('Accept', 'application/json')
-            .expect('Content-Type', /json/)
+        apppost('/auth/signin', {"userName": "nadir", "password": "123456"})
             .expect(200)
             .expect(successcheck)
             .end((err, res) => {
@@ -68,38 +69,44 @@ describe('Sign-in, Sign-up and user_info management', () => {
             });
     });
     it('getuserdetails', (done) => {
-        request(app)
-            .post(rootdir + '/user/get/details')
-            .send({"userName": "nadir"})
+        apppost('/user/get/details', {"userName": "nadir"})
             .set('Authorization', 'Bearer ' + token)
-            .set('Accept', 'application/json')
-            .expect('Content-Type', /json/)
             .expect(200)
-            .expect(datacheck,done())
+            .expect(datacheck, done())
     });
     it('setuserdetails', (done) => {
 
         let data = {
             "firstName": "ahmet",
         }
-        request(app)
-            .post(rootdir + '/user/get/details')
-            .send(data)
+        apppost('/user/get/details', data)
             .set('Authorization', 'Bearer ' + token)
-            .set('Accept', 'application/json')
-            .expect('Content-Type', /json/)
             .expect(200)
             .expect(successcheck, done())
 
     });
     it('getuserdetailsafterchange', (done) => {
-        request(app)
-            .post(rootdir + '/user/get/details')
-            .send({"userName": "nadir"})
+        apppost('/user/get/details', {"userName": "nadir"})
             .set('Authorization', 'Bearer ' + token)
-            .set('Accept', 'application/json')
-            .expect('Content-Type', /json/)
             .expect(200)
-            .expect(datacheckafter,done())
+            .expect(datacheckafter, done())
     });
+});
+
+describe('Corner cases', () => {
+    it('Reject in not proper info for signup', (done) => {
+        apppost('/auth/signup', {
+            "userName": "nadir",
+            "firstName": "nadir",
+            "lastName": "yuceer",
+            "email": "nadir@gmail.com",
+            "password": "12"
+        }).expect(422, done())
+    });
+    it('sign-in wrong username or password', (done) => {
+        apppost('/auth/signin', {"userName": "nadir", "password": "1234"})
+        request(app)
+            .expect(200, {success: false}, done())
+    });
+
 });
