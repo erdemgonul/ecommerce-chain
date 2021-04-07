@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import "package:flutter/material.dart";
 
 import 'baseConfig.dart';
+import 'login.dart';
 import 'model/user.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -47,7 +48,8 @@ class _EditProfileState extends State<ProfilePage> {
   Future<String> get jwtOrEmpty async {
     var jwt = await storage.read(key: "jwt");
     Map<String, dynamic> responseJson = json.decode(jwt);
-
+    print("jwt");
+    print(jwt);
     return responseJson['accessToken'];
   }
   Future<int> getUserData() async {
@@ -59,6 +61,8 @@ class _EditProfileState extends State<ProfilePage> {
     print(res.body);
 
     Map a=json.decode(res.body)['data'];
+    print("deneme");
+    print(a);
     var user = User.fromJson(a);
     this.setState(() {
       userData=user;
@@ -259,18 +263,19 @@ class _EditProfileState extends State<ProfilePage> {
                     ],
                   ),
                 ),
-                RaisedButton(
+                ElevatedButton(
+                  style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                          Colors.blue)),
                   onPressed: setUserData,
                   child: Text(
-                    "Update My Informations",
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    "Update My Informations"
                   ),
                 ),
-                RaisedButton(
+                ElevatedButton(
+                  style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                          Colors.blue)),
                   onPressed: () =>  Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -279,13 +284,21 @@ class _EditProfileState extends State<ProfilePage> {
                   ),
                   child: Text(
                     "Change My Password",
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
-                    ),
+
                   ),
                 ),
+                ElevatedButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            Colors.blue)),
+                    onPressed: () async {
+                      storage.deleteAll();
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LoginPage()));
+                    },
+                    child: Text("Çıkış Yap"))
               ],
             ),
           ),

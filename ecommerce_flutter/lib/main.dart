@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
                               jwt[1]))));
                       if (DateTime.fromMillisecondsSinceEpoch(
                           payload["exp"] * 1000).isAfter(DateTime.now())) {
-                        return HomePage(str, payload);
+                        return HomePage();
                       } else {
                         return LoginPage();
                       }

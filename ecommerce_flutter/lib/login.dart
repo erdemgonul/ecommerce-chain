@@ -137,12 +137,12 @@ class _LoginPageState extends State<LoginPage> {
           Map<String, dynamic> responseJson = json.decode(jwt);
           print(responseJson['jwt']);
           print(responseJson);
-          if(jwt != null) {
+          if(jwt != null && responseJson['error'] ==null) {
             storage.write(key: "jwt", value: jwt);
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => HomePage.fromBase64(jwt)
+                    builder: (context) => HomePage()
                 )
             );
           } else {
