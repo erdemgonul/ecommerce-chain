@@ -10,6 +10,7 @@ const User = mongoose.model(
     lastName: String,
     createdOn: String,
     lastLogoutOn: String,
+    role: String
   })
 );
 

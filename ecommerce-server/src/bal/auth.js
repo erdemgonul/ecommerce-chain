@@ -45,7 +45,13 @@ const self = {
 
       const hashedString = util.authHashString(lastTime, user.password);
 
-      const token = jwt.sign({ id: user._id, hash: hashedString }, process.env.JWT_SECRET, {
+      let userRole = user.role
+
+      if (!user.role) {
+        userRole = 'customer'
+      }
+
+      const token = jwt.sign({ id: user._id, hash: hashedString, role: userRole }, process.env.JWT_SECRET, {
         expiresIn: process.env.ACCESS_TOKEN_EXPIRY_TIME || 86400
       });
 

@@ -46,6 +46,15 @@ function validateRequest(req, res, next) {
   }
 }
 
+function isProductManager(req, res, next) {
+  if (req.userRole === "productManager" || !config.auth.productManagerEndpoints.includes(req.originalUrl)) {
+    return next();
+  }
+
+  return res.status(401).send({ error: 'Unauthorized!' });
+}
+
+
 function verifyToken(req, res, next) {
   if (config.auth.noAuthEndpoints.includes(req.originalUrl)) {
     return next();
@@ -59,7 +68,7 @@ function verifyToken(req, res, next) {
   }
 
   jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
-    if (err || !decoded.id || !decoded.hash) {
+    if (err || !decoded.id || !decoded.hash || !decoded.role) {
       return res.status(401).send({ error: 'Unauthorized!' });
     }
 
@@ -75,7 +84,13 @@ function verifyToken(req, res, next) {
       return res.status(401).send({ error: 'Unauthorized!' });
     }
 
+    if (user.role !== decoded.role) {
+      return res.status(401).send({ error: 'Unauthorized!' });
+    }
+
     req.userId = decoded.id;
+    req.userRole = decoded.role;
+
     next();
   });
 }
@@ -84,5 +99,6 @@ module.exports = {
   notFound,
   errorHandler,
   validateRequest,
-  verifyToken
+  verifyToken,
+  isProductManager
 };

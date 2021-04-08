@@ -41,6 +41,7 @@ app.get('/', (req, res) => {
 
 app.use(middlewares.validateRequest);
 app.use(middlewares.verifyToken);
+app.use(middlewares.isProductManager);
 
 app.use('/api/v1', api);
 
