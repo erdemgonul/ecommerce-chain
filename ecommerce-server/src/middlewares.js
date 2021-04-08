@@ -74,6 +74,10 @@ function verifyToken(req, res, next) {
 
     const user = await userBAL.getUserDetailsById(decoded.id, true);
 
+    if (!user) {
+      return res.status(401).send({ error: 'Unauthorized!' });
+    }
+
     let lastTime = user.lastLogoutOn;
 
     if (!user.lastLogoutOn) {
@@ -83,7 +87,7 @@ function verifyToken(req, res, next) {
     if (decoded.hash !== util.authHashString(lastTime, user.password)) {
       return res.status(401).send({ error: 'Unauthorized!' });
     }
-    
+
     if (user.role && user.role !== decoded.role) {
       return res.status(401).send({ error: 'Unauthorized!' });
     }
