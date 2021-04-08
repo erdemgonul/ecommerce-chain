@@ -83,8 +83,8 @@ function verifyToken(req, res, next) {
     if (decoded.hash !== util.authHashString(lastTime, user.password)) {
       return res.status(401).send({ error: 'Unauthorized!' });
     }
-
-    if (decoded.role !== 'customer' && user.role !== decoded.role) {
+    
+    if (user.role && user.role !== decoded.role) {
       return res.status(401).send({ error: 'Unauthorized!' });
     }
 
