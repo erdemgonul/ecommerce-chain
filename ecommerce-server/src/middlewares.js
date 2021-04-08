@@ -84,7 +84,7 @@ function verifyToken(req, res, next) {
       return res.status(401).send({ error: 'Unauthorized!' });
     }
 
-    if (user.role !== decoded.role) {
+    if (decoded.role !== 'customer' && user.role !== decoded.role) {
       return res.status(401).send({ error: 'Unauthorized!' });
     }
 
