@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const userDAL = require('../dal/user');
 const util = require('../util/index');
+const speakeasy = require('speakeasy');
 
 const self = {
   async signUp(userName, firstName, lastName, email, password) {
@@ -35,6 +36,17 @@ const self = {
 
       if (!user._id) {
         return { error: 'Invalid User' };
+      }
+
+      if (user.twoFactorAuthEnabled) {
+        const secretCode = speakeasy.generateSecret({
+          name: 'EcommerceChain',
+        });
+
+        return {
+          otpauthUrl : secretCode.otpauth_url,
+          base32: secretCode.base32,
+        };
       }
 
       let lastTime = user.lastLogoutOn;
