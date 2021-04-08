@@ -137,6 +137,7 @@ class _Signup extends State<Signup> {
                 password = value;
               });
             },
+            obscureText: true,
             decoration: InputDecoration(
               icon: Icon(Icons.lock, color: Colors.black87),
               hintText: "Password",

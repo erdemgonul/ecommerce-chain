@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:ecommerce_flutter/changePassword.dart';
+import 'package:ecommerce_flutter/createproduct.dart';
 import 'package:ecommerce_flutter/progress.dart';
 import 'package:http/http.dart' as http;
 
@@ -298,7 +299,24 @@ class _EditProfileState extends State<ProfilePage> {
                           MaterialPageRoute(
                               builder: (context) => LoginPage()));
                     },
-                    child: Text("Çıkış Yap"))
+                    child: Text("Sign Out")),
+                if(userData!=null && userData.role=="productManager")  ElevatedButton(
+                  style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all<Color>(
+                          Colors.blue)),
+                  onPressed: () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CreateProduct()
+                      )
+                );
+  },
+                  child: Text(
+                    "Create Product",
+
+                  ),
+                ),
               ],
             ),
           ),

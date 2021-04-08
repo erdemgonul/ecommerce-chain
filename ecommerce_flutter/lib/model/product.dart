@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 class Product {
-  final String image, title, description;
-  final int price, size, id;
-  final Color color;
+   String image, title, description;
+   int price, size, id;
+   Color color;
   Product({
     this.id,
     this.image,
@@ -13,6 +13,26 @@ class Product {
     this.size,
     this.color,
   });
+
+   Product.fromJson(Map<String, dynamic> json)
+       : id = json['id'],
+         image = json['image'],
+         title = json['title'],
+         price= json['price'],
+         description = json['description'],
+         size = json['size'],
+         color= json['color'];
+
+   Map<String, dynamic> toJson() =>
+       {
+         'id': id,
+         'image': image,
+         'title':title,
+         'price' : price,
+         'description':description,
+         'size':size,
+         'color' : color
+       };
 }
 
 List<Product> products = [

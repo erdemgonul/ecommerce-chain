@@ -1,3 +1,4 @@
+import 'package:ecommerce_flutter/model/product.dart';
 import 'package:flutter/foundation.dart';
 
 class CartItem {
@@ -30,9 +31,9 @@ class Cart with ChangeNotifier {
     return total;
   }
 
-  void addItem(String productId, double price, String title) {
-    if (_items.containsKey(productId)) {
-      _items.update(productId, (existingCartItem) => CartItem(
+  void addItem(Product product) {
+    if (_items.containsKey(product.id)) {
+      _items.update(product.id.toString(), (existingCartItem) => CartItem(
         id: existingCartItem.id,
         title: existingCartItem.title,
         price: existingCartItem.price,
@@ -40,11 +41,11 @@ class Cart with ChangeNotifier {
       ));
     } else {
       _items.putIfAbsent(
-          productId,
+          product.id.toString(),
               () => CartItem(
             id: DateTime.now().toString(),
-            title: title,
-            price: price,
+            title: product.title,
+            price: product.price.toDouble(),
             quantity: 1,
           )
       );

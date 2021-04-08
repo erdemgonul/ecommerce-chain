@@ -20,7 +20,6 @@ class CartPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context);
-    cart.addItem("p1",20,"asdad");
     return Scaffold(
       appBar: AppBar(title: Text("My Cart")),
       body: Center(

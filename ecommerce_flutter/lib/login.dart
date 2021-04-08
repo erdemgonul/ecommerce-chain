@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'home.dart';
+import 'model/user.dart';
 
 
 
@@ -22,6 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _rememberMe= false;
   String username="";
   String password="";
+  User userData;
 
   Future<String> attemptLogIn(String username, String password) async {
     var res = await http.post(
@@ -31,10 +33,40 @@ class _LoginPageState extends State<LoginPage> {
           "password": password
         }),headers: { "accept": "application/json", "content-type": "application/json" }
     );
-    if(res.statusCode == 200) return res.body;
-    return null;
-  }
+    if(res.statusCode == 200) {
+      getUserData();
+      return res.body;
+    }
+      return null;
 
+  }
+  Future<String> get jwtOrEmpty async {
+    var jwt = await storage.read(key: "jwt");
+    Map<String, dynamic> responseJson = json.decode(jwt);
+    print("jwt");
+    print(jwt);
+    return responseJson['accessToken'];
+  }
+  Future<int> getUserData() async {
+    var jwtToken = await jwtOrEmpty;
+    var res = await http.post(
+        '$SERVER_IP/api/v1/user/get/details',
+        headers: {
+          "accept": "application/json",
+          "content-type": "application/json",
+          'Authorization': 'Bearer $jwtToken'
+        }
+    );
+    print(res.body);
+
+    Map a = json.decode(res.body)['data'];
+    print("deneme");
+    print(a);
+    var user = User.fromJson(a);
+    this.setState(() {
+      userData = user;
+    });
+  }
   void displayDialog(context, title, text) => showDialog(
     context: context,
     builder: (context) =>
@@ -43,7 +75,6 @@ class _LoginPageState extends State<LoginPage> {
             content: Text(text)
         ),
   );
-
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent));
@@ -85,6 +116,7 @@ class _LoginPageState extends State<LoginPage> {
           SizedBox(height: 30.0),
           TextFormField(
             style: TextStyle(color: Colors.black87),
+            obscureText: true,
             onChanged: (value) {
               setState(() {
                 password = value;
@@ -92,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
             },
             decoration: InputDecoration(
               icon: Icon(Icons.lock, color: Colors.black87),
-              hintText: "Password",
+              hintText: "***********",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black87)),
               hintStyle: TextStyle(color: Colors.black87),
             ),
@@ -139,6 +171,8 @@ class _LoginPageState extends State<LoginPage> {
           print(responseJson);
           if(jwt != null && responseJson['error'] ==null) {
             storage.write(key: "jwt", value: jwt);
+            print(userData);
+            storage.write(key: "user", value: userData.role);
             Navigator.push(
                 context,
                 MaterialPageRoute(

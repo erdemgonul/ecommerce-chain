@@ -1,11 +1,21 @@
 import 'package:ecommerce_flutter/model/product.dart';
 import 'package:ecommerce_flutter/screens/ProductPageScreen/productPageTitle.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../cartProvider.dart';
 
 
 class Body extends StatelessWidget {
   final Product product;
-
+  void displayDialog(context, title, text) => showDialog(
+    context: context,
+    builder: (context) =>
+        AlertDialog(
+            title: Text(title),
+            content: Text(text)
+        ),
+  );
   const Body({Key key, this.product}) : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -47,7 +57,11 @@ class Body extends StatelessWidget {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(18)),
                           color: product.color,
-                          onPressed: () {},
+                          onPressed: () { final cart = Provider.of<Cart>(context,listen: false);
+                          cart.addItem(product);
+                          displayDialog(context, "Product added to cart", "successful");
+
+                          },
                           child: Text(
                             "Add To Cart".toUpperCase(),
                             style: TextStyle(

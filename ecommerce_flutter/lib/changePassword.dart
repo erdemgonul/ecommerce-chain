@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'package:ecommerce_flutter/login.dart';
 import 'package:ecommerce_flutter/progress.dart';
 import 'package:http/http.dart' as http;
 
@@ -38,11 +40,11 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
     final myJsonAsString = '{}';
     final reqBody = json.decode(myJsonAsString);
 
-    if(oldPasswordController.text.length>6){
+    /*if(oldPasswordController.text.length>6){
       reqBody["oldPassword"]=oldPasswordController.text;
-    }
+    }*/
     if(repeatPasswordController.text == newPasswordController.text){
-      reqBody["newPassword"]=newPasswordController.text;
+      reqBody["password"]=newPasswordController.text;
     }
 
     var jwtToken=await jwtOrEmpty;
@@ -55,12 +57,28 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
     var a=json.decode(res.body)['success'];
     if(a==true){
       print("başarılı");
+
+      displayDialog(context, "Success", "The user was created. Log in now.");
+      Timer(Duration(seconds: 5), () {
+        // 5s over, navigate to a new page
+        Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => LoginPage()));
+      });
     }else{
       print("başarısız");
     }
 
     return res.statusCode;
   }
+  void displayDialog(context, title, text) => showDialog(
+    context: context,
+    builder: (context) =>
+        AlertDialog(
+            title: Text(title),
+            content: Text(text)
+        ),
+  );
   Column buildDisplayName() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,6 +106,7 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
             )),
         TextField(
           obscureText: true,
+          controller: oldPasswordController,
           decoration: InputDecoration(
             hintText: "***********",
             errorText: _displayNameValid ? null : "Display Name too short",
@@ -108,6 +127,7 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
             )),
         TextField(
           obscureText: true,
+          controller: newPasswordController,
           decoration: InputDecoration(
             hintText: "***********",
             errorText: _displayNameValid ? null : "Display Name too short",
@@ -128,6 +148,7 @@ class _ChangePasswordPage extends State<ChangePasswordPage> {
             )),
         TextField(
           obscureText: true,
+          controller: repeatPasswordController,
           decoration: InputDecoration(
             hintText: "***********",
             errorText: _displayNameValid ? null : "Display Name too short",
