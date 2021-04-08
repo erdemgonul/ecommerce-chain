@@ -64,7 +64,7 @@ const self = {
       }
 
       const token = jwt.sign({ id: user._id, hash: hashedString, role: userRole }, process.env.JWT_SECRET, {
-        expiresIn: process.env.ACCESS_TOKEN_EXPIRY_TIME || 86400
+        expiresIn: process.env.ACCESS_TOKEN_EXPIRY_TIME || '1h'
       });
 
       return token;
