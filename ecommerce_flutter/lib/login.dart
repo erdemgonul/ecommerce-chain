@@ -108,7 +108,7 @@ class _LoginPageState extends State<LoginPage> {
             },
             decoration: InputDecoration(
               icon: Icon(Icons.email, color: Colors.black87),
-              hintText: "Email",
+              hintText: "Username",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black87)),
               hintStyle: TextStyle(color: Colors.black87),
             ),
