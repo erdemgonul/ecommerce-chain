@@ -1,12 +1,14 @@
 const db = require('../models');
 
 const Product = db.product;
+const ElasticSearchWrapper = require('../util/elasticsearchwrapper');
+const elasticSearch = new ElasticSearchWrapper('eu-central-1', 'search-ecommercechain-hyp7yki4qclmgdb2ujpjqick7e.eu-central-1.es.amazonaws.com', 'ecommerce-product-index', 'ecommerce-product-type', true, 'ecommMaster', 'ecommErdem98@');
 
 const self = {
   isProductIdExists: async (productId) => {
     try {
       const product = await Product.findOne({
-        id: productId
+        sku: productId
       }).exec();
 
       if (product) {
@@ -19,15 +21,28 @@ const self = {
     return false;
   },
 
-  createProduct: async (id, image, title, price, description, size, color) => {
+  createProduct: async (sku, title, description, image, quantity, price, product_details, shipping_details, categories) => {
     const product = new Product({
-      id, image, title, price, description, size, color
+      sku, title, description, image, quantity, price, product_details, shipping_details, categories
     });
 
     try {
       const createdProduct = await product.save();
 
       if (createdProduct) {
+        const productObj = createdProduct.toObject();
+
+        try {
+          delete productObj._id;
+          delete productObj.__v;
+          delete productObj.product_details;
+          delete productObj.shipping_details;
+
+          await elasticSearch.AddNewDocument(productObj, productObj.sku);
+        } catch (err) {
+          console.log('Elastic Search Error: ' + err)
+        }
+
         return createdProduct.toObject();
       }
     } catch (err) {
@@ -38,12 +53,38 @@ const self = {
   getProductByProductId: async (productId) => {
     try {
       const product = await Product.findOne({
-        id: productId
+        sku: productId
       }).exec();
 
       if (product) {
         return product.toObject();
       }
+    } catch (err) {
+      return err;
+    }
+  },
+
+  deleteProductWithId: async (productId, deleteFromElasticSearch=true) => {
+    try {
+      const product = await Product.findOne({
+        sku: productId
+      }).exec();
+
+      if (product) {
+        const removedProduct = await product.remove();
+
+        if (deleteFromElasticSearch) {
+          try {
+            await elasticSearch.DeleteDocument(product.sku);
+          } catch (err) {
+            console.log('Elastic Search Error: ', err)
+          }
+        }
+
+        return true;
+      }
+
+      return false;
     } catch (err) {
       return err;
     }
@@ -55,6 +96,32 @@ const self = {
 
       const products = await Product.find({
       }).exec();
+
+      for (let product of products) {
+        const productObj = product.toObject();
+        delete productObj._id;
+        delete productObj.__v;
+        result.push(productObj)
+      }
+
+      return result;
+    } catch (err) {
+      return err;
+    }
+  },
+
+  getAllProductsInCategory: async (categoryQuery, strictMode=false) => {
+    try {
+      const result = [];
+      let filter;
+
+      filter = categoryQuery;
+
+      if (!strictMode) {
+        filter = new RegExp(`^${categoryQuery}`);
+      }
+
+      const products = await Product.find({categories: filter}).exec();
 
       for (let product of products) {
         const productObj = product.toObject();
