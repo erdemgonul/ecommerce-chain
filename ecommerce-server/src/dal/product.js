@@ -1,4 +1,5 @@
 const db = require('../models');
+const util = require('../util/index');
 
 const Product = db.product;
 const ElasticSearchWrapper = require('../util/elasticsearchwrapper');
@@ -22,6 +23,7 @@ const self = {
   },
 
   createProduct: async (sku, title, description, image, quantity, price, product_details, shipping_details, categories) => {
+
     const product = new Product({
       sku, title, description, image, quantity, price, product_details, shipping_details, categories
     });
@@ -35,10 +37,10 @@ const self = {
         try {
           delete productObj._id;
           delete productObj.__v;
-          delete productObj.product_details;
-          delete productObj.shipping_details;
 
-          await elasticSearch.AddNewDocument(productObj, productObj.sku);
+          const flattenedProduct = util.flattenObject(productObj);
+
+          await elasticSearch.AddNewDocument(flattenedProduct, flattenedProduct.sku);
         } catch (err) {
           console.log('Elastic Search Error: ' + err)
         }
@@ -46,6 +48,7 @@ const self = {
         return createdProduct.toObject();
       }
     } catch (err) {
+      console.log(err)
       return err;
     }
   },

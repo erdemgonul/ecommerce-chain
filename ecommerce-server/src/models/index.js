@@ -22,7 +22,7 @@ mongoose.connection.collections['categories'].ensureIndex({ "path": 1 }, { "uniq
 
 db.product = require('./product.model');
 
-mongoose.connection.collections['products'].ensureIndex({ "categories": 1 }, { "unique": true }, function (err, res) {
+mongoose.connection.collections['products'].ensureIndex({ "categories": 1 }, { "unique": false }, function (err, res) {
     console.log(res, err)
 });
 
