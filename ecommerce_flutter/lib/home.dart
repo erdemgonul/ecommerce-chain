@@ -11,15 +11,49 @@ import 'cartPage.dart';
 import 'login.dart';
 
 class HomePage extends StatelessWidget {
-  HomePage();
+  String jwt;
+  Map<String, dynamic> payload;
+  Map<String, dynamic> recommendedProductList;
+  List<Product> products = List<Product>();
 
+  HomePage(){
+    getSuggestedProducts().then((value) => null);
+  }
 
+  Future<String> get jwtOrEmpty async {
+    var jwt = await storage.read(key: "jwt");
+    Map<String, dynamic> responseJson = json.decode(jwt);
+    print("jwt");
+    print(jwt);
+    return responseJson['accessToken'];
+  }
 
-   String jwt;
-   Map<String, dynamic> payload;
+    //TODO: Simplify if possible
+    Future<String> getSuggestedProducts() async {
+    var jwtToken = await jwtOrEmpty;
+    var res = await http.post(
+        "$SERVER_IP/api/v1/product/suggestedproducts",
+        headers: { "accept": "application/json", "content-type": "application/json", 'Authorization': 'Bearer $jwtToken' }
+    );
+    if(res.statusCode == 200) {
+      print(res.body);
+      var noninitializedProductList = json.decode(res.body)['data']['products'];
+      print(noninitializedProductList);
+      //TODO: var i yapılabilir
+      for(Map<String,dynamic> i in noninitializedProductList){
+          products.add(Product.fromJson(i));
+      }
+      print(products.length);
+      return res.body; //can be null since will not be used
+    }
+    return null;
+
+  }
+
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context){
+    return Scaffold(
         appBar: AppBar(title: Text("Home Page"), actions: [
           IconButton(
               icon: Icon(Icons.shopping_cart),
@@ -54,12 +88,12 @@ class HomePage extends StatelessWidget {
                     childAspectRatio: 0.75,
                   ),
                   itemBuilder: (context, index) => ProductCard(
-                    product: products[index],
+                    product: products.elementAt(index),
                     press: () => Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => DetailsScreen(
-                            product: products[index],
+                            product: products.elementAt(index),
                           ),
                         )),
                   )),
@@ -68,4 +102,4 @@ class HomePage extends StatelessWidget {
     ]
        )
       );
-}
+}}
