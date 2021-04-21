@@ -39,6 +39,7 @@ const self = {
           delete productObj.__v;
 
           const flattenedProduct = util.flattenObject(productObj);
+          flattenedProduct.categories = flattenedProduct.categories.join(',');
 
           await elasticSearch.AddNewDocument(flattenedProduct, flattenedProduct.sku);
         } catch (err) {

@@ -53,7 +53,17 @@ router.post('/delete', async (req, res) => {
 });
 
 router.post('/search', async (req, res) => {
-  const products = await productBAL.searchProduct(req.body.query, req.body.fullData);
+  const products = await productBAL.searchProduct(req.body.query, req.body.filter, req.body.fullData);
+
+  if (products && !products.error) {
+    res.send({ data: {products}, success: true });
+  } else {
+    res.send(products);
+  }
+});
+
+router.post('/get/category/filter', async (req, res) => {
+  const products = await productBAL.filterProductsInCategory(req.body.category, req.body.filter, req.body.fullData);
 
   if (products && !products.error) {
     res.send({ data: {products}, success: true });

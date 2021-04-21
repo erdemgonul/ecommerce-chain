@@ -30,22 +30,109 @@ const self = {
         return allProducts;
     },
 
-    async deleteProductWithId(productId, deleteFromElasticSearch=true) {
+    async deleteProductWithId(productId, deleteFromElasticSearch = true) {
         return await productDAL.deleteProductWithId(productId, deleteFromElasticSearch);
     },
 
-    async searchProduct(queryText, fullData = false) {
+    async filterProductsInCategory(categoryText, filter, fullData = false) {
         try {
-            const foundProducts = await elasticSearch.Search({
+            let foundProducts;
+
+            const esQuery = {
                 query: {
-                    multi_match: {
-                        fields: ["title", "description"],
-                        query: queryText,
-                        type: "phrase_prefix",
-                        slop: 2
+                    bool: {
+                        must: [{
+                            query_string: {
+                                query: categoryText.replace(/\//g, '//'),
+                                analyzer: "keyword",
+                                default_field: "categories"
+                            }
+                        }],
                     }
                 }
-            })
+            }
+
+            for (let key of Object.keys(filter)) {
+                const obj = {
+                    wildcard: {}
+                }
+
+                obj.wildcard[`productDetails_${key}`] = "*" + filter[key] + "*"
+                esQuery.query.bool.must.push(obj);
+            }
+
+            foundProducts = await elasticSearch.Search(
+                esQuery
+            )
+
+            if (fullData) {
+                const productsWithFullData = [];
+
+                for (let product of foundProducts) {
+                    const fullProduct = await this.getProductByProductId(product.sku);
+                    productsWithFullData.push(fullProduct);
+                }
+
+                return productsWithFullData;
+            }
+
+            return foundProducts;
+        } catch (err) {
+            console.log('Elastic Search Error: ', err)
+            return '';
+        }
+    },
+
+    async searchProduct(queryText, filter, fullData = false) {
+        try {
+            let foundProducts;
+
+            if (filter) {
+                const esQuery = {
+                    query: {
+                        bool: {
+                            must: [],
+                            should: [
+                                {
+                                    wildcard: {
+                                        title: "*" + queryText + "*"
+                                    }
+                                },
+                                {
+                                    wildcard: {
+                                        description: "*" + queryText + "*"
+                                    }
+                                }
+                            ],
+                            minimum_should_match: 1,
+                        }
+                    }
+                }
+
+                for (let key of Object.keys(filter)) {
+                    const obj = {
+                        wildcard: {}
+                    }
+
+                    obj.wildcard[`productDetails_${key}`] = "*" + filter[key] + "*"
+                    esQuery.query.bool.must.push(obj);
+                }
+
+                foundProducts = await elasticSearch.Search(
+                    esQuery
+                )
+            } else {
+                foundProducts = await elasticSearch.Search({
+                    query: {
+                        multi_match: {
+                            fields: ["title", "description"],
+                            query: queryText,
+                            type: "phrase_prefix",
+                            slop: 2
+                        }
+                    }
+                })
+            }
 
             if (fullData) {
                 const productsWithFullData = [];
