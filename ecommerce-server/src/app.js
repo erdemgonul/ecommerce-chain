@@ -17,7 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 db.mongoose
-  .connect(`mongodb://${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_DB}`, {
+  .connect(`mongodb://localhost:${process.env.DATABASE_PORT}/${process.env.DATABASE_DB}`, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
