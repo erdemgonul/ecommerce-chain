@@ -13,7 +13,7 @@ router.post('/create', async (req, res) => {
 });
 
 router.post('/suggestedproducts', async (req, res) => {
-  const products = await productBAL.getAllProducts();
+  const products = await productBAL.getSuggestedProducts();
 
   if (products && !products.error) {
     res.send({ data: {products}, success: true });

@@ -30,6 +30,10 @@ const self = {
         return allProducts;
     },
 
+    async getSuggestedProducts() {
+        return await productDAL.getSuggestedProducts();
+    },
+
     async deleteProductWithId(productId, deleteFromElasticSearch = true) {
         return await productDAL.deleteProductWithId(productId, deleteFromElasticSearch);
     },

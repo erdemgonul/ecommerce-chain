@@ -114,6 +114,25 @@ const self = {
     }
   },
 
+  getSuggestedProducts: async () => {
+    try {
+      const result = [];
+
+      const products = await Product.find({ "quantity": { $ne: 0 }}).exec();
+
+      for (let product of products) {
+        const productObj = product.toObject();
+        delete productObj._id;
+        delete productObj.__v;
+        result.push(productObj)
+      }
+
+      return result;
+    } catch (err) {
+      return err;
+    }
+  },
+
   getAllProductsInCategory: async (categoryQuery, strictMode=false) => {
     try {
       const result = [];
