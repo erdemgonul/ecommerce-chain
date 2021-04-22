@@ -86,7 +86,8 @@ class CartPage extends StatelessWidget {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => CheckoutPage()
+                  //TODO: pass the created widget instead of cart with sum
+                    builder: (context) => CheckoutPage(cart)
                 )
             );
           else {
