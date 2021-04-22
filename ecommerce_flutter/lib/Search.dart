@@ -16,7 +16,8 @@ class SearchPage extends StatefulWidget {
 }
 
 class SearchPageState extends State<StatefulWidget> {
-  List<Product> searchResult = List();
+  List<Product> searchresult = List();
+  String key;
 
   Future<String> get jwtOrEmpty async {
     var jwt = await storage.read(key: "jwt");
@@ -40,10 +41,11 @@ class SearchPageState extends State<StatefulWidget> {
       var noninitializedProductList = json.decode(res.body)['data']['products'];
       print(noninitializedProductList);
       //TODO: var i yapılabilir
+      searchresult.clear();
       for (Map<String, dynamic> i in noninitializedProductList) {
-        searchResult.add(Product.fromJson(i));
+        searchresult.add(Product.fromJson(i));
       }
-      print(searchResult.length);
+      print(searchresult.length);
       return res.body; //can be null since will not be used
     }
     return null;
@@ -52,15 +54,17 @@ class SearchPageState extends State<StatefulWidget> {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
         SystemUiOverlayStyle.dark.copyWith(statusBarColor: Colors.transparent));
-    return Scaffold(
+    return FutureBuilder<String>(
+        future: searchProduct(key),
+        builder: (context, AsyncSnapshot<String> snapshot) => Scaffold(
         appBar: AppBar(
             title: TextFormField(
               style: TextStyle(color: Colors.black87),
               //TODO: carry this to search button listener for less server load
               onChanged: (value) {
                 setState(() {
-                  searchResult.clear();
-                  searchProduct(value);
+                  key = value;
+                  //print(searchresult.length);
                 });
               },
               decoration: InputDecoration(
@@ -82,7 +86,7 @@ class SearchPageState extends State<StatefulWidget> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: GridView.builder(
-                      itemCount: searchResult.length,
+                      itemCount: searchresult.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         mainAxisSpacing: 20,
@@ -90,17 +94,17 @@ class SearchPageState extends State<StatefulWidget> {
                         childAspectRatio: 0.75,
                       ),
                       itemBuilder: (context, index) => ProductCard(
-                            product: searchResult.elementAt(index),
+                            product: searchresult.elementAt(index),
                             press: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => DetailsScreen(
-                                    product: searchResult.elementAt(index),
+                                    product: searchresult.elementAt(index),
                                   ),
                                 )),
                           )),
                 ),
               ),
-            ]));
+            ])));
   }
 }
