@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ecommerce_flutter/UITemplates.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:ecommerce_flutter/signup.dart';
@@ -30,6 +31,7 @@ class _CheckoutPageState extends State<CheckoutPage>{
       body: Container(
         child: ListView(
           children: <Widget>[
+            UITemplates().headerSection(),
             formSection()
           ],
         ),

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ecommerce_flutter/UITemplates.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:ecommerce_flutter/signup.dart';
@@ -82,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
       body: Container(
         child: _isLoading ? Center(child: CircularProgressIndicator()) : ListView(
           children: <Widget>[
-            headerSection(),
+            UITemplates().headerSection(),
             formSection(),
             routeSignUp()
           ],
@@ -204,18 +205,6 @@ class _LoginPageState extends State<LoginPage> {
           style: TextStyle(color: Colors.blueGrey),
         ),
       ),
-    );
-  }
-
-  Container headerSection() {
-    return Container(
-      margin: EdgeInsets.only(top: 50.0),
-      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
-      child: Text("Sign In",
-          style: TextStyle(
-              color: Colors.black,
-              fontSize: 40.0,
-              fontWeight: FontWeight.bold)),
     );
   }
 }
