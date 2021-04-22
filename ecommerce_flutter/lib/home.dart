@@ -16,9 +16,7 @@ class HomePage extends StatelessWidget {
   Map<String, dynamic> recommendedProductList;
   List<Product> products = List<Product>();
 
-  HomePage(){
-    getSuggestedProducts().then((value) => null);
-  }
+  HomePage();
 
   Future<String> get jwtOrEmpty async {
     var jwt = await storage.read(key: "jwt");
@@ -53,7 +51,9 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context){
-    return Scaffold(
+    return FutureBuilder<String>(
+      future: getSuggestedProducts(),
+      builder: (context, AsyncSnapshot<String> snapshot) => Scaffold(
         appBar: AppBar(title: Text("Home Page"), actions: [
           IconButton(
               icon: Icon(Icons.shopping_cart),
@@ -101,5 +101,5 @@ class HomePage extends StatelessWidget {
           ),
     ]
        )
-      );
+      ));
 }}
