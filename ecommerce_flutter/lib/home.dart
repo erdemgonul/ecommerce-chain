@@ -6,6 +6,7 @@ import 'package:ecommerce_flutter/screens/ProductPageScreen/productPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'Search.dart';
 import 'baseConfig.dart';
 import 'cartPage.dart';
 import 'login.dart';
@@ -70,7 +71,17 @@ class HomePage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                         builder: (context) => ProfilePage(jwt, payload)));
-              })
+              }),
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => SearchPage())
+              );
+            }
+          )
         ]),
         body:
        Column(
