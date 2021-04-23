@@ -47,7 +47,7 @@ const self = {
                     bool: {
                         must: [{
                             query_string: {
-                                query: categoryText.replace(/\//g, '//'),
+                                query: '*' + categoryText.replace(/\//g, '//')  +'*',
                                 analyzer: "keyword",
                                 default_field: "categories"
                             }
