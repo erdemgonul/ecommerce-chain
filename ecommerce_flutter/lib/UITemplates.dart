@@ -1,8 +1,7 @@
-
 import 'package:flutter/material.dart';
 
-class UITemplates{
-  headerSection(){
+class UITemplates {
+  headerSection() {
     return Container(
       margin: EdgeInsets.only(top: 50.0),
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
@@ -13,4 +12,9 @@ class UITemplates{
               fontWeight: FontWeight.bold)),
     );
   }
+
+  topBar(String text, List<StatefulWidget> buttons) {
+    return AppBar(title: Text(text), actions: buttons);
+  }
+
 }
