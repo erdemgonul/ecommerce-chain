@@ -47,7 +47,7 @@ const self = {
                     bool: {
                         must: [{
                             query_string: {
-                                query: '*' + categoryText.replace(/\//g, '//')  +'*',
+                                query: '*' + categoryText.replace(/\//g, '//') + '*',
                                 analyzer: "keyword",
                                 default_field: "categories"
                             }
@@ -56,10 +56,33 @@ const self = {
                 }
             }
 
+            if (Object.keys(filter).includes("priceMin") && Object.keys(filter).includes("priceMax")) {
+                const priceQuery = {
+                    range: {
+                        price: { }
+                    }
+                }
+
+                if (filter.priceMax !== -1) {
+                    priceQuery.range.price.lte = filter.priceMax;
+                }
+                if (filter.priceMin !== -1) {
+                    priceQuery.range.price.gte = filter.priceMin;
+                }
+
+
+                esQuery.query.bool.must.push(priceQuery);
+            }
+
             for (let key of Object.keys(filter)) {
+                if (key === 'priceMin' || key === 'priceMax') {
+                    continue
+                }
+
                 const obj = {
                     wildcard: {}
                 }
+
 
                 obj.wildcard[`productDetails_${key}`] = "*" + filter[key] + "*"
                 esQuery.query.bool.must.push(obj);
@@ -68,6 +91,8 @@ const self = {
             foundProducts = await elasticSearch.Search(
                 esQuery
             )
+
+            console.log(JSON.stringify(esQuery, null, 2))
 
             if (fullData) {
                 const productsWithFullData = [];
