@@ -5,7 +5,9 @@ import 'dart:convert' show json, base64, ascii;
 
 import 'main.dart';
 
-const SERVER_IP = 'http://192.168.1.100:5000';
+const SERVER_IP = 'http://192.168.1.40:5000';
+
+// SERVER IP KONTROL ETMEYI UNUTMA
 final storage = FlutterSecureStorage();
 
 void main() {
