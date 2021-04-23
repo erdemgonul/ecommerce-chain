@@ -45,33 +45,8 @@ class Body extends StatelessWidget {
                     children: <Widget>[
 
                       SizedBox(height: 10),
-                      Text(
-                        product.description,
-                        style: TextStyle(height: 1.5),
-                      ),
-                      SizedBox(height: 10),
-                      SizedBox(height: 10),
-                      SizedBox(
-                        height: 50,
-                        child: FlatButton(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18)),
-                          color: product.color,
-                          onPressed: () { final cart = Provider.of<Cart>(context,listen: false);
-                          cart.addItem(product);
-                          displayDialog(context, "Product added to cart", "successful");
 
-                          },
-                          child: Text(
-                            "Add To Cart".toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
+
                     ],
                   ),
                 ),
