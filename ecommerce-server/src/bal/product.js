@@ -2,7 +2,7 @@ const productDAL = require('../dal/product');
 const categoryBAL = require('../bal/category');
 
 const ElasticSearchWrapper = require('../util/elasticsearchwrapper');
-const elasticSearch = new ElasticSearchWrapper('eu-central-1', 'search-ecommercechain-hyp7yki4qclmgdb2ujpjqick7e.eu-central-1.es.amazonaws.com', 'ecommerce-product-index', 'ecommerce-product-type', true, 'ecommMaster', 'ecommErdem98@');
+const elasticSearch = new ElasticSearchWrapper(process.env.ELASTIC_SEARCH_REGION, process.env.ELASTIC_SEARCH_DOMAIN, process.env.ELASTIC_SEARCH_PRODUCT_INDEX, process.env.ELASTIC_SEARCH_PRODUCT_INDEXTYPE, true, process.env.ELASTIC_SEARCH_USERNAME, process.env.ELASTIC_SEARCH_PASSWORD);
 
 const self = {
     async createProduct(sku, title, description, image, quantity, price, product_details, shipping_details, categories) {
@@ -69,7 +69,6 @@ const self = {
                 if (filter.priceMin !== -1) {
                     priceQuery.range.price.gte = filter.priceMin;
                 }
-
 
                 esQuery.query.bool.must.push(priceQuery);
             }

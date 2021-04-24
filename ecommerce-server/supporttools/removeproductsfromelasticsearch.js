@@ -1,18 +1,43 @@
+require('dotenv').config({path:'../.env'});
 const ElasticSearchWrapper = require('../src/util/elasticsearchwrapper');
-const elasticSearch = new ElasticSearchWrapper('eu-central-1', 'search-ecommercechain-hyp7yki4qclmgdb2ujpjqick7e.eu-central-1.es.amazonaws.com', 'ecommerce-product-index', 'ecommerce-product-type', true, 'ecommMaster', 'ecommErdem98@');
+const elasticSearch = new ElasticSearchWrapper(process.env.ELASTIC_SEARCH_REGION, process.env.ELASTIC_SEARCH_DOMAIN, process.env.ELASTIC_SEARCH_PRODUCT_INDEX, process.env.ELASTIC_SEARCH_PRODUCT_INDEXTYPE, true, process.env.ELASTIC_SEARCH_USERNAME, process.env.ELASTIC_SEARCH_PASSWORD);
+const productBAL = require('../src/bal/product')
+const util = require('../src/util');
 
-async function run() {
+async function deleteAllFromElasticSearch() {
+    const resp = await getAllProductsFromElasticSearch();
+
+    for (let item of resp) {
+        await elasticSearch.DeleteDocument(item.sku);
+        console.log('Deleting: ' + item.sku)
+    }
+
+    console.log('All deleted !');
+}
+
+async function getAllProductsFromElasticSearch() {
     const resp = await elasticSearch.Search({
         query: {
             match_all : {}
         }
     })
 
-    for (let item of resp) {
-        await elasticSearch.DeleteDocument(item.sku);
-    }
+    console.log(resp)
 
-    console.log('All deleted !');
+    return resp;
 }
 
-run();
+async function rebuildProductDataFromDatabase() {
+    await deleteAllFromElasticSearch();
+
+    const allProducts = await productBAL.getAllProducts();
+
+    for (let productObj of allProducts) {
+        const flattenedProduct = util.flattenObject(productObj);
+        flattenedProduct.categories = flattenedProduct.categories.join(',');
+
+        await elasticSearch.AddNewDocument(flattenedProduct, flattenedProduct.sku);
+    }
+}
+
+getAllProductsFromElasticSearch()

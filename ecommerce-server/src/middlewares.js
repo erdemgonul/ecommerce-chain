@@ -39,7 +39,7 @@ function validateRequest(req, res, next) {
 
   if (error) {
     res.status(422);
-    next(new Error(`Validation error: ${error.details.map((x) => x.message).join(', ')}`));
+    next(new Error(`Validation error: ${error.details.map((x) => x.message.replace(/"/g, "'")).join(', ')}`));
   } else {
     req.body = value;
     next();
