@@ -40,7 +40,7 @@ class ProductTitleWithImage extends StatelessWidget {
               Expanded(
                 child: Hero(
                   tag: "${product.sku}",
-                  child: product.image.length > 30 ? Image.memory(base64Decode(product.image)) : Image.asset("assets/images/bag_3.png")
+                  child: product.image.length > 30 ? Image.memory(base64Decode(product.image)) : Image.asset("assets/images/noimage.jpg")
                 ),
               )
             ],
