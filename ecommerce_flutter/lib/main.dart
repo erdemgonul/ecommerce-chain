@@ -10,6 +10,8 @@ import 'cartProvider.dart';
 import 'home.dart';
 import 'login.dart';
 
+void main() => runApp(MyApp());
+
 class MyApp extends StatelessWidget {
   Future<String> get jwtOrEmpty async {
     var jwt = await storage.read(key: "jwt");

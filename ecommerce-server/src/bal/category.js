@@ -33,8 +33,6 @@ const self = {
       return categoryDetails;
     }
 
-    console.log(categoryDetails)
-
     return { error: 'Category not found !' };
   },
 

@@ -91,8 +91,6 @@ const self = {
                 esQuery
             )
 
-            console.log(JSON.stringify(esQuery, null, 2))
-
             if (fullData) {
                 const productsWithFullData = [];
 
