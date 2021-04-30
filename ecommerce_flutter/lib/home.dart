@@ -30,7 +30,9 @@ class HomePage extends State<MyHomePage> {
   List<ColorFilters> colorFilters=[ColorFilters(text: "Blue", value: "blue"),
     ColorFilters(text: "Red", value: "red"),
     ColorFilters(text: "Black", value: "black"),
-    ColorFilters(text: "Yellow", value: "yellow")];
+    ColorFilters(text: "Yellow", value: "yellow"),
+    ColorFilters(text: "White", value: "white"),
+  ];
 
   Category _selectedCategory;
   ColorFilters _selectedColor;

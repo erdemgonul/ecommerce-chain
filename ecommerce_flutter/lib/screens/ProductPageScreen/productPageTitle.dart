@@ -21,8 +21,8 @@ class ProductTitleWithImage extends StatelessWidget {
   );
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 20),
+    return Padding(padding:  const EdgeInsets.symmetric(horizontal: 20,vertical: 20),child:Flexible(
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -30,23 +30,19 @@ class ProductTitleWithImage extends StatelessWidget {
             product.title,
             style: Theme.of(context)
                 .textTheme
-                .headline4
+                .headline6
                 .copyWith(color: Colors.black54, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 20),
-          Row(
-            children: <Widget>[
-
+          Container(
+            child:
               Expanded(
-                child: Hero(
-                  tag: "${product.sku}",
-                  child: product.image.length > 30 ? Image.memory(base64Decode(product.image)) : Image.asset("assets/images/noimage.jpg")
-                ),
+                  child:  Image.memory(base64Decode(product.image),height: 300.0,
+                    fit: BoxFit.contain)
               )
-            ],
+
           ),
-          Row(
-            children: <Widget>[
+          Expanded(
+            child:
               RichText(
                 text: TextSpan(
                   children: [
@@ -60,7 +56,7 @@ class ProductTitleWithImage extends StatelessWidget {
                 ),
               )
 
-            ],
+
           ),
           Padding(padding: EdgeInsets.only(
             top: 20,
@@ -69,13 +65,13 @@ class ProductTitleWithImage extends StatelessWidget {
           )),
           Row(
             children: <Widget>[
-              Text(
+              Expanded(child:Text(
                 "Description: " + product.description,
                 style: Theme.of(context)
                     .textTheme
                     .bodyText1
                     .copyWith(color: Colors.black54, fontWeight: FontWeight.normal),
-              )
+              ))
             ],
           ),
           Padding(padding: EdgeInsets.only(
@@ -110,6 +106,7 @@ class ProductTitleWithImage extends StatelessWidget {
           ),
         ],
       ),
+    )
     );
   }
 }
