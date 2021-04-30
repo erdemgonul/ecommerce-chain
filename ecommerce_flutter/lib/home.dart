@@ -103,14 +103,25 @@ class HomePage extends State<MyHomePage> {
   Future<List<Product>> getProductsByFilter(ColorFilters cFilter) async {
     var jwtToken = await jwtOrEmpty;
 
+      var  encodedStr = jsonEncode({"category": _selectedCategory != null && _selectedCategory.path !=null ? _selectedCategory.path:"",
+        "fullData": true,
+        "filter": {
+          "priceMin":minPrice == 0 ? -1 : minPrice,
+          "priceMax":maxPrice == 0 ? -1 : maxPrice
+        }});
+
+      if (cFilter != null) {
+        encodedStr = jsonEncode({"category": _selectedCategory != null && _selectedCategory.path !=null ? _selectedCategory.path:"",
+          "fullData": true,
+          "filter": {
+            "color": cFilter.value,
+            "priceMin":minPrice == 0 ? -1 : minPrice,
+            "priceMax":maxPrice == 0 ? -1 : maxPrice
+          }});
+      }
+
       var res = await http.post("$SERVER_IP/api/v1/product/get/category/filter",
-          body: jsonEncode({"category": _selectedCategory != null && _selectedCategory.path !=null ? _selectedCategory.path:"",
-            "fullData": true,
-            "filter": {
-              "color": cFilter.value,
-              "priceMin":minPrice == 0 ? -1 : minPrice,
-              "priceMax":maxPrice == 0 ? -1 : maxPrice
-            }}),
+          body: encodedStr,
           headers: {
             "accept": "application/json",
             "content-type": "application/json",
@@ -316,10 +327,18 @@ class HomePage extends State<MyHomePage> {
         style: TextStyle(color: Colors.black87),
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         keyboardType: TextInputType.number,
-        onChanged: (value) {
-          setState(() {
-            minPrice = double.parse(value);
-            print(minPrice);
+        onChanged: (value) async {
+          var newMinPrice = double.parse(value);
+          minPrice = newMinPrice;
+
+          var a = await getProductsByFilter(_selectedColor);
+
+          setState(()  {
+            print(a);
+            setState(() {
+              products = a;
+              minPrice = newMinPrice;
+            });
           });
         },
         decoration: InputDecoration(
@@ -333,11 +352,18 @@ class HomePage extends State<MyHomePage> {
         style: TextStyle(color: Colors.black87),
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         keyboardType: TextInputType.number,
-        onChanged: (value) {
-          setState(() {
-            maxPrice = double.parse(value);
-            getProductsByFilter(_selectedColor);
-            print(maxPrice);
+        onChanged: (value) async {
+          var newMaxPrice = double.parse(value);
+          maxPrice = newMaxPrice;
+
+          var a = await getProductsByFilter(_selectedColor);
+
+          setState(()  {
+            print(a);
+            setState(() {
+              products = a;
+              maxPrice = newMaxPrice;
+            });
           });
         },
         decoration: InputDecoration(
