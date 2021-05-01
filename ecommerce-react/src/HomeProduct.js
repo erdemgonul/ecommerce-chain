@@ -28,7 +28,7 @@ function HomeProduct({ product, itemStyle }) {
   function routeWithParams() {
     history.push({
       pathname: "/product",
-      search: "?name=" + product.SKU,
+      search: "?sku=" + product.sku,
     });
       window.scrollTo(0, 0)
 

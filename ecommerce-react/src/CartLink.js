@@ -3,8 +3,8 @@ import { FaShoppingCart } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 
-function CartLink({ click,client }) {
-  const cart = useSelector((state) => state.cart);
+function CartLink({ click }) {
+  const cart = useSelector((state) => state.cart.length);
   const dispatch = useDispatch();
 
   return (
@@ -20,9 +20,9 @@ function CartLink({ click,client }) {
         <div className="flex  flex-col md:flex-row items-center justify-center">
           <div className="relative mr-2 md:mr-0">
             <FaShoppingCart size="25" style={{ color: "#202020" }} />
-            {cart.number >= 1 && (
+            {(cart >= 1) && (
               <div className="absolute text-xs rounded-full -mt-1 -mr-3 px-2 py-1 font-bold top-0 right-0 bg-red-700 text-white">
-                {cart.number}
+                {cart}
               </div>
             )}
           </div>

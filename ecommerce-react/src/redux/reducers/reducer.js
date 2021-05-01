@@ -1,8 +1,16 @@
 import { combineReducers } from "redux";
-export const cartReducer = (state = [], action) => {
+
+
+let initialState = { cartItems: [] };
+
+export const cartReducer = (state = initialState.cartItems, action) => {
   switch (action.type) {
     case "ADD_TO_CART":
-      return action.cartElements;
+      state.push(action.cartElements);
+      return state;
+    case "DELETE_FROM_CART":
+      console.log("sku",action.sku);
+      return state.filter(product => product.product.sku !== action.sku);
     default:
       return state;
   }
@@ -36,5 +44,5 @@ export const rootReducer = combineReducers({
   cart: cartReducer,
   products: productReducer,
   client: clientReducer,
-  categories:categoryReducer
+  categories: categoryReducer
 });

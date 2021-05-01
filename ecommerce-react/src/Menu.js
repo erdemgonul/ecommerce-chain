@@ -13,7 +13,6 @@ import { MdEmail, MdMenu } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { setCategories } from "./redux/actions";
 
-
 function Menu() {
   const history = useHistory();
   const [toggleMenu, setToggleMenu] = useState(true);
@@ -56,7 +55,11 @@ function Menu() {
             EcommerceChain
         </button>
         </div>
+        <div className={cartShowStyle}>
+          <Cart closeCart={() => showCart(false)} />
+        </div>
         <div className="flex items-center">
+
           <div className=" items-center hidden lg:flex rounded-full mr-4 px-4 py-1 border-gray-400 border  py-2">
             <input
               className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
