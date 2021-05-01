@@ -1,0 +1,75 @@
+
+
+#imgA{
+    height:270px
+  }
+  
+@media (max-width: 1600px) {
+    /* CSS that should be displayed if width is equal to or less than 800px goes here */
+    #imgA{
+        height:210px
+      }
+      
+}
+@media (max-width: 1300px) {
+    /* CSS that should be displayed if width is equal to or less than 800px goes here */
+    #imgA{
+        height:170px
+      }
+      
+}
+
+@media (max-width: 860px) {
+    /* CSS that should be displayed if width is equal to or less than 800px goes here */
+    #imgA{
+        height:270px
+      }
+      
+}
+
+@media (max-width: 600px) {
+    /* CSS that should be displayed if width is equal to or less than 800px goes here */
+    #imgA{
+        height:170px
+      }
+      
+}
+ul{
+  list-style-type: circle 
+}
+
+
+#productImg{
+  height:500px
+}
+
+@media (max-width: 1600px) {
+  /* CSS that should be displayed if width is equal to or less than 800px goes here */
+  #productImg{
+      height:500px
+    }
+    
+}
+@media (max-width: 1300px) {
+  /* CSS that should be displayed if width is equal to or less than 800px goes here */
+  #productImg{
+      height:400px
+    }
+    
+}
+
+@media (max-width: 860px) {
+  /* CSS that should be displayed if width is equal to or less than 800px goes here */
+  #productImg{
+      height:500px
+    }
+    
+}
+
+@media (max-width: 600px) {
+  /* CSS that should be displayed if width is equal to or less than 800px goes here */
+  #productImg{
+      height:300px
+    }
+    
+}
