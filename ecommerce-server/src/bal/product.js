@@ -148,6 +148,7 @@ const self = {
                     esQuery
                 )
             } else {
+                /*
                 foundProducts = await elasticSearch.Search({
                     query: {
                         multi_match: {
@@ -155,6 +156,34 @@ const self = {
                             query: queryText,
                             type: "phrase_prefix",
                             slop: 2
+                        }
+                    }
+                }) */
+
+                foundProducts = await elasticSearch.Search({
+                    query: {
+                        bool: {
+                            should: [
+                                {
+                                    match: {
+                                        title: {
+                                            query: queryText,
+                                            fuzziness: 2,
+                                            prefix_length: 1
+                                        }
+                                    }
+                                },
+                                {
+                                    match: {
+                                        description: {
+                                            query: queryText,
+                                            fuzziness: 2,
+                                            prefix_length: 1
+                                        }
+                                    }
+                                }
+                            ],
+                            minimum_should_match: 1,
                         }
                     }
                 })
