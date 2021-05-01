@@ -9,7 +9,7 @@ const schema = Joi.object({
   price: Joi.number().required(),
   product_details: Joi.object().required(),
   shipping_details: Joi.object().required(),
-  categories: Joi.array().required()
+  categories: Joi.array().items(Joi.string()).required()
 });
 
 module.exports = schema;

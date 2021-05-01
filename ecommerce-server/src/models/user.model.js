@@ -11,7 +11,9 @@ const User = mongoose.model(
         createdOn: String,
         lastLogoutOn: String,
         role: String,
-        twoFactorAuthEnabled: Boolean
+        twoFactorAuthEnabled: Boolean,
+        shippingAddresses: Array,
+        billingAddresses: Array,
     })
 );
 
