@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import CartLink from "./CartLink";
 import Cart from "./Cart";
-import { useHistory } from "react-router-dom";
+import {
+  useHistory, Link
+} from "react-router-dom";
 import {
   FaWhatsapp,
   FaAngleRight,
@@ -12,33 +14,51 @@ import {
 import { MdEmail, MdMenu } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { setCategories } from "./redux/actions";
+import axios from 'axios';
 
 function Menu() {
   const history = useHistory();
   const [toggleMenu, setToggleMenu] = useState(true);
   const [searchText, setSearchText] = useState(null);
   const [cartShowStyle, setCartShowStyle] = useState("hidden");
+  const [categories, setCategoriesy] = useState([]);
 
-
+  useEffect(() => {
+    getCategories();
+  }, []);
 
   function toSearch() {
     if (searchText && searchText.length > 1) {
       history.push({
-        pathname: "/search/",
-        search: "?search=" + searchText,
+        pathname: `/search/${searchText}`
       });
     }
   }
-  function showCart(shouldShow) {
-    shouldShow
-      ? setCartShowStyle(
-        "flex h-full  w-full z-40 lg:w-2/6 fixed top-0 right-0"
-      )
-      : setCartShowStyle("hidden");
+
+
+
+  function getCategories() {
+    axios.post(`http://localhost:5000/api/v1/category/get/all`)
+      .then(res => {  setCategoriesy(res.data.data.categories); })
   }
+
+  function showCart(shouldShow) {
+    shouldShow ? setCartShowStyle("flex h-full  w-full z-40 lg:w-2/6 fixed top-0 right-0") : setCartShowStyle("hidden");
+  }
+
+
+  const Categories = () => {
+    return categories.map((cat) => {
+      return <a onClick={() => history.push({
+        pathname: `/categories/${cat.path}`
+      })}>{cat.title}</a>
+    })
+  }
+
+
   return (
     <div className="flex-col shadow-md pb-2 lg:pb-4 ">
-      <div className="flex  xl:flex lg:flex lg:pb-2   justify-between lg:px-10 lg:mt-8 mt-2">
+      <div className="flex  xl:flex lg:flex lg:pb-2 justify-between lg:px-10 lg:mt-8 mt-2">
 
         <div className="flex">
           <button onClick={() => setToggleMenu(!toggleMenu)} className="h-full">
@@ -102,7 +122,9 @@ function Menu() {
 
         </div>
       </div>
-
+      <div className="flex  xl:flex lg:flex lg:pb-2 lg:ml-4  space-x-8 lg:px-10  mt-2">
+        <Categories />
+      </div>
     </div >
   );
 }

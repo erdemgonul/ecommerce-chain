@@ -7,6 +7,8 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Products from "./Products";
 import Signin from './Signin';
 import ProductPage from "./ProductPage";
+import CategoryProducts from './CategoryProducts';
+import Search from './Search';
 
 function App() {
   return (
@@ -21,26 +23,37 @@ function App() {
       />
       <Router>
         <div className="flex flex-col w-full h-full">
-          <Menu/>
+          <Menu />
           <Switch>
             <Route
               path="/product"
-              component={() => <ProductPage/>}
-            />   
-            
-             <Route
+              component={() => <ProductPage />}
+            />
+            <Route
               path="/signin"
               component={() => (
                 <Signin
-               
                 />
               )}
             />
              <Route
+              path="/search/:searchtext"
+              component={() => (
+                <Search
+                />
+              )}
+            />
+            <Route
+              path="/categories/:category"
+              component={() => (
+                <CategoryProducts
+                />
+              )}
+            />
+            <Route
               path="/"
               component={() => (
                 <Products
-               
                 />
               )}
             />

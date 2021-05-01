@@ -1,40 +1,41 @@
 import React, { useState, useEffect } from "react";
 import HomeProduct from "./HomeProduct";
-import { useLocation } from "react-router";
-import { useSelector, useDispatch } from "react-redux";
-import { getProducts } from "./redux/actions";
 import axios from 'axios';
+import {
+  useHistory,
+} from "react-router-dom";
 
-
-function Products() {
-  const [itemStyle, setItemStyle] = useState(
-    "flex flex-col px-2 md:px-8 mb-8  w-1/2 lg:w-1/4"
-  );
-
+function CategoryProducts() {
+  const history = useHistory()
   const [products, setProducts] = useState([]);
-
-  const location = useLocation();
-  const categories = useSelector((state) => state.categories);
 
   useEffect(() => {
     getFirst();
-  }, [location, categories]);
+  }, []);
+  useEffect(() => {
+    return history.listen(() => {
+      getFirst();
+    })
+  }, [history]);
 
   async function getFirst() {
-    axios.post(`http://localhost:5000/api/v1/product/suggestedproducts`)
+    axios.post(`http://localhost:5000/api/v1/product/get/category`, {
+      "path": window.location.href.slice(window.location.href.lastIndexOf('categories/') + 11, window.location.href.length),
+      "strictMode": false
+    })
       .then(res => {
         setProducts(res.data.data.products);
       })
   }
 
   const Products = () => {
-    if (products && products.length > 2) {
+    if (products && products.length >= 1) {
+
       return products.map((product, index) => {
-        console.log(product);
         return (
           <HomeProduct
             product={product}
-            itemStyle={itemStyle}
+            itemStyle={"flex flex-col px-2 md:px-8 mb-8  w-1/2 lg:w-1/4"}
             key={index}
             style={{ height: "250px" }}
           />
@@ -59,4 +60,4 @@ function Products() {
   );
 }
 
-export default Products;
+export default CategoryProducts;
