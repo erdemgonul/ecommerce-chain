@@ -1,32 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { MdViewModule, MdViewStream } from "react-icons/md";
-import { FaLock, FaShippingFast } from "react-icons/fa";
 import HomeProduct from "./HomeProduct";
 import { useLocation } from "react-router";
-import queryString from "query-string";
 import { useSelector, useDispatch } from "react-redux";
 import { getProducts } from "./redux/actions";
 import axios from 'axios';
 
 
 function Products() {
-  const dispatch = useDispatch();
-
   const [itemStyle, setItemStyle] = useState(
     "flex flex-col px-2 md:px-8 mb-8  w-1/2 lg:w-1/4"
   );
-  const [modalVisible, setModalVisible] = useState(false);
-  const [isSecond, setSecond] = useState(false);
-  const [isThird, setThird] = useState(false);
 
   const [products, setProducts] = useState([]);
-
-  const [newProducts, setNewProducts] = useState([]);
-  const [topProducts, setTopProducts] = useState([]);
-
-
-
-  const [pageDescription, setPageDescription] = useState("");
 
   const location = useLocation();
   const categories = useSelector((state) => state.categories);

@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Products from "./Products";
 import Signin from './Signin';
+import ProductPage from "./ProductPage";
 
 function App() {
   return (
@@ -22,10 +23,11 @@ function App() {
         <div className="flex flex-col w-full h-full">
           <Menu/>
           <Switch>
-            {/* <Route
+            <Route
               path="/product"
               component={() => <ProductPage/>}
-            />    */}
+            />   
+            
              <Route
               path="/signin"
               component={() => (

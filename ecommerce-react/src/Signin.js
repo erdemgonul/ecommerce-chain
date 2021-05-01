@@ -1,7 +1,10 @@
 import axios from 'axios';
-
+import React from "react";
+import { useHistory } from "react-router-dom";
 
 const Signin = () => {
+    const history = useHistory();
+
     const handleFormSubmit = (e) => {
         e.preventDefault();
 
@@ -11,7 +14,11 @@ const Signin = () => {
         axios.post(`http://localhost:5000/api/v1/auth/signin`, { userName: email, password: password })
             .then(res => {
                 console.log("hey", res);
-                sessionStorage.setItem('jwt',res.data.accessToken);
+                sessionStorage.setItem('jwt', res.data.accessToken);
+                history.push({
+                    pathname: "/",
+                   
+                });
             }).catch(err => { console.log(err) });
         console.log(email, password);
     };

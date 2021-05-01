@@ -2,9 +2,9 @@ export const addToCart = cartElements => ({
   type: 'ADD_TO_CART',
   cartElements
 })
-export const deleteFromCart = id => ({
+export const deleteFromCart = sku => ({
   type: 'DELETE_FROM_CART',
-  id
+  sku
 })
 export const getProducts = products => ({
   type: 'GET_PRODUCTS',
