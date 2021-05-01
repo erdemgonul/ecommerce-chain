@@ -37,11 +37,11 @@ function Products() {
   }, [location, categories]);
 
   async function getFirst() {
-    axios.get(`http://localhost:5000/api/v1/product/suggestedproducts`)
+    axios.post(`http://localhost:5000/api/v1/product/suggestedproducts`)
     .then(res => {
-      
-      setProducts(res.data);
-      console.log(products);
+      console.log(res);
+      setProducts(res.data.data.products);
+      console.log("e",products);
     })
   }
   
@@ -52,14 +52,14 @@ function Products() {
   }
 
   const Products = () => {
-    if (products.length > 2) {
+    if (products && products.length > 2) {
      
 
       return products.map((product, index) => {
+        console.log(product);
         return (
           <HomeProduct
             product={product}
-            imageUrl={"../pic.jpg"}
             itemStyle={itemStyle}
             key={index}
             style={{ height: "250px" }}

@@ -1,3 +1,6 @@
+import axios from 'axios';
+
+
 const Signin = () => {
     const handleFormSubmit = (e) => {
         e.preventDefault();
@@ -5,6 +8,11 @@ const Signin = () => {
         let email = e.target.elements.email?.value;
         let password = e.target.elements.password?.value;
 
+        axios.post(`http://localhost:5000/api/v1/auth/signin`, { userName: email, password: password })
+            .then(res => {
+                console.log("hey", res);
+                sessionStorage.setItem('jwt',res.data.accessToken);
+            }).catch(err => { console.log(err) });
         console.log(email, password);
     };
     return (
@@ -18,7 +26,7 @@ const Signin = () => {
                     <div>
                         <label htmlFor='email'>Email</label>
                         <input
-                            type='email'
+                            type='text'
                             className={`w-full p-2 text-primary border rounded-md outline-none text-sm transition duration-150 ease-in-out mb-4`}
                             id='email'
                             placeholder='Your Email'

@@ -7,12 +7,20 @@ import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 import { rootReducer } from './redux/reducers/reducer'
 import { loadState, saveState } from './redux/sessionStorage'
-
+import axios from 'axios';
 const persistedState = loadState();
 
 let store = createStore(rootReducer, persistedState);
 store.subscribe(() => {
   saveState(store.getState());
+});
+
+axios.interceptors.request.use(function (config) {
+  if (sessionStorage.getItem('jwt') != null) {
+    const token = 'Bearer '+ sessionStorage.getItem('jwt');
+    config.headers.Authorization = token;
+  }
+  return config;
 });
 ReactDOM.render(
   <Provider store={store}>

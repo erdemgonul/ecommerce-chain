@@ -8,7 +8,7 @@ function HomeProduct({ product, itemStyle }) {
     <div className={itemStyle}>
       <button onClick={() => routeWithParams()} className="relative">
         <img
-          src={product.images[0].src}
+          src={`data:image/jpeg;base64,${product.image}`}
           id={
             itemStyle === "flex flex-col px-2 md:px-8 mb-8  w-1/2 lg:w-1/4"
               ? "imgA"
@@ -19,7 +19,7 @@ function HomeProduct({ product, itemStyle }) {
         />
         <p className="mx-auto md:mx-0 mt-1 md:mt-4">{product.title}</p>
         <p className="mx-auto md:mx-0 mt-1 md:mt-4 text-gray-600">
-          {product.variants[0].price} TL
+          {product.price} TL
         </p>
       </button>
     </div>
@@ -28,7 +28,7 @@ function HomeProduct({ product, itemStyle }) {
   function routeWithParams() {
     history.push({
       pathname: "/product",
-      search: "?name=" + product.handle,
+      search: "?name=" + product.SKU,
     });
       window.scrollTo(0, 0)
 
