@@ -8,8 +8,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' show ascii, base64, json, jsonEncode;
 
-const SERVER_IP = 'http://10.0.2.2:5000';
-final storage = FlutterSecureStorage();
+import 'baseConfig.dart';
+
 
 class Signup extends StatefulWidget {
 

@@ -100,7 +100,7 @@ class _CreateProductState extends State<CreateProduct> {
 
     Random random = new Random();
     int randomNumber = random.nextInt(10000);
-    product.id=randomNumber;
+    product.sku=randomNumber.toString();
     final reqBody = product.toJson();
     reqBody['color']= Color((new Random().nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0).toString();
     var jwtToken=await jwtOrEmpty;

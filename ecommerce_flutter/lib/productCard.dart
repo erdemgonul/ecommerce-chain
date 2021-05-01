@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'model/product.dart';
 
@@ -25,8 +27,9 @@ class ProductCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Hero(
-                tag: "${product.id}",
-                child: Image.asset(product.image),
+                tag: "${product.sku}",
+                child: product.image.length > 30 ? Image.memory(base64Decode(product.image)) : Image.asset("assets/images/noimage.jpg")
+
               ),
             ),
           ),

@@ -2,13 +2,13 @@ import 'package:ecommerce_flutter/model/product.dart';
 import 'package:flutter/foundation.dart';
 
 class CartItem {
-  final String id;
+  final String sku;
   final String title;
   final int quantity;
   final double price;
 
   CartItem(
-      {@required this.id,
+      {@required this.sku,
         @required this.title,
         @required this.quantity,
         @required this.price});
@@ -32,18 +32,18 @@ class Cart with ChangeNotifier {
   }
 
   void addItem(Product product) {
-    if (_items.containsKey(product.id)) {
-      _items.update(product.id.toString(), (existingCartItem) => CartItem(
-        id: existingCartItem.id,
+    if (_items.containsKey(product.sku)) {
+      _items.update(product.sku, (existingCartItem) => CartItem(
+        sku: existingCartItem.sku,
         title: existingCartItem.title,
         price: existingCartItem.price,
         quantity: existingCartItem.quantity + 1,
       ));
     } else {
       _items.putIfAbsent(
-          product.id.toString(),
+          product.sku,
               () => CartItem(
-            id: DateTime.now().toString(),
+            sku: DateTime.now().toString(),
             title: product.title,
             price: product.price.toDouble(),
             quantity: 1,
@@ -64,7 +64,7 @@ class Cart with ChangeNotifier {
     }
     if(_items[productId].quantity > 1) {
       _items.update(productId, (existingCartItem) => CartItem(
-        id: existingCartItem.id,
+        sku: existingCartItem.sku,
         title: existingCartItem.title,
         price: existingCartItem.price,
         quantity: existingCartItem.quantity - 1,

@@ -3,13 +3,15 @@ const mongoose = require('mongoose');
 const Product = mongoose.model(
   'Product',
   new mongoose.Schema({
-    id: Number,
-    image: String,
+    sku: String,
     title: String,
-    price: Number,
     description: String,
-    size: Number,
-    color: String,
+    image: String,
+    quantity: Number,
+    price: Number,
+    product_details: JSON,
+    shipping_details: JSON,
+      categories: Array
   })
 );
 

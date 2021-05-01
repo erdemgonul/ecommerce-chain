@@ -10,6 +10,8 @@ import 'cartProvider.dart';
 import 'home.dart';
 import 'login.dart';
 
+void main() => runApp(MyApp());
+
 class MyApp extends StatelessWidget {
   Future<String> get jwtOrEmpty async {
     var jwt = await storage.read(key: "jwt");
@@ -48,7 +50,7 @@ class MyApp extends StatelessWidget {
                               jwt[1]))));
                       if (DateTime.fromMillisecondsSinceEpoch(
                           payload["exp"] * 1000).isAfter(DateTime.now())) {
-                        return HomePage();
+                        return MyHomePage();
                       } else {
                         return LoginPage();
                       }

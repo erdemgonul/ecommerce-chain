@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:ecommerce_flutter/UITemplates.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:ecommerce_flutter/signup.dart';
@@ -8,7 +9,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'home.dart';
 import 'model/user.dart';
-
+import 'baseConfig.dart';
 
 
 
@@ -26,6 +27,7 @@ class _LoginPageState extends State<LoginPage> {
   User userData;
 
   Future<String> attemptLogIn(String username, String password) async {
+    print("sadsa");
     var res = await http.post(
         "$SERVER_IP/api/v1/auth/signin",
         body: jsonEncode({
@@ -82,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
       body: Container(
         child: _isLoading ? Center(child: CircularProgressIndicator()) : ListView(
           children: <Widget>[
-            headerSection(),
+            UITemplates().headerSection(),
             formSection(),
             routeSignUp()
           ],
@@ -104,11 +106,13 @@ class _LoginPageState extends State<LoginPage> {
             onChanged: (value) {
               setState(() {
                 username = value;
+                print(userData);
+                storage.write(key: "user", value: userData.role);
               });
             },
             decoration: InputDecoration(
               icon: Icon(Icons.email, color: Colors.black87),
-              hintText: "Email",
+              hintText: "Username",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black87)),
               hintStyle: TextStyle(color: Colors.black87),
             ),
@@ -171,12 +175,13 @@ class _LoginPageState extends State<LoginPage> {
           print(responseJson);
           if(jwt != null && responseJson['error'] ==null) {
             storage.write(key: "jwt", value: jwt);
-            print(userData);
-            storage.write(key: "user", value: userData.role);
+            print("ee");
+
+
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => HomePage()
+                    builder: (context) => MyHomePage()
                 )
             );
           } else {
@@ -204,18 +209,6 @@ class _LoginPageState extends State<LoginPage> {
           style: TextStyle(color: Colors.blueGrey),
         ),
       ),
-    );
-  }
-
-  Container headerSection() {
-    return Container(
-      margin: EdgeInsets.only(top: 50.0),
-      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
-      child: Text("Sign In",
-          style: TextStyle(
-              color: Colors.black,
-              fontSize: 40.0,
-              fontWeight: FontWeight.bold)),
     );
   }
 }
