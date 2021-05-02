@@ -74,16 +74,15 @@ const self = {
             }
 
             for (let key of Object.keys(filter)) {
-                if (key === 'priceMin' || key === 'priceMax') {
+                if (key === 'priceMin' || key === 'priceMax' || !filter[key]) {
                     continue
                 }
 
                 const obj = {
-                    wildcard: {}
+                    match_phrase: {}
                 }
 
-
-                obj.wildcard[`productDetails_${key}`] = "*" + filter[key] + "*"
+                obj.match_phrase[`productDetails_${key}`] = "*" + filter[key] + "*"
                 esQuery.query.bool.must.push(obj);
             }
 
@@ -144,11 +143,15 @@ const self = {
                 }
 
                 for (let key of Object.keys(filter)) {
-                    const obj = {
-                        wildcard: {}
+                    if (key === 'priceMin' || key === 'priceMax' || !filter[key]) {
+                        continue
                     }
 
-                    obj.wildcard[`productDetails_${key}`] = "*" + filter[key] + "*"
+                    const obj = {
+                        match_phrase: {}
+                    }
+
+                    obj.match_phrase[`productDetails_${key}`] = "*" + filter[key] + "*"
                     esQuery.query.bool.must.push(obj);
                 }
 

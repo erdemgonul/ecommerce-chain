@@ -1,5 +1,4 @@
 const categoryDAL = require('../dal/category');
-const productBAL = require('../bal/product');
 
 const self = {
   async createCategory(title, parent, path) {
