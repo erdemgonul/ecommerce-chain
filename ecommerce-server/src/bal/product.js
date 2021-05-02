@@ -45,13 +45,17 @@ const self = {
             const esQuery = {
                 query: {
                     bool: {
-                        must: [{
-                            query_string: {
-                                query: '*' + categoryText.replace(/\//g, '//') + '*',
-                                analyzer: "keyword",
-                                default_field: "categories"
-                            }
-                        }],
+                        must: [
+                            {
+                                match: {
+                                    categories: '*' + categoryText.replace(/\//g, '//') + '*'
+                                }
+                            },
+                            {
+                                match_phrase: {
+                                    categories: categoryText.replace(/\//g, '//')
+                                }
+                            }],
                     }
                 }
             }
@@ -59,7 +63,7 @@ const self = {
             if (Object.keys(filter).includes("priceMin") && Object.keys(filter).includes("priceMax")) {
                 const priceQuery = {
                     range: {
-                        price: { }
+                        price: {}
                     }
                 }
 
@@ -85,6 +89,7 @@ const self = {
                 obj.match_phrase[`productDetails_${key}`] = "*" + filter[key] + "*"
                 esQuery.query.bool.must.push(obj);
             }
+            console.log(JSON.stringify(esQuery, null, 2))
 
             foundProducts = await elasticSearch.Search(
                 esQuery
