@@ -43,4 +43,14 @@ router.post('/get/subcategories', async (req, res) => {
   }
 });
 
+router.post('/get/filters', async (req, res) => {
+  const categories = await categoryBAL.getCategoryFilters(req.body.category);
+
+  if (categories && !categories.error) {
+    res.send({ data: categories, success: true });
+  } else {
+    res.send(categories);
+  }
+});
+
 module.exports = router;

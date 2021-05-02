@@ -120,13 +120,21 @@ const self = {
                             must: [],
                             should: [
                                 {
-                                    wildcard: {
-                                        title: "*" + queryText + "*"
+                                    match: {
+                                        title: {
+                                            query: queryText,
+                                            fuzziness: 2,
+                                            prefix_length: 1,
+                                        }
                                     }
                                 },
                                 {
-                                    wildcard: {
-                                        description: "*" + queryText + "*"
+                                    match: {
+                                        description: {
+                                            query: queryText,
+                                            fuzziness: 2,
+                                            prefix_length: 1
+                                        }
                                     }
                                 }
                             ],
@@ -223,7 +231,7 @@ const self = {
         // check if product with id exists or not
         const allProducts = await productDAL.getAllProductsInCategory(category, strictMode);
         return allProducts;
-    }
+    },
 };
 
 module.exports = self;

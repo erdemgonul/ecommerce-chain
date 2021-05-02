@@ -1,6 +1,7 @@
 const db = require('../models');
 
 const Category = db.category;
+const Product = db.product;
 
 const self = {
   isCategoryExists: async (categoryPath) => {
@@ -64,6 +65,26 @@ const self = {
       if (category) {
         return category.toObject();
       }
+    } catch (err) {
+      return err;
+    }
+  },
+
+  getCategoryFilters: async (categoryQuery) => {
+    try {
+      const result = [];
+      let  filter = new RegExp(`^${categoryQuery}`);
+
+      const products = await Product.find({categories: filter}, ['product_details']).exec();
+
+      for (let product of products) {
+        const productObj = product.toObject();
+        delete productObj._id;
+        delete productObj.__v;
+        result.push(productObj.product_details)
+      }
+
+      return result;
     } catch (err) {
       return err;
     }

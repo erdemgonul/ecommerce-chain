@@ -119,6 +119,7 @@ const self = {
       const result = [];
 
       const products = await Product.find({ "quantity": { $ne: 0 }}).exec();
+      // const products = await Product.find({ "quantity": { $ne: 0 }}, ['title', 'price', 'image']).exec();
 
       for (let product of products) {
         const productObj = product.toObject();

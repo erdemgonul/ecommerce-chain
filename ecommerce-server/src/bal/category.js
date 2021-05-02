@@ -1,4 +1,5 @@
 const categoryDAL = require('../dal/category');
+const productBAL = require('../bal/product');
 
 const self = {
   async createCategory(title, parent, path) {
@@ -16,6 +17,30 @@ const self = {
     // check if product with id exists or not
     const allCategories = await categoryDAL.getAllCategories();
     return allCategories;
+  },
+
+  async getCategoryFilters(category) {
+    const allDetails = await categoryDAL.getCategoryFilters(category);
+
+    const allKeys = {};
+
+    for (let details of allDetails) {
+      let keysOfObj = Object.keys(details);
+
+      for (let key of keysOfObj) {
+        let valueOfKey = details[key];
+
+        if (Object.keys(allKeys).includes(key)) {
+          if (!allKeys[key].includes(valueOfKey)) {
+            allKeys[key] = [...allKeys[key], valueOfKey];
+          }
+        } else {
+          allKeys[key] = [valueOfKey];
+        }
+      }
+    }
+
+    return allKeys;
   },
 
   async getCategoryByPath(categoryPath, fullDetails) {
