@@ -12,6 +12,7 @@ function Products() {
   );
 
   const [products, setProducts] = useState([]);
+  const [filters, setFilters] = useState([]);
 
   const location = useLocation();
   const categories = useSelector((state) => state.categories);
@@ -25,12 +26,13 @@ function Products() {
       .then(res => {
         setProducts(res.data.data.products);
       })
+
+   
   }
 
   const Products = () => {
     if (products && products.length > 2) {
       return products.map((product, index) => {
-        console.log(product);
         return (
           <HomeProduct
             product={product}

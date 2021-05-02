@@ -6,6 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Products from "./Products";
 import Signin from './Signin';
+import Signup from './Signup';
 import ProductPage from "./ProductPage";
 import CategoryProducts from './CategoryProducts';
 import Search from './Search';
@@ -28,6 +29,13 @@ function App() {
             <Route
               path="/product"
               component={() => <ProductPage />}
+            />
+            <Route
+              path="/signup"
+              component={() => (
+                <Signup
+                />
+              )}
             />
             <Route
               path="/signin"

@@ -9,7 +9,6 @@ export const cartReducer = (state = initialState.cartItems, action) => {
       state.push(action.cartElements);
       return state;
     case "DELETE_FROM_CART":
-      console.log("sku",action.sku);
       return state.filter(product => product.product.sku !== action.sku);
     default:
       return state;

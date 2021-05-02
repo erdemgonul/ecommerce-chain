@@ -33,7 +33,6 @@ function Search() {
   const Products = () => {
     if (products && products.length >= 1) {
       return products.map((product, index) => {
-        console.log(product);
         return (
           <HomeProduct
             product={product}

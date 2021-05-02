@@ -16,9 +16,7 @@ function Cart({ closeCart }) {
   const dispatch = useDispatch();
   const [totalPrice, setTotalPrice] = useState(0);
   const cart = useSelector((state) => state.cart);
-  console.log(cart,"sadsadas");
   const CartProducts = () => {
-    console.log("cart",cart);
     if (cart) {
       return cart.map((product, index) => (
         <CartElement
@@ -78,7 +76,6 @@ function Cart({ closeCart }) {
 
   function ifCartHasFree(cartItems) { }
   function deleteFromCarty(sku) {
-    console.log("eeee",sku);
     dispatch(deleteFromCart(sku));
 
   }

@@ -20,7 +20,6 @@ function ProductPage() {
     let parsedQuery = queryString.parse(location.search);
     axios.post(`http://localhost:5000/api/v1/product/get`, { sku: parsedQuery.sku })
       .then(res => {
-        console.log(res);
         setProduct(res.data.data);
       })
   }, [location]);
