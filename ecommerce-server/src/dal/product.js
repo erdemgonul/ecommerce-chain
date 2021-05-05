@@ -22,6 +22,46 @@ const self = {
     return false;
   },
 
+  getQuantityOfProduct: async (productId) => {
+    try {
+      const product = await Product.findOne({
+        sku: productId
+      }, ['quantity']).exec();
+
+      if (product) {
+        return product;
+      }
+    } catch (err) {
+      return err;
+    }
+
+    return false;
+  },
+
+  subtractQuantityFromProduct: async (productId, amountToSubtract) => {
+    try {
+      const product = await Product.findOne({
+        sku: productId
+      }).exec();
+
+      if (product) {
+        let newQuantity = product.quantity - amountToSubtract;
+
+        if (newQuantity < 0) {
+          newQuantity = 0;
+        }
+        product.quantity = newQuantity
+        product.save();
+        return true;
+      }
+    } catch (err) {
+      return err;
+    }
+
+    return false;
+  },
+
+
   createProduct: async (sku, title, description, image, quantity, price, product_details, shipping_details, categories) => {
 
     const product = new Product({

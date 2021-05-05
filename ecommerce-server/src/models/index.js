@@ -28,6 +28,7 @@ db.user = require('./user.model');
 
 db.category = require('./category.model');
 db.product = require('./product.model');
+db.order = require('./order.model');
 
 function setupIndexes() {
     mongoose.connection.collections['categories'].ensureIndex({ "path": 1, "parent": 1 }, { "unique": true }, function (err, res) {

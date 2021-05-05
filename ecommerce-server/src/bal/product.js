@@ -30,6 +30,16 @@ const self = {
         return allProducts;
     },
 
+    async getQuantityOfProduct(sku) {
+        // check if product with id exists or not
+        return await productDAL.getQuantityOfProduct(sku);
+    },
+
+    async subtractQuantityFromProduct(sku, quantity) {
+        // check if product with id exists or not
+        return await productDAL.subtractQuantityFromProduct(sku, quantity);
+    },
+
     async getSuggestedProducts() {
         return await productDAL.getSuggestedProducts();
     },

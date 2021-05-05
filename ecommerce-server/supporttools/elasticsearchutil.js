@@ -38,6 +38,8 @@ async function rebuildProductDataFromDatabase() {
         console.log('Added product: ' + productObj.title)
         await elasticSearch.AddNewDocument(flattenedProduct, flattenedProduct.sku);
     }
+
+    console.log('Done')
 }
 
 rebuildProductDataFromDatabase()
