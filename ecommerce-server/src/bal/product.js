@@ -21,7 +21,19 @@ const self = {
             return {error: 'Product with given product id already exists !'};
         }
 
-        return await productDAL.createProduct(sku, title, description, image, quantity, price, product_details, shipping_details, categories);
+        const createdProduct = await productDAL.createProduct(sku, title, description, image, quantity, price, product_details, shipping_details, categories);
+
+        if (createdProduct && createdProduct.sku) {
+            try {
+                await self.updateProductOnElasticSearch(createdProduct);
+            } catch (err) {
+                return {error: 'Elastic search error !'};
+            }
+
+            return createdProduct;
+        } else {
+            return {error: 'Product creation error !'};
+        }
     },
 
     async updateProductOnElasticSearch(productObj) {
