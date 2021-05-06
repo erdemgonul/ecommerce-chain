@@ -1,6 +1,9 @@
 const productBAL = require('../bal/product');
 const orderDAL = require('../dal/order');
 
+const ElasticSearchWrapper = require('../util/elasticsearchwrapper');
+const elasticSearch = new ElasticSearchWrapper(process.env.ELASTIC_SEARCH_REGION, process.env.ELASTIC_SEARCH_DOMAIN, process.env.ELASTIC_SEARCH_PRODUCT_INDEX, process.env.ELASTIC_SEARCH_PRODUCT_INDEXTYPE, true, process.env.ELASTIC_SEARCH_USERNAME, process.env.ELASTIC_SEARCH_PASSWORD);
+
 const self = {
     async createOrder(createdBy, shippingAddress, billingAddress, products) {
         let orderTotal = 0;
@@ -27,12 +30,13 @@ const self = {
             if (!subtractSuccess) {
                 return {error: `Reducing quantity failed for ${productId}!`};
             }
+
+            await productBAL.updateProductOnElasticSearch(productData);
         }
 
         const createdOrder = await orderDAL.createOrder(createdBy, shippingAddress, billingAddress, products, orderTotal);
 
         if (createdOrder && createdOrder._id) {
-            // todo: update product's quantity on elastic search, elastic.co/guide/en/elasticsearch/reference/current/docs-update.html
             return createdOrder;
         } else {
             return {error: `Order creation failed!`};
