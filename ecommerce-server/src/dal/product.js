@@ -74,17 +74,8 @@ const self = {
       if (createdProduct) {
         const productObj = createdProduct.toObject();
 
-        try {
-          delete productObj._id;
-          delete productObj.__v;
-
-          const flattenedProduct = util.flattenObject(productObj);
-          flattenedProduct.categories = flattenedProduct.categories.join(',');
-
-          await elasticSearch.AddNewDocument(flattenedProduct, flattenedProduct.sku);
-        } catch (err) {
-          console.log('Elastic Search Error: ' + err)
-        }
+        delete productObj._id;
+        delete productObj.__v;
 
         return createdProduct.toObject();
       }

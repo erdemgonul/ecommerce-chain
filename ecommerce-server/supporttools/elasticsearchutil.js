@@ -33,10 +33,8 @@ async function rebuildProductDataFromDatabase() {
     const allProducts = await productBAL.getAllProducts();
 
     for (let productObj of allProducts) {
-        const flattenedProduct = util.flattenObject(productObj);
-        flattenedProduct.categories = flattenedProduct.categories.join(',');
+        await productBAL.updateProductOnElasticSearch(productObj);
         console.log('Added product: ' + productObj.title)
-        await elasticSearch.AddNewDocument(flattenedProduct, flattenedProduct.sku);
     }
 
     console.log('Done')
