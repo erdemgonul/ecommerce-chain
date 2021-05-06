@@ -10,6 +10,7 @@ import Signup from './Signup';
 import ProductPage from "./ProductPage";
 import CategoryProducts from './CategoryProducts';
 import Search from './Search';
+import Checkout from './Checkout';
 
 function App() {
   return (
@@ -34,6 +35,13 @@ function App() {
               path="/signup"
               component={() => (
                 <Signup
+                />
+              )}
+            />
+             <Route
+              path="/checkout"
+              component={() => (
+                <Checkout
                 />
               )}
             />

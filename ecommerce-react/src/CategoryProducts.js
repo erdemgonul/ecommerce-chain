@@ -25,7 +25,10 @@ function CategoryProducts() {
     })
   }, [history]);
   function changeFilter(key, value) {
-    valueFilter[value.target.name] = value.target.value;
+    if (value.target.name == "priceMin" || value.target.name == "priceMax") {
+      value.target.value = parseFloat(value.target.value);
+    }
+    valueFilter[value.target.name] = parseFloat(value.target.value);
     getProductsByFilter();
   }
   async function getFirst() {
@@ -46,6 +49,8 @@ function CategoryProducts() {
   }
 
   async function getProductsByFilter() {
+    if (valueFilter["priceMin"] == null) { valueFilter["priceMin"] = -1 }
+    if (valueFilter["priceMax"] == null) { valueFilter["priceMax"] = -1 }
     axios.post(`http://localhost:5000/api/v1/product/get/category/filter`, {
       "category": window.location.href.slice(window.location.href.lastIndexOf('categories/') + 11, window.location.href.length).toLowerCase(),
       "fullData": true,
@@ -70,6 +75,12 @@ function CategoryProducts() {
         </div>
         </>);
       }
+      x.push(<><div className="flex flex-col items-start space-y-2"><label for={"priceMin"}>Minimum Price</label>
+        <input type="text" name="priceMin" className="border border-gray-600 rounded-lg" onChange={(val) => changeFilter(a, val)} value={valueFilter["priceMin"]} />
+      </div></>);
+      x.push(<><div className="flex flex-col items-start space-y-2">
+        <label for={"priceMax"}>Maximum Price</label>
+        <input type="text" name="priceMax" className="border border-gray-600 rounded-lg" onChange={(val) => changeFilter(a, val)} value={valueFilter["priceMax"]} /></div></>);
     }
     return x;
   }

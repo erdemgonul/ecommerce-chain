@@ -71,7 +71,10 @@ function Cart({ closeCart }) {
   );
 
   async function proceedCheckout() {
+    history.push({
+      pathname: "/checkout",
 
+    });
   }
 
   function ifCartHasFree(cartItems) { }
