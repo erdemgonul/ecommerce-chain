@@ -4,6 +4,7 @@ const auth = require('./auth');
 const user = require('./user');
 const product = require('./product');
 const category = require('./category');
+const order = require('./order');
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ router.use('/auth', auth);
 router.use('/user', user);
 router.use('/product', product);
 router.use('/category', category);
+router.use('/order', order);
 
 
 module.exports = router;

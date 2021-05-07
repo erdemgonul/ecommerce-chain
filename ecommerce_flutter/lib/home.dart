@@ -327,7 +327,7 @@ class HomePage extends State<MyHomePage> {
         style: TextStyle(color: Colors.black87),
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         keyboardType: TextInputType.number,
-        onChanged: (value) async {
+        onFieldSubmitted: (value) async {
           var newMinPrice = double.parse(value);
           minPrice = newMinPrice;
 
@@ -352,7 +352,7 @@ class HomePage extends State<MyHomePage> {
         style: TextStyle(color: Colors.black87),
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         keyboardType: TextInputType.number,
-        onChanged: (value) async {
+        onFieldSubmitted: (value) async {
           var newMaxPrice = double.parse(value);
           maxPrice = newMaxPrice;
 

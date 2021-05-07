@@ -48,10 +48,31 @@ const self = {
       }
     }
 
+    let currentUserDetails;
+
+    if (detailsToChange.hasOwnProperty('newShippingAddress') && detailsToChange.hasOwnProperty('shippingAddresses')) {
+      if (!currentUserDetails) {
+        currentUserDetails = await userDAL.getUserByUserId(userId);
+      }
+
+      detailsToChange.shippingAddresses = [...currentUserDetails.shippingAddresses, ...detailsToChange.shippingAddresses]
+    }
+
+    if (detailsToChange.hasOwnProperty('newBillingAddress') && detailsToChange.hasOwnProperty('billingAddresses')) {
+      if (!currentUserDetails) {
+        currentUserDetails = await userDAL.getUserByUserId(userId);
+      }
+
+      detailsToChange.billingAddresses = [...currentUserDetails.billingAddresses, ...detailsToChange.billingAddresses]
+    }
+
     if (detailsToChange.hasOwnProperty('password')) {
       detailsToChange.password = bcrypt.hashSync(detailsToChange.password, 8);
     }
 
+    delete detailsToChange.newBillingAddress;
+    delete detailsToChange.newShippingAddress;
+    
     return await userDAL.updateUserDetails(userId, detailsToChange);
   }
 };

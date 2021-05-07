@@ -1,6 +1,7 @@
 const request = require('supertest');
 
 const app = require('../src/app');
+const json = require("entities");
 
 let token = null;
 var successcheck = function (res) {
@@ -109,4 +110,48 @@ describe('Corner cases', () => {
             .expect(200, {success: false}, done())
     });
 
+});
+
+describe('test of search implementation', () => {
+    it('search', (done) => {
+        apppost('/product/search', {
+            "query": "msi",
+            "fullData": true
+        }).expect(200)
+            .expect(successcheck)
+            .end((err, res) => {
+            const temp = res.body['data']['products'];
+            if (temp.isEmpty) return new Error("search result is empty");
+            else {
+                let lookup = temp[0]['title'];
+                for (let i = 0; i < temp.length; i++) {
+                    if (temp[i]['title'].toLowerCase().includes("msi")) continue;
+                    else return new Error("search element with no connection to the search query");
+                }
+                return done();
+            }
+        })
+    });
+});
+
+describe('test of filter implementation', () => {
+    it('search', (done) => {
+        apppost('/product/get/category', {
+            "path": "clothing/bags",
+            "strictMode": false
+        }).expect(200)
+            .expect(successcheck)
+            .end((err, res) => {
+                const temp = res.body['data']['products'];
+                if (temp.isEmpty) return new Error("search result is empty");
+                else {
+                    let lookup = temp[0]['categories']
+                    for (let i = 0; i < temp.length; i++) {
+                        if (temp[i]['categories'].includes("clothing/bags")) continue;
+                        else return new Error("search element with no connection to the search query");
+                    }
+                    return done();
+                }
+            })
+    });
 });

@@ -22,6 +22,46 @@ const self = {
     return false;
   },
 
+  getQuantityOfProduct: async (productId) => {
+    try {
+      const product = await Product.findOne({
+        sku: productId
+      }, ['quantity']).exec();
+
+      if (product) {
+        return product;
+      }
+    } catch (err) {
+      return err;
+    }
+
+    return false;
+  },
+
+  subtractQuantityFromProduct: async (productId, amountToSubtract) => {
+    try {
+      const product = await Product.findOne({
+        sku: productId
+      }).exec();
+
+      if (product) {
+        let newQuantity = product.quantity - amountToSubtract;
+
+        if (newQuantity < 0) {
+          newQuantity = 0;
+        }
+        product.quantity = newQuantity
+        product.save();
+        return true;
+      }
+    } catch (err) {
+      return err;
+    }
+
+    return false;
+  },
+
+
   createProduct: async (sku, title, description, image, quantity, price, product_details, shipping_details, categories) => {
 
     const product = new Product({
@@ -34,17 +74,8 @@ const self = {
       if (createdProduct) {
         const productObj = createdProduct.toObject();
 
-        try {
-          delete productObj._id;
-          delete productObj.__v;
-
-          const flattenedProduct = util.flattenObject(productObj);
-          flattenedProduct.categories = flattenedProduct.categories.join(',');
-
-          await elasticSearch.AddNewDocument(flattenedProduct, flattenedProduct.sku);
-        } catch (err) {
-          console.log('Elastic Search Error: ' + err)
-        }
+        delete productObj._id;
+        delete productObj.__v;
 
         return createdProduct.toObject();
       }
@@ -119,6 +150,7 @@ const self = {
       const result = [];
 
       const products = await Product.find({ "quantity": { $ne: 0 }}).exec();
+      // const products = await Product.find({ "quantity": { $ne: 0 }}, ['title', 'price', 'image']).exec();
 
       for (let product of products) {
         const productObj = product.toObject();

@@ -1,6 +1,6 @@
 const productDAL = require('../dal/product');
 const categoryBAL = require('../bal/category');
-
+const util = require('../util/index');
 const ElasticSearchWrapper = require('../util/elasticsearchwrapper');
 const elasticSearch = new ElasticSearchWrapper(process.env.ELASTIC_SEARCH_REGION, process.env.ELASTIC_SEARCH_DOMAIN, process.env.ELASTIC_SEARCH_PRODUCT_INDEX, process.env.ELASTIC_SEARCH_PRODUCT_INDEXTYPE, true, process.env.ELASTIC_SEARCH_USERNAME, process.env.ELASTIC_SEARCH_PASSWORD);
 
@@ -21,13 +21,42 @@ const self = {
             return {error: 'Product with given product id already exists !'};
         }
 
-        return await productDAL.createProduct(sku, title, description, image, quantity, price, product_details, shipping_details, categories);
+        const createdProduct = await productDAL.createProduct(sku, title, description, image, quantity, price, product_details, shipping_details, categories);
+
+        if (createdProduct && createdProduct.sku) {
+            try {
+                await self.updateProductOnElasticSearch(createdProduct);
+            } catch (err) {
+                return {error: 'Elastic search error !'};
+            }
+
+            return createdProduct;
+        } else {
+            return {error: 'Product creation error !'};
+        }
+    },
+
+    async updateProductOnElasticSearch(productObj) {
+        const flattenedProduct = util.flattenObject(productObj);
+        flattenedProduct.categories = flattenedProduct.categories.join(',');
+
+        await elasticSearch.AddNewDocument(flattenedProduct, flattenedProduct.sku);
     },
 
     async getAllProducts() {
         // check if product with id exists or not
         const allProducts = await productDAL.getAllProducts();
         return allProducts;
+    },
+
+    async getQuantityOfProduct(sku) {
+        // check if product with id exists or not
+        return await productDAL.getQuantityOfProduct(sku);
+    },
+
+    async subtractQuantityFromProduct(sku, quantity) {
+        // check if product with id exists or not
+        return await productDAL.subtractQuantityFromProduct(sku, quantity);
     },
 
     async getSuggestedProducts() {
@@ -45,13 +74,17 @@ const self = {
             const esQuery = {
                 query: {
                     bool: {
-                        must: [{
-                            query_string: {
-                                query: '*' + categoryText.replace(/\//g, '//') + '*',
-                                analyzer: "keyword",
-                                default_field: "categories"
-                            }
-                        }],
+                        must: [
+                            {
+                                match: {
+                                    categories: '*' + categoryText.replace(/\//g, '//') + '*'
+                                }
+                            },
+                            {
+                                match_phrase: {
+                                    categories: categoryText.replace(/\//g, '//')
+                                }
+                            }],
                     }
                 }
             }
@@ -59,7 +92,7 @@ const self = {
             if (Object.keys(filter).includes("priceMin") && Object.keys(filter).includes("priceMax")) {
                 const priceQuery = {
                     range: {
-                        price: { }
+                        price: {}
                     }
                 }
 
@@ -74,18 +107,18 @@ const self = {
             }
 
             for (let key of Object.keys(filter)) {
-                if (key === 'priceMin' || key === 'priceMax') {
+                if (key === 'priceMin' || key === 'priceMax' || !filter[key]) {
                     continue
                 }
 
                 const obj = {
-                    wildcard: {}
+                    match_phrase: {}
                 }
 
-
-                obj.wildcard[`productDetails_${key}`] = "*" + filter[key] + "*"
+                obj.match_phrase[`productDetails_${key}`] = "*" + filter[key] + "*"
                 esQuery.query.bool.must.push(obj);
             }
+            console.log(JSON.stringify(esQuery, null, 2))
 
             foundProducts = await elasticSearch.Search(
                 esQuery
@@ -120,13 +153,21 @@ const self = {
                             must: [],
                             should: [
                                 {
-                                    wildcard: {
-                                        title: "*" + queryText + "*"
+                                    match: {
+                                        title: {
+                                            query: queryText,
+                                            fuzziness: 2,
+                                            prefix_length: 1,
+                                        }
                                     }
                                 },
                                 {
-                                    wildcard: {
-                                        description: "*" + queryText + "*"
+                                    match: {
+                                        description: {
+                                            query: queryText,
+                                            fuzziness: 2,
+                                            prefix_length: 1
+                                        }
                                     }
                                 }
                             ],
@@ -136,11 +177,15 @@ const self = {
                 }
 
                 for (let key of Object.keys(filter)) {
-                    const obj = {
-                        wildcard: {}
+                    if (key === 'priceMin' || key === 'priceMax' || !filter[key]) {
+                        continue
                     }
 
-                    obj.wildcard[`productDetails_${key}`] = "*" + filter[key] + "*"
+                    const obj = {
+                        match_phrase: {}
+                    }
+
+                    obj.match_phrase[`productDetails_${key}`] = "*" + filter[key] + "*"
                     esQuery.query.bool.must.push(obj);
                 }
 
@@ -148,6 +193,7 @@ const self = {
                     esQuery
                 )
             } else {
+                /*
                 foundProducts = await elasticSearch.Search({
                     query: {
                         multi_match: {
@@ -155,6 +201,34 @@ const self = {
                             query: queryText,
                             type: "phrase_prefix",
                             slop: 2
+                        }
+                    }
+                }) */
+
+                foundProducts = await elasticSearch.Search({
+                    query: {
+                        bool: {
+                            should: [
+                                {
+                                    match: {
+                                        title: {
+                                            query: queryText,
+                                            fuzziness: 2,
+                                            prefix_length: 1
+                                        }
+                                    }
+                                },
+                                {
+                                    match: {
+                                        description: {
+                                            query: queryText,
+                                            fuzziness: 2,
+                                            prefix_length: 1
+                                        }
+                                    }
+                                }
+                            ],
+                            minimum_should_match: 1,
                         }
                     }
                 })
@@ -194,7 +268,7 @@ const self = {
         // check if product with id exists or not
         const allProducts = await productDAL.getAllProductsInCategory(category, strictMode);
         return allProducts;
-    }
+    },
 };
 
 module.exports = self;

@@ -18,6 +18,30 @@ const self = {
     return allCategories;
   },
 
+  async getCategoryFilters(category) {
+    const allDetails = await categoryDAL.getCategoryFilters(category);
+
+    const allKeys = {};
+
+    for (let details of allDetails) {
+      let keysOfObj = Object.keys(details);
+
+      for (let key of keysOfObj) {
+        let valueOfKey = details[key];
+
+        if (Object.keys(allKeys).includes(key)) {
+          if (!allKeys[key].includes(valueOfKey)) {
+            allKeys[key] = [...allKeys[key], valueOfKey];
+          }
+        } else {
+          allKeys[key] = [valueOfKey];
+        }
+      }
+    }
+
+    return allKeys;
+  },
+
   async getCategoryByPath(categoryPath, fullDetails) {
     // check if product with id exists or not
     const categoryDetails = await categoryDAL.getCategoryByPath(categoryPath);
