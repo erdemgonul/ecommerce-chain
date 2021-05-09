@@ -31,7 +31,12 @@ const self = {
                 return {error: `Reducing quantity failed for ${productId}!`};
             }
 
-            await productBAL.updateProductOnElasticSearch(productData);
+
+            try{
+                await productBAL.updateProductOnElasticSearch(productData);
+            } catch (err) {
+                return {error: `Elastic search error !`};
+            }
         }
 
         const createdOrder = await orderDAL.createOrder(createdBy, shippingAddress, billingAddress, products, orderTotal);
