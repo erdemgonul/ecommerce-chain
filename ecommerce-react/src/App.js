@@ -11,6 +11,7 @@ import ProductPage from "./ProductPage";
 import CategoryProducts from './CategoryProducts';
 import Search from './Search';
 import Checkout from './Checkout';
+import Profile from "./Profile";
 
 function App() {
   return (
@@ -27,9 +28,13 @@ function App() {
         <div className="flex flex-col w-full h-full">
           <Menu />
           <Switch>
-            <Route
+          <Route
               path="/product"
               component={() => <ProductPage />}
+            />
+            <Route
+              path="/profile"
+              component={() => <Profile />}
             />
             <Route
               path="/signup"
