@@ -3,13 +3,13 @@ const moment = require('moment')
 const Order = db.order;
 
 const self = {
-  createOrder: async (createdBy, shippingAddress, billingAddress, products, orderTotal) => {
+  createOrder: async (createdBy, shippingAddress, billingAddress, products, orderTotal, expireAt) => {
     let createdOn = moment.utc().toISOString();
 
     let status = "ORDER_PLACED"
 
     const order = new Order({
-      shippingAddress, billingAddress, products, orderTotal, createdOn, createdBy, status
+      shippingAddress, billingAddress, products, orderTotal, createdOn, createdBy, status, expireAt
     });
 
     try {

@@ -95,6 +95,7 @@ function verifyToken(req, res, next) {
       return res.status(401).send({ error: 'Unauthorized!' });
     }
 
+    req.user = user;
     req.userId = decoded.id;
     req.userRole = decoded.role;
 

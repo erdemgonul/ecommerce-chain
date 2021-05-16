@@ -22,6 +22,10 @@ const self = {
 
     if (userDetails) {
       if (fullDetails) {
+        userDetails.id = userDetails._id
+        delete userDetails._id;
+        delete userDetails.__v;
+
         return userDetails;
       }
 
@@ -72,7 +76,7 @@ const self = {
 
     delete detailsToChange.newBillingAddress;
     delete detailsToChange.newShippingAddress;
-    
+
     return await userDAL.updateUserDetails(userId, detailsToChange);
   }
 };
