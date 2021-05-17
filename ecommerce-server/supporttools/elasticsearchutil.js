@@ -1,5 +1,5 @@
 require('dotenv').config({path:'../.env'});
-const ElasticSearchWrapper = require('../src/util/elasticsearchwrapper');
+const ElasticSearchWrapper = require('../src/common/elasticsearchwrapper');
 const elasticSearch = new ElasticSearchWrapper(process.env.ELASTIC_SEARCH_REGION, process.env.ELASTIC_SEARCH_DOMAIN, process.env.ELASTIC_SEARCH_PRODUCT_INDEX, process.env.ELASTIC_SEARCH_PRODUCT_INDEXTYPE, true, process.env.ELASTIC_SEARCH_USERNAME, process.env.ELASTIC_SEARCH_PASSWORD);
 const productBAL = require('../src/bal/product')
 const util = require('../src/util');

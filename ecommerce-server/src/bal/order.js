@@ -3,8 +3,8 @@ const moment = require('moment')
 const productBAL = require('../bal/product');
 const orderDAL = require('../dal/order');
 
-const AWSSESWrapper = require('../util/ses');
-const ElasticSearchWrapper = require('../util/elasticsearchwrapper');
+const AWSSESWrapper = require('../common/ses');
+const ElasticSearchWrapper = require('../common/elasticsearchwrapper');
 const elasticSearch = new ElasticSearchWrapper(process.env.ELASTIC_SEARCH_REGION, process.env.ELASTIC_SEARCH_DOMAIN, process.env.ELASTIC_SEARCH_PRODUCT_INDEX, process.env.ELASTIC_SEARCH_PRODUCT_INDEXTYPE, true, process.env.ELASTIC_SEARCH_USERNAME, process.env.ELASTIC_SEARCH_PASSWORD);
 
 const self = {

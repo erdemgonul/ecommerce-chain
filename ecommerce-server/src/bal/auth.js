@@ -4,7 +4,7 @@ const userDAL = require('../dal/user');
 const util = require('../util/index');
 const speakeasy = require('speakeasy');
 
-const AWSSESWrapper = require('../util/ses');
+const AWSSESWrapper = require('../common/ses');
 
 const self = {
   async signUp(userName, firstName, lastName, email, password) {

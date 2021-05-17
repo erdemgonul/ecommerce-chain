@@ -3,16 +3,9 @@ const morgan = require("morgan");
 const helmet = require("helmet");
 const cors = require("cors");
 
-//firebase stuff
-const admin = require("firebase-admin");
-const serviceAccount = require("./firebase.json");
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
-
 require("dotenv").config();
 
+const firebaseAdmin = require('./common/firebase')
 const db = require("./models/index");
 const middlewares = require("./middlewares");
 const api = require("./api");
@@ -38,7 +31,7 @@ const tokens = [
 app.post("/", async (req, res) => {
   try {
     const { title, body, imageUrl } = req.body;
-    await admin.messaging().sendMulticast({
+    await firebaseAdmin.messaging().sendMulticast({
       tokens,
       notification: {
         title,

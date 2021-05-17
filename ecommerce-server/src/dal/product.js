@@ -2,7 +2,7 @@ const db = require('../models');
 const util = require('../util/index');
 
 const Product = db.product;
-const ElasticSearchWrapper = require('../util/elasticsearchwrapper');
+const ElasticSearchWrapper = require('../common/elasticsearchwrapper');
 const elasticSearch = new ElasticSearchWrapper(process.env.ELASTIC_SEARCH_REGION, process.env.ELASTIC_SEARCH_DOMAIN, process.env.ELASTIC_SEARCH_PRODUCT_INDEX, process.env.ELASTIC_SEARCH_PRODUCT_INDEXTYPE, true, process.env.ELASTIC_SEARCH_USERNAME, process.env.ELASTIC_SEARCH_PASSWORD);
 
 const self = {
