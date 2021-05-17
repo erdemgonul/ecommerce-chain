@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import CartLink from "./CartLink";
 import Cart from "./Cart";
-import {
-  useHistory, Link
-} from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import {
   FaWhatsapp,
   FaAngleRight,
@@ -14,7 +12,7 @@ import {
 import { MdEmail, MdMenu } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { setCategories } from "./redux/actions";
-import axios from 'axios';
+import axios from "axios";
 
 function Menu() {
   const history = useHistory();
@@ -26,43 +24,50 @@ function Menu() {
 
   useEffect(() => {
     getCategories();
-    if (sessionStorage.getItem("jwt"))
-      setLogged(true);
+    if (sessionStorage.getItem("jwt")) setLogged(true);
   }, []);
 
   function toSearch() {
     if (searchText && searchText.length > 1) {
       history.push({
-        pathname: `/search/${searchText}`
+        pathname: `/search/${searchText}`,
       });
     }
   }
 
-
-
   function getCategories() {
-    axios.post(`http://localhost:5000/api/v1/category/get/all`)
-      .then(res => { setCategoriesy(res.data.data.categories); })
+    axios.post(`http://localhost:5000/api/v1/category/get/all`).then((res) => {
+      setCategoriesy(res.data.data.categories);
+    });
   }
 
   function showCart(shouldShow) {
-    shouldShow ? setCartShowStyle("flex h-full  w-full z-40 lg:w-2/6 fixed top-0 right-0") : setCartShowStyle("hidden");
+    shouldShow
+      ? setCartShowStyle(
+          "flex h-full  w-full z-40 lg:w-2/6 fixed top-0 right-0"
+        )
+      : setCartShowStyle("hidden");
   }
-
 
   const Categories = () => {
     return categories.map((cat) => {
-      return <a onClick={() => history.push({
-        pathname: `/categories/${cat.path}`
-      })}>{cat.title}</a>
-    })
-  }
-
+      return (
+        <a
+          onClick={() =>
+            history.push({
+              pathname: `/categories/${cat.path}`,
+            })
+          }
+        >
+          {cat.title}
+        </a>
+      );
+    });
+  };
 
   return (
     <div className="flex-col shadow-md pb-2 lg:pb-4 ">
       <div className="flex  xl:flex lg:flex lg:pb-2 justify-between lg:px-10 lg:mt-8 mt-2">
-
         <div className="flex">
           <button onClick={() => setToggleMenu(!toggleMenu)} className="h-full">
             <MdMenu
@@ -76,14 +81,13 @@ function Menu() {
             className="font-light text-3xl md:text-4xl text-black lg:ml-4 lg:ml-0 self-center "
           >
             EcommerceChain
-        </button>
+          </button>
         </div>
         <div className={cartShowStyle}>
           <Cart closeCart={() => showCart(false)} />
         </div>
         <div className="flex items-center">
-
-          <div className=" items-center hidden lg:flex rounded-full mr-4 px-4 py-1 border-gray-400 border  py-2">
+          <div className=" items-center hidden lg:flex rounded-full mr-4 px-4 py-1 border-gray-400 border ">
             <input
               className="appearance-none bg-transparent border-none w-full text-gray-700 mr-3 py-1 px-2 leading-tight focus:outline-none"
               type="text"
@@ -107,37 +111,48 @@ function Menu() {
             />
           </div>
           <CartLink click={() => showCart(true)} />
-          {!logged &&
+          {!logged && (
             <div className="flex border-l-2 border-gray-500 space-x-4 ml-4 pl-4">
-              <button onClick={() => history.push({
-                pathname: "/signin"
-              })} className="h-full">
-
+              <button
+                onClick={() =>
+                  history.push({
+                    pathname: "/signin",
+                  })
+                }
+                className="h-full"
+              >
                 Sign in
-          </button>
-              <button onClick={() => history.push({
-                pathname: "/signup"
-              })} className="h-full">
-
+              </button>
+              <button
+                onClick={() =>
+                  history.push({
+                    pathname: "/signup",
+                  })
+                }
+                className="h-full"
+              >
                 Sign Up
-          </button>
-
+              </button>
             </div>
-          }
-          {logged &&
-            <button onClick={() => history.push({
-              pathname: "/profile"
-            })} className="h-full ml-4">
-
+          )}
+          {logged && (
+            <button
+              onClick={() =>
+                history.push({
+                  pathname: "/profile",
+                })
+              }
+              className="h-full ml-4 hidden md:flex"
+            >
               <b>My Profile</b>
-        </button>
-          }
+            </button>
+          )}
         </div>
       </div>
-      <div className="flex  xl:flex lg:flex lg:pb-2 lg:ml-4  space-x-8 lg:px-10  mt-2">
+      <div className="flex  flex-col md:flex-row  items-start xl:flex lg:flex lg:pb-2 lg:ml-4  ml-4 md:space-x-8 lg:px-10  mt-2">
         <Categories />
       </div>
-    </div >
+    </div>
   );
 }
 

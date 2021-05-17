@@ -8,6 +8,7 @@ import { createStore } from 'redux';
 import { rootReducer } from './redux/reducers/reducer'
 import { loadState, saveState } from './redux/sessionStorage'
 import axios from 'axios';
+import * as serviceWorker from './serviceWorker';
 const persistedState = loadState();
 
 let store = createStore(rootReducer, persistedState);
@@ -30,7 +31,13 @@ ReactDOM.render(
   document.getElementById('root')
 );
 
+  if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/firebase-messaging-sw.js');
+        });
+      }
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
+serviceWorker.unregister();
