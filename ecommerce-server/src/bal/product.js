@@ -39,7 +39,6 @@ const self = {
     async updateProductOnElasticSearch(productObj) {
         const flattenedProduct = util.flattenObject(productObj);
         flattenedProduct.categories = flattenedProduct.categories.join(',');
-
         await elasticSearch.AddNewDocument(flattenedProduct, flattenedProduct.sku);
     },
 

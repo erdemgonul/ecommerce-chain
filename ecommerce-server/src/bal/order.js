@@ -1,11 +1,14 @@
+const moment = require('moment')
+
 const productBAL = require('../bal/product');
 const orderDAL = require('../dal/order');
 
+const AWSSESWrapper = require('../util/ses');
 const ElasticSearchWrapper = require('../util/elasticsearchwrapper');
 const elasticSearch = new ElasticSearchWrapper(process.env.ELASTIC_SEARCH_REGION, process.env.ELASTIC_SEARCH_DOMAIN, process.env.ELASTIC_SEARCH_PRODUCT_INDEX, process.env.ELASTIC_SEARCH_PRODUCT_INDEXTYPE, true, process.env.ELASTIC_SEARCH_USERNAME, process.env.ELASTIC_SEARCH_PASSWORD);
 
 const self = {
-    async createOrder(createdBy, shippingAddress, billingAddress, products) {
+    async createOrder(user, shippingAddress, billingAddress, products) {
         let orderTotal = 0;
 
         for (let product of products) {
@@ -31,12 +34,19 @@ const self = {
                 return {error: `Reducing quantity failed for ${productId}!`};
             }
 
-            await productBAL.updateProductOnElasticSearch(productData);
+            try{
+                await productBAL.updateProductOnElasticSearch(productData);
+            } catch (err) {
+                return {error: `Elastic search error !`};
+            }
         }
 
-        const createdOrder = await orderDAL.createOrder(createdBy, shippingAddress, billingAddress, products, orderTotal);
+        const expireAt = moment.utc().add(2, 'days').toDate();
+        const createdOrder = await orderDAL.createOrder(user.id, shippingAddress, billingAddress, products, orderTotal, expireAt);
 
         if (createdOrder && createdOrder._id) {
+            AWSSESWrapper.SendEmailWithTemplate(user, 'ORDER_CREATED', {"recipient_name": user.firstName});
+
             return createdOrder;
         } else {
             return {error: `Order creation failed!`};

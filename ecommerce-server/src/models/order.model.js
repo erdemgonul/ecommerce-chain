@@ -9,7 +9,8 @@ const Product = mongoose.model(
     shippingAddress: String,
     billingAddress: String,
     products: Array,
-    orderTotal: Number
+    orderTotal: Number,
+      expireAt: Date
   })
 );
 

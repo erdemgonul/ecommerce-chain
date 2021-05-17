@@ -4,6 +4,8 @@ const userDAL = require('../dal/user');
 const util = require('../util/index');
 const speakeasy = require('speakeasy');
 
+const AWSSESWrapper = require('../util/ses');
+
 const self = {
   async signUp(userName, firstName, lastName, email, password) {
     const userExists = await userDAL.isUsernameExists(userName);
@@ -18,7 +20,15 @@ const self = {
       return { error: 'Email already exists !' };
     }
 
-    return await userDAL.createUser(userName, firstName, lastName, email, password);
+    const createdUser = await userDAL.createUser(userName, firstName, lastName, email, password);
+
+    if (createdUser && createdUser._id) {
+      AWSSESWrapper.SendEmailWithTemplate(createdUser.email, 'USER_REGISTERED', {"recipient_name": createdUser.firstName});
+
+      return createdUser;
+    } else {
+      return {error: `User creation failed!`};
+    }
   },
 
   async signIn(username, password) {

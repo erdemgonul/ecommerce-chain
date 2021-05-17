@@ -22,9 +22,12 @@ function Menu() {
   const [searchText, setSearchText] = useState(null);
   const [cartShowStyle, setCartShowStyle] = useState("hidden");
   const [categories, setCategoriesy] = useState([]);
+  const [logged, setLogged] = useState(false);
 
   useEffect(() => {
     getCategories();
+    if (sessionStorage.getItem("jwt"))
+      setLogged(true);
   }, []);
 
   function toSearch() {
@@ -39,7 +42,7 @@ function Menu() {
 
   function getCategories() {
     axios.post(`http://localhost:5000/api/v1/category/get/all`)
-      .then(res => {  setCategoriesy(res.data.data.categories); })
+      .then(res => { setCategoriesy(res.data.data.categories); })
   }
 
   function showCart(shouldShow) {
@@ -104,22 +107,31 @@ function Menu() {
             />
           </div>
           <CartLink click={() => showCart(true)} />
-          <div className="flex border-l-2 border-gray-500 space-x-4 ml-4 pl-4">
-            <button onClick={() => history.push({
-              pathname: "/signin"
-            })} className="h-full">
+          {!logged &&
+            <div className="flex border-l-2 border-gray-500 space-x-4 ml-4 pl-4">
+              <button onClick={() => history.push({
+                pathname: "/signin"
+              })} className="h-full">
 
-              Sign in
+                Sign in
           </button>
-            <button onClick={() => history.push({
-              pathname: "/signup"
-            })} className="h-full">
+              <button onClick={() => history.push({
+                pathname: "/signup"
+              })} className="h-full">
 
-              Sign Up
+                Sign Up
           </button>
 
-          </div>
+            </div>
+          }
+          {logged &&
+            <button onClick={() => history.push({
+              pathname: "/profile"
+            })} className="h-full ml-4">
 
+              <b>My Profile</b>
+        </button>
+          }
         </div>
       </div>
       <div className="flex  xl:flex lg:flex lg:pb-2 lg:ml-4  space-x-8 lg:px-10  mt-2">

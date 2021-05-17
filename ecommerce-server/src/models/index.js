@@ -50,6 +50,10 @@ function setupIndexes() {
     mongoose.connection.collections['products'].ensureIndex({ "categories": 1 }, { "unique": false }, function (err, res) {
         console.log(res + ' index set.')
     });
+
+    mongoose.connection.collections['orders'].ensureIndex({ "expireAt": 1 }, { "expireAfterSeconds": 0 }, function (err, res) {
+        console.log(res + ' index set.')
+    });
 }
 
 module.exports = db;

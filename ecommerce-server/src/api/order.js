@@ -4,7 +4,7 @@ const orderBAL = require('../bal/order');
 const router = express.Router();
 
 router.post('/create', async (req, res) => {
-  const result = await orderBAL.createOrder(req.userId, req.body.shippingAddress, req.body.billingAddress, req.body.products);
+  const result = await orderBAL.createOrder(req.user, req.body.shippingAddress, req.body.billingAddress, req.body.products);
   if (result && !result.error) {
     res.send({ success: true, orderId: result._id });
   } else {

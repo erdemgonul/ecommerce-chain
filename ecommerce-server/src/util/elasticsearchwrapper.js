@@ -113,7 +113,7 @@ module.exports = class ElasticSearchWrapper {
             const client = new AWS.HttpClient();
 
             client.handleRequest(request, null, function (response) {
-                    if (response && response.statusCode !== 201) {
+                    if (response && (response.statusCode !== 201 && response.statusCode !== 200)) {
                         reject(response.statusMessage);
                     } else {
                         let responseBody = '';
