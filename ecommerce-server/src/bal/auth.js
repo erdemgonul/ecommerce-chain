@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const userDAL = require('../dal/user');
 const util = require('../util/index');
-const speakeasy = require('speakeasy');
 
 const AWSSESWrapper = require('../common/ses');
 
@@ -31,6 +30,40 @@ const self = {
     }
   },
 
+  async verifyTwoFactorCode(username, code) {
+    const user = await userDAL.getUserByUsername(username);
+
+    if (user.lastTwoFactorCode && code === user.lastTwoFactorCode) {
+      let lastTime = user.lastLogoutOn;
+
+      if (!user.lastLogoutOn) {
+        lastTime = user.createdOn;
+      }
+
+      const hashedString = util.authHashString(lastTime, user.password);
+
+      let userRole = user.role
+
+      if (!user.role) {
+        userRole = 'customer'
+      }
+
+      const token = jwt.sign({ id: user._id, hash: hashedString, role: userRole }, process.env.JWT_SECRET, {
+        expiresIn: process.env.ACCESS_TOKEN_EXPIRY_TIME || '1h'
+      });
+
+      const result = await userDAL.updateUserDetails(user._id, {lastTwoFactorCode: null});
+
+      if (!result) {
+        return { error: 'Unable to clear Two Factor Code !' };
+      }
+
+      return token;
+    }
+
+    return { error: 'Invalid code !' };
+  },
+
   async signIn(username, password) {
     const user = await userDAL.getUserByUsername(username);
 
@@ -48,15 +81,17 @@ const self = {
         return { error: 'Invalid User' };
       }
 
-      if (user.twoFactorAuthEnabled) {
-        const secretCode = speakeasy.generateSecret({
-          name: 'EcommerceChain',
-        });
+      if (user.twoFactorAuthenticationEnabled) {
+        const twoFactorCode = Math.floor(100000 + Math.random() * 900000);
+        const result = await userDAL.updateUserDetails(user._id, {lastTwoFactorCode: twoFactorCode});
 
-        return {
-          otpauthUrl : secretCode.otpauth_url,
-          base32: secretCode.base32,
-        };
+        if (!result) {
+          return { error: 'Unable to save Two Factor Code !' };
+        }
+
+        AWSSESWrapper.SendEmailWithTemplate(user, 'TWO_FACTOR_CODE_REQUESTED', {"recipient_name": user.firstName, "two_factor_code": twoFactorCode});
+
+        return { state: 'TWO_FACTOR_AUTH' };
       }
 
       let lastTime = user.lastLogoutOn;

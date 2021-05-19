@@ -9,6 +9,7 @@ const schema = Joi.object({
   newShippingAddress: Joi.bool().optional(),
   billingAddresses: Joi.array().items(Joi.string()).optional(),
   newBillingAddress: Joi.bool().optional(),
+  twoFactorAuthenticationEnabled: Joi.bool().optional()
 }).options({ stripUnknown: true });
 
 module.exports = schema;
