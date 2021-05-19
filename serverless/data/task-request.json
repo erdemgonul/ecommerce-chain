@@ -1,0 +1,8 @@
+{
+    "dueDate": "2021-05-19T20:21:15.000Z",
+    "email": {
+        "to": ["astraxolt@gmail.com"],
+        "templateName": "ORDER_CREATED",
+        "templateData": {"recipient_name": "Ertan"}
+    }
+}

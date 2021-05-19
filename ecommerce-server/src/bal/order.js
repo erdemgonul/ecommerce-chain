@@ -3,6 +3,7 @@ const moment = require('moment')
 const productBAL = require('../bal/product');
 const orderDAL = require('../dal/order');
 
+const AWSLambdaFunctions = require('../common/lambda');
 const AWSSESWrapper = require('../common/ses');
 const ElasticSearchWrapper = require('../common/elasticsearchwrapper');
 const elasticSearch = new ElasticSearchWrapper(process.env.ELASTIC_SEARCH_REGION, process.env.ELASTIC_SEARCH_DOMAIN, process.env.ELASTIC_SEARCH_PRODUCT_INDEX, process.env.ELASTIC_SEARCH_PRODUCT_INDEXTYPE, true, process.env.ELASTIC_SEARCH_USERNAME, process.env.ELASTIC_SEARCH_PASSWORD);
@@ -26,7 +27,7 @@ const self = {
             }
 
             product.unitPrice = productData.price;
-            orderTotal += productQuantity *  productData.price;
+            orderTotal += productQuantity * productData.price;
 
             const subtractSuccess = await productBAL.subtractQuantityFromProduct(product.sku, productQuantity);
 
@@ -34,7 +35,7 @@ const self = {
                 return {error: `Reducing quantity failed for ${productId}!`};
             }
 
-            try{
+            try {
                 await productBAL.updateProductOnElasticSearch(productData);
             } catch (err) {
                 return {error: `Elastic search error !`};
@@ -46,6 +47,12 @@ const self = {
 
         if (createdOrder && createdOrder._id) {
             AWSSESWrapper.SendEmailWithTemplate(user, 'ORDER_CREATED', {"recipient_name": user.firstName});
+
+            const scheduledEmailResponse = await AWSLambdaFunctions.invokeMailScheduler({
+                to: [user.email],
+                templateName: "ORDER_PAYMENT_REMINDER",
+                templateData: {recipient_name: user.firstName}
+            }, moment.utc().add(2, 'minutes').toISOString())
 
             return createdOrder;
         } else {
