@@ -2,6 +2,7 @@ const request = require('supertest');
 
 const app = require('../src/app');
 const json = require("entities");
+const http = require("http");
 
 let token = null;
 var successcheck = function (res) {
@@ -21,6 +22,19 @@ function apppost(path, data) {
         .send(data)
         .set('Accept', 'application/json')
         .expect('Content-Type', /json/);
+}
+
+function signintest(done) {
+    apppost('/auth/signin', {"userName": "nadir", "password": "123456"})
+        .expect(200)
+        .expect(successcheck)
+        .end((err, res) => {
+            if (err) {
+                return done(err);
+            }
+            token = res.body.accessToken;
+            return done();
+        });
 }
 
 var datacheck = function (res) {
@@ -58,16 +72,7 @@ describe('Smooth Sign-up, Sign-in and user_info management', () => {
             });
     });
     it('sign-in responds with accesstoken', (done) => {
-        apppost('/auth/signin', {"userName": "nadir", "password": "123456"})
-            .expect(200)
-            .expect(successcheck)
-            .end((err, res) => {
-                if (err) {
-                    return done(err);
-                }
-                token = res.body.accessToken;
-                return done();
-            });
+        signintest(done);
     });
     it('getuserdetails', (done) => {
         apppost('/user/get/details', {"userName": "nadir"})
@@ -78,7 +83,7 @@ describe('Smooth Sign-up, Sign-in and user_info management', () => {
     it('setuserdetails', (done) => {
 
         let data = {
-            "firstName": "ahmet",
+            "email": "nadir.yuceer@gmail.com",
         }
         apppost('/user/get/details', data)
             .set('Authorization', 'Bearer ' + token)
@@ -106,8 +111,7 @@ describe('Corner cases', () => {
     });
     it('sign-in wrong username or password', (done) => {
         apppost('/auth/signin', {"userName": "nadir", "password": "1234"})
-        request(app)
-            .expect(200, {success: false}, done())
+            .expect(200, {success: false}, done)
     });
 
 });
@@ -120,17 +124,16 @@ describe('test of search implementation', () => {
         }).expect(200)
             .expect(successcheck)
             .end((err, res) => {
-            const temp = res.body['data']['products'];
-            if (temp.isEmpty) return new Error("search result is empty");
-            else {
-                let lookup = temp[0]['title'];
-                for (let i = 0; i < temp.length; i++) {
-                    if (temp[i]['title'].toLowerCase().includes("msi")) continue;
-                    else return new Error("search element with no connection to the search query");
+                const temp = res.body['data']['products'];
+                if (temp.isEmpty) return done(new Error("search result is empty"));
+                else {
+                    let lookup = temp[0]['title'];
+                    for (let i = 0; i < temp.length; i++) {
+                        if (!temp[i]['title'].toLowerCase().includes("msi")) return done(new Error("search element with no connection to the search query"));
+                    }
+                    return done();
                 }
-                return done();
-            }
-        })
+            })
     });
 });
 
@@ -143,15 +146,67 @@ describe('test of filter implementation', () => {
             .expect(successcheck)
             .end((err, res) => {
                 const temp = res.body['data']['products'];
-                if (temp.isEmpty) return new Error("search result is empty");
+                if (temp.isEmpty) return done(new Error("search result is empty"));
                 else {
                     let lookup = temp[0]['categories']
                     for (let i = 0; i < temp.length; i++) {
-                        if (temp[i]['categories'].includes("clothing/bags")) continue;
-                        else return new Error("search element with no connection to the search query");
+                        if (!temp[i]['categories'].includes("clothing/bags")) return done(new Error("search element with no connection to the search query"));
                     }
                     return done();
                 }
             })
+    });
+});
+
+describe('test of order system', () => {
+    let orderid;
+    let orderdata;
+    const searchdata = {
+        "query": "msi",
+        "fullData": true
+    }
+
+    it('signin', (done) => {
+        signintest(done);
+    });
+
+    it('searchforproduct', (done) => {
+        apppost('/product/search', searchdata).expect(200).end((err, res) => {
+            if(err) return done(err);
+            orderdata = res.body['data']['products'][0];
+            return done();
+        });
+    });
+
+    it('lookforsuccessfulregister', ((done) => {
+        apppost('/order/create', {
+            "shippingAddress": "Istanbul",
+            "billingAddress": "Istanbul",
+            "products": [{"sku": orderdata['sku'], "quantity": 2, "title": orderdata['title']}]
+        }).set('Authorization', 'Bearer ' + token)
+            .expect(200)
+            .expect(successcheck)
+            .end((err, res) => {
+            if (err) return done(err);
+            orderid = res.body['orderId'];
+            return done();
+        });
+    }));
+
+    it('get', (done) => {
+        apppost("/order/get/all", {})
+            .set('Authorization', 'Bearer ' + token)
+            .expect(200)
+            .expect(successcheck)
+            .end((err,res) => {
+                if(err) return done(err);
+                return done();
+            })
+    });
+
+    it('delete', (done) => {
+        apppost("/order/delete", {"orderId": orderid})
+            .set('Authorization', 'Bearer ' + token)
+            .expect(200,{"success":true},done);
     });
 });
