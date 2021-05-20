@@ -23,34 +23,6 @@ app.get("/", (req, res) => {
   });
 });
 
-//send notification kodu
-const tokens = [
-  "dQWC9d6A2nkF31RIj-RMVm:APA91bHALJS9x0lzI6ApkHHRIdqcSmFlRxgjJ50OuI5IvhY9_neBggMu0dqYIv2BzY8jAJim8Gj-mLfMPe2lbwuAvf-vIbwltvfH8VBCVJSlEo302t7tAqS8l8_PcgZzq0InZ1NYcOlI",
-];
-
-app.post("/", async (req, res) => {
-  try {
-    const { title, body, imageUrl, notificationToken } = req.body;
-    await firebaseAdmin
-      .messaging()
-      .sendMulticast({
-        tokens: [notificationToken],
-        notification: {
-          title: "Your order status",
-          body: "Order has been shipped to your address",
-          imageUrl,
-        },
-      })
-      .then((e) => console.log(e))
-      .catch((err) => console.log(err));
-    res.status(200).json({ message: "Successfully sent notifications!" });
-  } catch (err) {
-    res
-      .status(err.status || 500)
-      .json({ message: err.message || "Something went wrong!" });
-  }
-});
-
 app.use(middlewares.validateRequest);
 app.use(middlewares.verifyToken);
 app.use(middlewares.isProductManager);
