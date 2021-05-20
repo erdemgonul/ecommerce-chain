@@ -18,7 +18,7 @@ function ProductPage() {
 
   useEffect(() => {
     let parsedQuery = queryString.parse(location.search);
-    axios.post(`http://localhost:5000/api/v1/product/get`, { sku: parsedQuery.sku })
+    axios.post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/product/get`, { sku: parsedQuery.sku })
       .then(res => {
         setProduct(res.data.data);
       })

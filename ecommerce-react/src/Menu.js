@@ -36,7 +36,7 @@ function Menu() {
   }
 
   function getCategories() {
-    axios.post(`http://localhost:5000/api/v1/category/get/all`).then((res) => {
+    axios.post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/category/get/all`).then((res) => {
       setCategoriesy(res.data.data.categories);
     });
   }

@@ -22,7 +22,7 @@ const Signin = () => {
 
   const submitTwoFactorAuth = () => {
     axios
-      .post(`http://localhost:5000/api/v1/auth/twofactorauth/verify`, {
+      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/auth/twofactorauth/verify`, {
         userName: username,
         twoFactorCode: parseInt(twoFA),
       })
@@ -44,7 +44,7 @@ const Signin = () => {
   const signIn = (e) => {
     console.log("eeee");
     axios
-      .post(`http://localhost:5000/api/v1/auth/signin`, {
+      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/auth/signin`, {
         userName: username,
         password: password,
       })

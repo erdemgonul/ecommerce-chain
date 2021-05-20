@@ -22,7 +22,7 @@ function Products() {
   }, [location, categories]);
 
   async function getFirst() {
-    axios.post(`http://localhost:5000/api/v1/product/suggestedproducts`)
+    axios.post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/product/suggestedproducts`)
       .then(res => {
         setProducts(res.data.data.products);
       })

@@ -14,7 +14,7 @@ const Signup = () => {
         let firstname = e.target.elements.firstname?.value
         let lastname = e.target.elements.lastname?.value;
 
-        axios.post(`http://localhost:5000/api/v1/auth/signup`, { userName: username, password: password, firstName: firstname, lastName: lastname, email: email },)
+        axios.post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/auth/signup`, { userName: username, password: password, firstName: firstname, lastName: lastname, email: email },)
             .then(res => {
 
                 history.push({

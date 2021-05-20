@@ -32,7 +32,7 @@ function CategoryProducts() {
     getProductsByFilter();
   }
   async function getFirst() {
-    axios.post(`http://localhost:5000/api/v1/product/get/category`, {
+    axios.post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/product/get/category`, {
       "path": window.location.href.slice(window.location.href.lastIndexOf('categories/') + 11, window.location.href.length),
       "strictMode": false
     })
@@ -40,7 +40,7 @@ function CategoryProducts() {
         setProducts(res.data.data.products);
       })
 
-    axios.post(`http://localhost:5000/api/v1/category/get/filters`, {
+    axios.post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/category/get/filters`, {
       "category": window.location.href.slice(window.location.href.lastIndexOf('categories/') + 11, window.location.href.length).toLowerCase()
     })
       .then(res => {
@@ -51,7 +51,7 @@ function CategoryProducts() {
   async function getProductsByFilter() {
     if (valueFilter["priceMin"] == null) { valueFilter["priceMin"] = -1 }
     if (valueFilter["priceMax"] == null) { valueFilter["priceMax"] = -1 }
-    axios.post(`http://localhost:5000/api/v1/product/get/category/filter`, {
+    axios.post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/product/get/category/filter`, {
       "category": window.location.href.slice(window.location.href.lastIndexOf('categories/') + 11, window.location.href.length).toLowerCase(),
       "fullData": true,
       "filter": valueFilter

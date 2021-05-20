@@ -26,7 +26,7 @@ const Profile = () => {
 
   useEffect(() => {
     axios
-      .post(`http://localhost:5000/api/v1/user/get/details`, null)
+      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/get/details`, null)
       .then((res) => {
         console.log(res);
         setUser(res.data.data);
@@ -41,7 +41,7 @@ const Profile = () => {
   const saveAddress = (e) => {
     e.preventDefault();
     axios
-      .post(`http://localhost:5000/api/v1/user/change/details`, {
+      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/change/details`, {
         shippingAddresses: [shippingAddress],
         newShippingAddress: true,
       })
@@ -66,7 +66,7 @@ const Profile = () => {
 
   const getAddresses = () => {
     axios
-      .post(`http://localhost:5000/api/v1/user/get/details`, null)
+      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/get/details`, null)
       .then((res) => {
         console.log(res.data.data.shippingAddress);
         setAddresses(res.data.data.shippingAddresses);
@@ -78,7 +78,7 @@ const Profile = () => {
 
   const getPreviousProducts = () => {
     axios
-      .post(`http://localhost:5000/api/v1/order/get/all`, null)
+      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/order/get/all`, null)
       .then((res) => {
         console.log(res.data.data);
         setPreviousProducts(res.data.data);
@@ -92,7 +92,7 @@ const Profile = () => {
 
     setTwoFA(val);
     axios
-      .post(`http://localhost:5000/api/v1/user/change/details`, {
+      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/change/details`, {
         twoFactorAuthenticationEnabled: val,
       })
       .then((res) => {

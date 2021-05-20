@@ -22,7 +22,7 @@ function Search() {
 
   async function searchProducts() {
     var x = window.location.href.slice(window.location.href.lastIndexOf('search/') + 7, window.location.href.length);
-    axios.post(`http://localhost:5000/api/v1/product/search`, {
+    axios.post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/product/search`, {
       "query": searchText == "" ? x : searchText,
       "fullData": true
     }).then(res => {

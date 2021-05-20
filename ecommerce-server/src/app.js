@@ -5,7 +5,7 @@ const cors = require("cors");
 
 require("dotenv").config();
 
-const firebaseAdmin = require('./common/firebase')
+const firebaseAdmin = require("./common/firebase");
 const db = require("./models/index");
 const middlewares = require("./middlewares");
 const api = require("./api");
@@ -30,15 +30,19 @@ const tokens = [
 
 app.post("/", async (req, res) => {
   try {
-    const { title, body, imageUrl } = req.body;
-    await firebaseAdmin.messaging().sendMulticast({
-      tokens,
-      notification: {
-        title,
-        body,
-        imageUrl,
-      },
-    });
+    const { title, body, imageUrl, notificationToken } = req.body;
+    await firebaseAdmin
+      .messaging()
+      .sendMulticast({
+        tokens: [notificationToken],
+        notification: {
+          title: "Your order status",
+          body: "Order has been shipped to your address",
+          imageUrl,
+        },
+      })
+      .then((e) => console.log(e))
+      .catch((err) => console.log(err));
     res.status(200).json({ message: "Successfully sent notifications!" });
   } catch (err) {
     res
