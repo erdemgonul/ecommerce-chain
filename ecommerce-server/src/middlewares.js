@@ -15,8 +15,10 @@ function errorHandler(err, req, res, next) {
   const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
   res.status(statusCode);
 
-  const logObject = {err: err.message, stack:err.stack, requestBody: req.body, requestHeaders: req.headers, status: res.statusCode}
-  console.log(JSON.stringify(logObject, null, 2))
+  const logObject = {
+    err: err.message, stack: err.stack, requestBody: req.body, requestHeaders: req.headers, status: res.statusCode
+  };
+  console.log(JSON.stringify(logObject, null, 2));
 
   res.json({
     message: err.message,
@@ -50,13 +52,12 @@ function validateRequest(req, res, next) {
 }
 
 function isProductManager(req, res, next) {
-  if (req.userRole === "productManager" || !config.auth.productManagerEndpoints.includes(req.originalUrl)) {
+  if (req.userRole === 'productManager' || !config.auth.productManagerEndpoints.includes(req.originalUrl)) {
     return next();
   }
 
   return res.status(401).send({ error: 'Unauthorized!' });
 }
-
 
 function verifyToken(req, res, next) {
   if (config.auth.noAuthEndpoints.includes(req.originalUrl)) {

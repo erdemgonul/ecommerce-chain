@@ -5,7 +5,7 @@ const Category = mongoose.model(
   new mongoose.Schema({
     title: String,
     parent: String,
-      path: String
+    path: String
   })
 );
 

@@ -43,11 +43,11 @@ const self = {
       const categories = await Category.find({
       }).exec();
 
-      for (let category of categories) {
+      for (const category of categories) {
         const categoryObj = category.toObject();
         delete categoryObj._id;
         delete categoryObj.__v;
-        result.push(categoryObj)
+        result.push(categoryObj);
       }
 
       return result;
@@ -59,7 +59,7 @@ const self = {
   getCategoryByPath: async (path) => {
     try {
       const category = await Category.findOne({
-        path: path
+        path
       }).exec();
 
       if (category) {
@@ -73,15 +73,15 @@ const self = {
   getCategoryFilters: async (categoryQuery) => {
     try {
       const result = [];
-      let  filter = new RegExp(`^${categoryQuery}`);
+      const filter = new RegExp(`^${categoryQuery}`);
 
-      const products = await Product.find({categories: filter}, ['product_details']).exec();
+      const products = await Product.find({ categories: filter }, ['product_details']).exec();
 
-      for (let product of products) {
+      for (const product of products) {
         const productObj = product.toObject();
         delete productObj._id;
         delete productObj.__v;
-        result.push(productObj.product_details)
+        result.push(productObj.product_details);
       }
 
       return result;
@@ -96,13 +96,13 @@ const self = {
 
       const regex = new RegExp(`^${categoryQuery}`);
 
-      const categories = await Category.find({parent: regex}, {_id: 0}).exec();
+      const categories = await Category.find({ parent: regex }, { _id: 0 }).exec();
 
-      for (let category of categories) {
+      for (const category of categories) {
         const categoryObj = category.toObject();
         delete categoryObj._id;
         delete categoryObj.__v;
-        result.push(categoryObj)
+        result.push(categoryObj);
       }
 
       return result;

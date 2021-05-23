@@ -22,5 +22,4 @@ router.use('/category', category);
 router.use('/order', order);
 router.use('/notification', notification);
 
-
 module.exports = router;

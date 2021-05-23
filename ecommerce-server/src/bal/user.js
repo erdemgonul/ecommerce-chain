@@ -22,7 +22,7 @@ const self = {
 
     if (userDetails) {
       if (fullDetails) {
-        userDetails.id = userDetails._id
+        userDetails.id = userDetails._id;
         delete userDetails._id;
         delete userDetails.__v;
 
@@ -59,7 +59,7 @@ const self = {
         currentUserDetails = await userDAL.getUserByUserId(userId);
       }
 
-      detailsToChange.shippingAddresses = [...currentUserDetails.shippingAddresses, ...detailsToChange.shippingAddresses]
+      detailsToChange.shippingAddresses = [...currentUserDetails.shippingAddresses, ...detailsToChange.shippingAddresses];
     }
 
     if (detailsToChange.hasOwnProperty('newBillingAddress') && detailsToChange.hasOwnProperty('billingAddresses')) {
@@ -67,7 +67,7 @@ const self = {
         currentUserDetails = await userDAL.getUserByUserId(userId);
       }
 
-      detailsToChange.billingAddresses = [...currentUserDetails.billingAddresses, ...detailsToChange.billingAddresses]
+      detailsToChange.billingAddresses = [...currentUserDetails.billingAddresses, ...detailsToChange.billingAddresses];
     }
 
     if (detailsToChange.hasOwnProperty('password')) {

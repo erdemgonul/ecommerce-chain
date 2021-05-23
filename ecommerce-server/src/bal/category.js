@@ -23,11 +23,11 @@ const self = {
 
     const allKeys = {};
 
-    for (let details of allDetails) {
-      let keysOfObj = Object.keys(details);
+    for (const details of allDetails) {
+      const keysOfObj = Object.keys(details);
 
-      for (let key of keysOfObj) {
-        let valueOfKey = details[key];
+      for (const key of keysOfObj) {
+        const valueOfKey = details[key];
 
         if (Object.keys(allKeys).includes(key)) {
           if (!allKeys[key].includes(valueOfKey)) {

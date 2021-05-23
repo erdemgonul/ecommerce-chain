@@ -1,198 +1,198 @@
 const productDAL = require('../dal/product');
-const categoryBAL = require('../bal/category');
+const categoryBAL = require('./category');
 const util = require('../util/index');
 const ElasticSearchWrapper = require('../common/elasticsearchwrapper');
+
 const elasticSearch = new ElasticSearchWrapper(process.env.ELASTIC_SEARCH_REGION, process.env.ELASTIC_SEARCH_DOMAIN, process.env.ELASTIC_SEARCH_PRODUCT_INDEX, process.env.ELASTIC_SEARCH_PRODUCT_INDEXTYPE, true, process.env.ELASTIC_SEARCH_USERNAME, process.env.ELASTIC_SEARCH_PASSWORD);
 
 const self = {
-    async createProduct(sku, title, description, image, quantity, price, product_details, shipping_details, categories) {
-        // check if product with id exists or not
-        const productIdExists = await productDAL.isProductIdExists(sku);
+  async createProduct(sku, title, description, image, quantity, price, product_details, shipping_details, categories) {
+    // check if product with id exists or not
+    const productIdExists = await productDAL.isProductIdExists(sku);
 
-        for (let category of categories) {
-            const categoryExist = await categoryBAL.isCategoryExists(category);
+    for (const category of categories) {
+      const categoryExist = await categoryBAL.isCategoryExists(category);
 
-            if (!categoryExist) {
-                return {error: `Category with path ${category} does not exists !`};
-            }
+      if (!categoryExist) {
+        return { error: `Category with path ${category} does not exists !` };
+      }
+    }
+
+    if (productIdExists) {
+      return { error: 'Product with given product id already exists !' };
+    }
+
+    const createdProduct = await productDAL.createProduct(sku, title, description, image, quantity, price, product_details, shipping_details, categories);
+
+    if (createdProduct && createdProduct.sku) {
+      try {
+        await self.updateProductOnElasticSearch(createdProduct);
+      } catch (err) {
+        return { error: 'Elastic search error !' };
+      }
+
+      return createdProduct;
+    }
+    return { error: 'Product creation error !' };
+  },
+
+  async updateProductOnElasticSearch(productObj) {
+    const flattenedProduct = util.flattenObject(productObj);
+    flattenedProduct.categories = flattenedProduct.categories.join(',');
+    await elasticSearch.AddNewDocument(flattenedProduct, flattenedProduct.sku);
+  },
+
+  async getAllProducts() {
+    // check if product with id exists or not
+    const allProducts = await productDAL.getAllProducts();
+    return allProducts;
+  },
+
+  async getQuantityOfProduct(sku) {
+    // check if product with id exists or not
+    return await productDAL.getQuantityOfProduct(sku);
+  },
+
+  async subtractQuantityFromProduct(sku, quantity) {
+    // check if product with id exists or not
+    return await productDAL.subtractQuantityFromProduct(sku, quantity);
+  },
+
+  async getSuggestedProducts() {
+    return await productDAL.getSuggestedProducts();
+  },
+
+  async deleteProductWithId(productId, deleteFromElasticSearch = true) {
+    return await productDAL.deleteProductWithId(productId, deleteFromElasticSearch);
+  },
+
+  async filterProductsInCategory(categoryText, filter, fullData = false) {
+    try {
+      let foundProducts;
+
+      const esQuery = {
+        query: {
+          bool: {
+            must: [
+              {
+                match: {
+                  categories: `*${categoryText.replace(/\//g, '//')}*`
+                }
+              },
+              {
+                match_phrase: {
+                  categories: categoryText.replace(/\//g, '//')
+                }
+              }],
+          }
+        }
+      };
+
+      if (Object.keys(filter).includes('priceMin') && Object.keys(filter).includes('priceMax')) {
+        const priceQuery = {
+          range: {
+            price: {}
+          }
+        };
+
+        if (filter.priceMax !== -1) {
+          priceQuery.range.price.lte = filter.priceMax;
+        }
+        if (filter.priceMin !== -1) {
+          priceQuery.range.price.gte = filter.priceMin;
         }
 
-        if (productIdExists) {
-            return {error: 'Product with given product id already exists !'};
+        esQuery.query.bool.must.push(priceQuery);
+      }
+
+      for (const key of Object.keys(filter)) {
+        if (key === 'priceMin' || key === 'priceMax' || !filter[key]) {
+          continue;
         }
 
-        const createdProduct = await productDAL.createProduct(sku, title, description, image, quantity, price, product_details, shipping_details, categories);
+        const obj = {
+          match_phrase: {}
+        };
 
-        if (createdProduct && createdProduct.sku) {
-            try {
-                await self.updateProductOnElasticSearch(createdProduct);
-            } catch (err) {
-                return {error: 'Elastic search error !'};
-            }
+        obj.match_phrase[`productDetails_${key}`] = `*${filter[key]}*`;
+        esQuery.query.bool.must.push(obj);
+      }
+      console.log(JSON.stringify(esQuery, null, 2));
 
-            return createdProduct;
-        } else {
-            return {error: 'Product creation error !'};
+      foundProducts = await elasticSearch.Search(
+        esQuery
+      );
+
+      if (fullData) {
+        const productsWithFullData = [];
+
+        for (const product of foundProducts) {
+          const fullProduct = await this.getProductByProductId(product.sku);
+          productsWithFullData.push(fullProduct);
         }
-    },
 
-    async updateProductOnElasticSearch(productObj) {
-        const flattenedProduct = util.flattenObject(productObj);
-        flattenedProduct.categories = flattenedProduct.categories.join(',');
-        await elasticSearch.AddNewDocument(flattenedProduct, flattenedProduct.sku);
-    },
+        return productsWithFullData;
+      }
 
-    async getAllProducts() {
-        // check if product with id exists or not
-        const allProducts = await productDAL.getAllProducts();
-        return allProducts;
-    },
+      return foundProducts;
+    } catch (err) {
+      console.log('Elastic Search Error: ', err);
+      return '';
+    }
+  },
 
-    async getQuantityOfProduct(sku) {
-        // check if product with id exists or not
-        return await productDAL.getQuantityOfProduct(sku);
-    },
+  async searchProduct(queryText, filter, fullData = false) {
+    try {
+      let foundProducts;
 
-    async subtractQuantityFromProduct(sku, quantity) {
-        // check if product with id exists or not
-        return await productDAL.subtractQuantityFromProduct(sku, quantity);
-    },
-
-    async getSuggestedProducts() {
-        return await productDAL.getSuggestedProducts();
-    },
-
-    async deleteProductWithId(productId, deleteFromElasticSearch = true) {
-        return await productDAL.deleteProductWithId(productId, deleteFromElasticSearch);
-    },
-
-    async filterProductsInCategory(categoryText, filter, fullData = false) {
-        try {
-            let foundProducts;
-
-            const esQuery = {
-                query: {
-                    bool: {
-                        must: [
-                            {
-                                match: {
-                                    categories: '*' + categoryText.replace(/\//g, '//') + '*'
-                                }
-                            },
-                            {
-                                match_phrase: {
-                                    categories: categoryText.replace(/\//g, '//')
-                                }
-                            }],
+      if (filter) {
+        const esQuery = {
+          query: {
+            bool: {
+              must: [],
+              should: [
+                {
+                  match: {
+                    title: {
+                      query: queryText,
+                      fuzziness: 2,
+                      prefix_length: 1,
                     }
-                }
-            }
-
-            if (Object.keys(filter).includes("priceMin") && Object.keys(filter).includes("priceMax")) {
-                const priceQuery = {
-                    range: {
-                        price: {}
+                  }
+                },
+                {
+                  match: {
+                    description: {
+                      query: queryText,
+                      fuzziness: 2,
+                      prefix_length: 1
                     }
+                  }
                 }
-
-                if (filter.priceMax !== -1) {
-                    priceQuery.range.price.lte = filter.priceMax;
-                }
-                if (filter.priceMin !== -1) {
-                    priceQuery.range.price.gte = filter.priceMin;
-                }
-
-                esQuery.query.bool.must.push(priceQuery);
+              ],
+              minimum_should_match: 1,
             }
+          }
+        };
 
-            for (let key of Object.keys(filter)) {
-                if (key === 'priceMin' || key === 'priceMax' || !filter[key]) {
-                    continue
-                }
+        for (const key of Object.keys(filter)) {
+          if (key === 'priceMin' || key === 'priceMax' || !filter[key]) {
+            continue;
+          }
 
-                const obj = {
-                    match_phrase: {}
-                }
+          const obj = {
+            match_phrase: {}
+          };
 
-                obj.match_phrase[`productDetails_${key}`] = "*" + filter[key] + "*"
-                esQuery.query.bool.must.push(obj);
-            }
-            console.log(JSON.stringify(esQuery, null, 2))
-
-            foundProducts = await elasticSearch.Search(
-                esQuery
-            )
-
-            if (fullData) {
-                const productsWithFullData = [];
-
-                for (let product of foundProducts) {
-                    const fullProduct = await this.getProductByProductId(product.sku);
-                    productsWithFullData.push(fullProduct);
-                }
-
-                return productsWithFullData;
-            }
-
-            return foundProducts;
-        } catch (err) {
-            console.log('Elastic Search Error: ', err)
-            return '';
+          obj.match_phrase[`productDetails_${key}`] = `*${filter[key]}*`;
+          esQuery.query.bool.must.push(obj);
         }
-    },
 
-    async searchProduct(queryText, filter, fullData = false) {
-        try {
-            let foundProducts;
-
-            if (filter) {
-                const esQuery = {
-                    query: {
-                        bool: {
-                            must: [],
-                            should: [
-                                {
-                                    match: {
-                                        title: {
-                                            query: queryText,
-                                            fuzziness: 2,
-                                            prefix_length: 1,
-                                        }
-                                    }
-                                },
-                                {
-                                    match: {
-                                        description: {
-                                            query: queryText,
-                                            fuzziness: 2,
-                                            prefix_length: 1
-                                        }
-                                    }
-                                }
-                            ],
-                            minimum_should_match: 1,
-                        }
-                    }
-                }
-
-                for (let key of Object.keys(filter)) {
-                    if (key === 'priceMin' || key === 'priceMax' || !filter[key]) {
-                        continue
-                    }
-
-                    const obj = {
-                        match_phrase: {}
-                    }
-
-                    obj.match_phrase[`productDetails_${key}`] = "*" + filter[key] + "*"
-                    esQuery.query.bool.must.push(obj);
-                }
-
-                foundProducts = await elasticSearch.Search(
-                    esQuery
-                )
-            } else {
-                /*
+        foundProducts = await elasticSearch.Search(
+          esQuery
+        );
+      } else {
+        /*
                 foundProducts = await elasticSearch.Search({
                     query: {
                         multi_match: {
@@ -204,70 +204,70 @@ const self = {
                     }
                 }) */
 
-                foundProducts = await elasticSearch.Search({
-                    query: {
-                        bool: {
-                            should: [
-                                {
-                                    match: {
-                                        title: {
-                                            query: queryText,
-                                            fuzziness: 2,
-                                            prefix_length: 1
-                                        }
-                                    }
-                                },
-                                {
-                                    match: {
-                                        description: {
-                                            query: queryText,
-                                            fuzziness: 2,
-                                            prefix_length: 1
-                                        }
-                                    }
-                                }
-                            ],
-                            minimum_should_match: 1,
-                        }
+        foundProducts = await elasticSearch.Search({
+          query: {
+            bool: {
+              should: [
+                {
+                  match: {
+                    title: {
+                      query: queryText,
+                      fuzziness: 2,
+                      prefix_length: 1
                     }
-                })
-            }
-
-            if (fullData) {
-                const productsWithFullData = [];
-
-                for (let product of foundProducts) {
-                    const fullProduct = await this.getProductByProductId(product.sku);
-                    productsWithFullData.push(fullProduct);
+                  }
+                },
+                {
+                  match: {
+                    description: {
+                      query: queryText,
+                      fuzziness: 2,
+                      prefix_length: 1
+                    }
+                  }
                 }
-
-                return productsWithFullData;
+              ],
+              minimum_should_match: 1,
             }
+          }
+        });
+      }
 
-            return foundProducts;
-        } catch (err) {
-            console.log('Elastic Search Error: ', err)
-            return '';
+      if (fullData) {
+        const productsWithFullData = [];
+
+        for (const product of foundProducts) {
+          const fullProduct = await this.getProductByProductId(product.sku);
+          productsWithFullData.push(fullProduct);
         }
-    },
 
-    async getProductByProductId(productId) {
-        const productDetails = await productDAL.getProductByProductId(productId);
+        return productsWithFullData;
+      }
 
-        if (productDetails) {
-            delete productDetails._id;
-            delete productDetails.__v;
+      return foundProducts;
+    } catch (err) {
+      console.log('Elastic Search Error: ', err);
+      return '';
+    }
+  },
 
-            return productDetails;
-        }
-        return {error: 'Product not found !'};
-    },
+  async getProductByProductId(productId) {
+    const productDetails = await productDAL.getProductByProductId(productId);
 
-    async getAllProductsInCategory(category, strictMode) {
-        // check if product with id exists or not
-        const allProducts = await productDAL.getAllProductsInCategory(category, strictMode);
-        return allProducts;
-    },
+    if (productDetails) {
+      delete productDetails._id;
+      delete productDetails.__v;
+
+      return productDetails;
+    }
+    return { error: 'Product not found !' };
+  },
+
+  async getAllProductsInCategory(category, strictMode) {
+    // check if product with id exists or not
+    const allProducts = await productDAL.getAllProductsInCategory(category, strictMode);
+    return allProducts;
+  },
 };
 
 module.exports = self;
