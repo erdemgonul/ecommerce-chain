@@ -81,6 +81,130 @@ module.exports = class ElasticSearchWrapper {
     });
   }
 
+  DeleteIndex() {
+    return new Promise((resolve, reject) => {
+      const endpoint = new AWS.Endpoint(this.domain);
+      const request = new AWS.HttpRequest(endpoint, this.region);
+
+      if (this.authEnabled) {
+        request.headers.authorization = `Basic ${new Buffer(`${this.authUsername}:${this.authPassword}`).toString('base64')}`;
+      }
+
+      request.method = 'DELETE';
+      request.path += `${this.index}`;
+      request.headers.host = this.domain;
+      request.headers['Content-Type'] = 'application/json';
+
+      // Content-Length is only needed for DELETE requests that include a request
+      // body, but including it for all requests doesn't seem to hurt anything.
+
+      const client = new AWS.HttpClient();
+      console.log(request)
+      client.handleRequest(request, null, (response) => {
+            if (response && (response.statusCode !== 201 && response.statusCode !== 200)) {
+              reject(response.statusMessage);
+            } else {
+              let responseBody = '';
+
+              response.on('data', (chunk) => {
+                responseBody += chunk;
+              });
+
+              response.on('end', () => {
+                resolve(JSON.parse(responseBody));
+              });
+            }
+          },
+          (error) => {
+            reject(error);
+          });
+    });
+  }
+
+  GetMappings(getAll) {
+    return new Promise((resolve, reject) => {
+      const endpoint = new AWS.Endpoint(this.domain);
+      const request = new AWS.HttpRequest(endpoint, this.region);
+
+      if (this.authEnabled) {
+        request.headers.authorization = `Basic ${new Buffer(`${this.authUsername}:${this.authPassword}`).toString('base64')}`;
+      }
+
+      request.method = 'GET';
+
+      if (getAll)
+        request.path += `/_mapping`;
+      else
+        request.path += `${this.index}/_mapping`;
+
+      request.headers.host = this.domain;
+
+      const client = new AWS.HttpClient();
+
+      client.handleRequest(request, null, (response) => {
+            if (response && (response.statusCode !== 201 && response.statusCode !== 200)) {
+              reject(response.statusMessage);
+            } else {
+              let responseBody = '';
+
+              response.on('data', (chunk) => {
+                responseBody += chunk;
+              });
+
+              response.on('end', () => {
+                resolve(JSON.parse(responseBody));
+              });
+            }
+          },
+          (error) => {
+            reject(error);
+          });
+    });
+  }
+
+  UpdateMapping(mapping) {
+    return new Promise((resolve, reject) => {
+      const endpoint = new AWS.Endpoint(this.domain);
+      const request = new AWS.HttpRequest(endpoint, this.region);
+
+      if (this.authEnabled) {
+        request.headers.authorization = `Basic ${new Buffer(`${this.authUsername}:${this.authPassword}`).toString('base64')}`;
+      }
+
+      request.method = 'PUT';
+      request.path += `${this.index}/_mapping`;
+      request.headers.host = this.domain;
+      request.headers['Content-Type'] = 'application/json';
+      request.body = JSON.stringify(mapping);
+
+      // Content-Length is only needed for DELETE requests that include a request
+      // body, but including it for all requests doesn't seem to hurt anything.
+
+      request.headers['Content-Length'] = Buffer.byteLength(request.body);
+
+      const client = new AWS.HttpClient();
+
+      client.handleRequest(request, null, (response) => {
+            if (response && (response.statusCode !== 201 && response.statusCode !== 200)) {
+              reject(response.statusMessage);
+            } else {
+              let responseBody = '';
+
+              response.on('data', (chunk) => {
+                responseBody += chunk;
+              });
+
+              response.on('end', () => {
+                resolve(JSON.parse(responseBody));
+              });
+            }
+          },
+          (error) => {
+            reject(error);
+          });
+    });
+  }
+
   /** *
      * Inserts a new search item into elastic search
      *

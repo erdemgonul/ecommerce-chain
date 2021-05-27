@@ -11,9 +11,10 @@ const self = {
       delete userDetails.password;
       delete userDetails._id;
       delete userDetails.__v;
-
+      delete userDetails.lastTwoFactorCode;
       return userDetails;
     }
+
     return { error: 'User not found !' };
   },
 
@@ -34,6 +35,7 @@ const self = {
       delete userDetails.password;
       delete userDetails._id;
       delete userDetails.__v;
+      delete userDetails.lastTwoFactorCode;
 
       return userDetails;
     }
