@@ -18,7 +18,8 @@ const Profile = () => {
   const [shippingAddress, setShippingAddress] = useState("");
   const [addresses, setAddresses] = useState([]);
   const [previousProducts, setPreviousProducts] = useState([]);
-  const [twoFA, setTwoFA] = useState(false);
+  const [twoFA, setTwoFA] = useState(true);
+  const [orderStatus, setOrderStatus] = useState("");
 
   const location = useLocation();
 
@@ -28,8 +29,10 @@ const Profile = () => {
     axios
       .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/get/details`, null)
       .then((res) => {
-        console.log(res);
+        console.log("wtf",res.data.data);
         setUser(res.data.data);
+        setTwoFA(res.data.data.twoFactorAuthenticationEnabled);
+        console.log("twofa",twoFA)
         getAddresses();
         getPreviousProducts();
       })
@@ -154,9 +157,9 @@ const Profile = () => {
           Profile
         </h1>
 
-        <div className="flex-grow flex-shrink overflow-y-auto pt-4 px-4">
+        {/* <div className="flex-grow flex-shrink overflow-y-auto pt-4 px-4">
           {<CartProducts />}
-        </div>
+        </div> */}
         <h1 className="text-2xl font-medium text-primary mt-4 mb-12 text-center">
           Previous Orders
         </h1>
@@ -195,7 +198,7 @@ const Profile = () => {
           <input
             type="checkbox"
             name="fa"
-            value={twoFA}
+            checked={twoFA}
             onChange={(e) => changeTwoFactorAuth(e.target.checked)}
           />
           <p> Activate Two Factor Authentication</p>

@@ -39,7 +39,7 @@ const Checkout = () => {
       .then((res) => {
         console.log(res);
         axios
-          .post(`${process.env.REACT_APP_ENDPOINT_URL}/`, {
+          .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/notification/send`, {
             notificationToken: localStorage.getItem("firebasetoken"),
           })
           .then((res) => {

@@ -1,7 +1,6 @@
 var CACHE_NAME = 'ecommerce-react';
 var urlsToCache = [
   '/',
-  '/completed'
 ];
 
 // Install a service worker

@@ -76,12 +76,12 @@ const Signin = () => {
         </h1>
 
         <div>
-          <label htmlFor="email">Email</label>
+          <label htmlFor="email">Username</label>
           <input
             type="text"
             className={`w-full p-2 text-primary border rounded-md outline-none text-sm transition duration-150 ease-in-out mb-4`}
             id="email"
-            placeholder="Your Email"
+            placeholder="Your Username"
             onChange={(e) => setUsername(e.target.value)}
             value={username}
           />
