@@ -43,7 +43,7 @@ const self = {
       }
     }
 
-    const expireAt = moment.utc().add(2, 'days').toDate();
+    const expireAt = moment.utc().add(3, 'minutes').toDate();
     const createdOrder = await orderDAL.createOrder(user.id, shippingAddress, billingAddress, products, orderTotal, expireAt);
 
     if (createdOrder && createdOrder._id) {
