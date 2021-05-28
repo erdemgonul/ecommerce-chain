@@ -11,9 +11,10 @@ const self = {
       delete userDetails.password;
       delete userDetails._id;
       delete userDetails.__v;
-
+      delete userDetails.lastTwoFactorCode;
       return userDetails;
     }
+
     return { error: 'User not found !' };
   },
 
@@ -22,7 +23,7 @@ const self = {
 
     if (userDetails) {
       if (fullDetails) {
-        userDetails.id = userDetails._id
+        userDetails.id = userDetails._id;
         delete userDetails._id;
         delete userDetails.__v;
 
@@ -34,6 +35,7 @@ const self = {
       delete userDetails.password;
       delete userDetails._id;
       delete userDetails.__v;
+      delete userDetails.lastTwoFactorCode;
 
       return userDetails;
     }
@@ -59,7 +61,7 @@ const self = {
         currentUserDetails = await userDAL.getUserByUserId(userId);
       }
 
-      detailsToChange.shippingAddresses = [...currentUserDetails.shippingAddresses, ...detailsToChange.shippingAddresses]
+      detailsToChange.shippingAddresses = [...currentUserDetails.shippingAddresses, ...detailsToChange.shippingAddresses];
     }
 
     if (detailsToChange.hasOwnProperty('newBillingAddress') && detailsToChange.hasOwnProperty('billingAddresses')) {
@@ -67,7 +69,7 @@ const self = {
         currentUserDetails = await userDAL.getUserByUserId(userId);
       }
 
-      detailsToChange.billingAddresses = [...currentUserDetails.billingAddresses, ...detailsToChange.billingAddresses]
+      detailsToChange.billingAddresses = [...currentUserDetails.billingAddresses, ...detailsToChange.billingAddresses];
     }
 
     if (detailsToChange.hasOwnProperty('password')) {

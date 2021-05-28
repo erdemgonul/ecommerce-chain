@@ -95,7 +95,7 @@ const self = {
       }, detailsToChange);
 
       if (updatedUser) {
-        console.log(updatedUser)
+        console.log(updatedUser);
         return true;
       }
     } catch (err) {

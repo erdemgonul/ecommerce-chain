@@ -17,7 +17,7 @@ router.post('/get/all', async (req, res) => {
   const categories = await categoryBAL.getAllCategories();
 
   if (categories && !categories.error) {
-    res.send({ data: {categories}, success: true });
+    res.send({ data: { categories }, success: true });
   } else {
     res.send(categories);
   }
@@ -37,7 +37,7 @@ router.post('/get/subcategories', async (req, res) => {
   const categories = await categoryBAL.getSubCategoriesOfCategory(req.body.category);
 
   if (categories && !categories.error) {
-    res.send({ data: {categories}, success: true });
+    res.send({ data: { categories }, success: true });
   } else {
     res.send(categories);
   }

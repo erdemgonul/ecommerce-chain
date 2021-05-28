@@ -11,7 +11,7 @@ const Product = mongoose.model(
     price: Number,
     product_details: JSON,
     shipping_details: JSON,
-      categories: Array
+    categories: Array
   })
 );
 

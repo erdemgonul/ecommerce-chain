@@ -1,7 +1,7 @@
 {
-  "name": "express-api-starter",
-  "version": "1.2.0",
-  "description": " A basic starter for an express.js API",
+  "name": "ecommerce-chain",
+  "version": "1.0.0",
+  "description": "Ecommerce API",
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
@@ -10,11 +10,7 @@
     "test": "mocha --exit"
   },
   "keywords": [],
-  "author": "CJ R. <cj@null.computer> (https://w3cj.now.sh)",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/w3cj/express-api-starter.git"
-  },
+  "author": "Ertan Ayanlar",
   "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.889.0",
@@ -29,8 +25,7 @@
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.1",
     "mongoose": "^5.12.2",
-    "morgan": "^1.10.0",
-    "speakeasy": "^2.0.0"
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
     "eslint": "^7.18.0",

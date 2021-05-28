@@ -1,7 +1,8 @@
 const productDAL = require('../dal/product');
-const categoryBAL = require('../bal/category');
+const categoryBAL = require('./category');
 const util = require('../util/index');
 const ElasticSearchWrapper = require('../common/elasticsearchwrapper');
+
 const elasticSearch = new ElasticSearchWrapper(process.env.ELASTIC_SEARCH_REGION, process.env.ELASTIC_SEARCH_DOMAIN, process.env.ELASTIC_SEARCH_PRODUCT_INDEX, process.env.ELASTIC_SEARCH_PRODUCT_INDEXTYPE, true, process.env.ELASTIC_SEARCH_USERNAME, process.env.ELASTIC_SEARCH_PASSWORD);
 
 const self = {
@@ -9,7 +10,7 @@ const self = {
         // check if product with id exists or not
         const productIdExists = await productDAL.isProductIdExists(sku);
 
-        for (let category of categories) {
+        for (const category of categories) {
             const categoryExist = await categoryBAL.isCategoryExists(category);
 
             if (!categoryExist) {
@@ -31,9 +32,8 @@ const self = {
             }
 
             return createdProduct;
-        } else {
-            return {error: 'Product creation error !'};
         }
+        return {error: 'Product creation error !'};
     },
 
     async updateProductOnElasticSearch(productObj) {
@@ -76,7 +76,7 @@ const self = {
                         must: [
                             {
                                 match: {
-                                    categories: '*' + categoryText.replace(/\//g, '//') + '*'
+                                    categories: `*${categoryText.replace(/\//g, '//')}*`
                                 }
                             },
                             {
@@ -86,14 +86,33 @@ const self = {
                             }],
                     }
                 }
+            };
+
+            if (filter.sortBy) {
+                const sortByValue = filter.sortBy.toLowerCase();
+                const splotField = sortByValue.split('_');
+                let fieldName = splotField[0]
+
+                if (fieldName === 'score') {
+                  fieldName = '_score'
+                }
+
+                const sortOrder = splotField[1];
+
+                const objectToSort = {};
+                objectToSort[fieldName] = {order: sortOrder}
+
+                esQuery.sort = [objectToSort];
+
+                delete filter.sortBy;
             }
 
-            if (Object.keys(filter).includes("priceMin") && Object.keys(filter).includes("priceMax")) {
+            if (Object.keys(filter).includes('priceMin') && Object.keys(filter).includes('priceMax')) {
                 const priceQuery = {
                     range: {
                         price: {}
                     }
-                }
+                };
 
                 if (filter.priceMax !== -1) {
                     priceQuery.range.price.lte = filter.priceMax;
@@ -103,30 +122,32 @@ const self = {
                 }
 
                 esQuery.query.bool.must.push(priceQuery);
+
+                delete filter.priceMin;
+                delete filter.priceMax;
             }
 
-            for (let key of Object.keys(filter)) {
-                if (key === 'priceMin' || key === 'priceMax' || !filter[key]) {
-                    continue
+            for (const key of Object.keys(filter)) {
+                if (!filter[key]) {
+                    continue;
                 }
 
                 const obj = {
                     match_phrase: {}
-                }
+                };
 
-                obj.match_phrase[`productDetails_${key}`] = "*" + filter[key] + "*"
+                obj.match_phrase[`productDetails_${key}`] = `*${filter[key]}*`;
                 esQuery.query.bool.must.push(obj);
             }
-            console.log(JSON.stringify(esQuery, null, 2))
 
             foundProducts = await elasticSearch.Search(
                 esQuery
-            )
+            );
 
             if (fullData) {
                 const productsWithFullData = [];
 
-                for (let product of foundProducts) {
+                for (const product of foundProducts) {
                     const fullProduct = await this.getProductByProductId(product.sku);
                     productsWithFullData.push(fullProduct);
                 }
@@ -136,7 +157,7 @@ const self = {
 
             return foundProducts;
         } catch (err) {
-            console.log('Elastic Search Error: ', err)
+            console.log('Elastic Search Error: ', err);
             return '';
         }
     },
@@ -173,36 +194,75 @@ const self = {
                             minimum_should_match: 1,
                         }
                     }
+                };
+
+                if (Object.keys(filter).includes('priceMin') && Object.keys(filter).includes('priceMax')) {
+                    const priceQuery = {
+                        range: {
+                            price: {}
+                        }
+                    };
+
+                    if (filter.priceMax !== -1) {
+                        priceQuery.range.price.lte = filter.priceMax;
+                    }
+                    if (filter.priceMin !== -1) {
+                        priceQuery.range.price.gte = filter.priceMin;
+                    }
+
+                    esQuery.query.bool.must.push(priceQuery);
+
+                    delete filter.priceMin;
+                    delete filter.priceMax;
                 }
 
-                for (let key of Object.keys(filter)) {
-                    if (key === 'priceMin' || key === 'priceMax' || !filter[key]) {
-                        continue
+                if (filter.sortBy) {
+                    const sortByValue = filter.sortBy.toLowerCase();
+                    const splotField = sortByValue.split('_');
+                    let fieldName = splotField[0]
+
+                    if (fieldName === 'score') {
+                        fieldName = '_score'
+                    }
+
+                    const sortOrder = splotField[1];
+
+                    const objectToSort = {};
+                    objectToSort[fieldName] = {order: sortOrder}
+
+                    esQuery.sort = [objectToSort];
+
+                    delete filter.sortBy;
+                }
+
+                for (const key of Object.keys(filter)) {
+                    if (!filter[key]) {
+                        continue;
                     }
 
                     const obj = {
                         match_phrase: {}
-                    }
+                    };
 
-                    obj.match_phrase[`productDetails_${key}`] = "*" + filter[key] + "*"
+                    obj.match_phrase[`productDetails_${key}`] = `*${filter[key]}*`;
                     esQuery.query.bool.must.push(obj);
                 }
 
                 foundProducts = await elasticSearch.Search(
                     esQuery
-                )
+                );
             } else {
                 /*
-                foundProducts = await elasticSearch.Search({
-                    query: {
-                        multi_match: {
-                            fields: ["title", "description"],
-                            query: queryText,
-                            type: "phrase_prefix",
-                            slop: 2
-                        }
-                    }
-                }) */
+                        foundProducts = await elasticSearch.Search({
+                            query: {
+                                multi_match: {
+                                    fields: ["title", "description"],
+                                    query: queryText,
+                                    type: "phrase_prefix",
+                                    slop: 2
+                                }
+                            }
+                        }) */
 
                 foundProducts = await elasticSearch.Search({
                     query: {
@@ -230,13 +290,13 @@ const self = {
                             minimum_should_match: 1,
                         }
                     }
-                })
+                });
             }
 
             if (fullData) {
                 const productsWithFullData = [];
 
-                for (let product of foundProducts) {
+                for (const product of foundProducts) {
                     const fullProduct = await this.getProductByProductId(product.sku);
                     productsWithFullData.push(fullProduct);
                 }
@@ -246,7 +306,7 @@ const self = {
 
             return foundProducts;
         } catch (err) {
-            console.log('Elastic Search Error: ', err)
+            console.log('Elastic Search Error: ', err);
             return '';
         }
     },

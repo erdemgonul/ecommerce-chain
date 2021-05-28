@@ -28,7 +28,7 @@ async function getAllProductsFromElasticSearch() {
 }
 
 async function rebuildProductDataFromDatabase() {
-    await deleteAllFromElasticSearch();
+   // await deleteAllFromElasticSearch();
 
     const allProducts = await productBAL.getAllProducts();
 
@@ -40,4 +40,33 @@ async function rebuildProductDataFromDatabase() {
     console.log('Done')
 }
 
-rebuildProductDataFromDatabase()
+async function updateMapping() {
+    const resp = await elasticSearch.UpdateMapping({
+        properties: {
+            price: { type: "double" },
+            quantity: { type: "double" }
+        }
+    })
+
+    console.log(resp)
+
+    return resp;
+}
+
+async function deleteIndex() {
+    const resp = await elasticSearch.DeleteIndex()
+
+    console.log(resp)
+
+    return resp;
+}
+
+async function getMappings() {
+    const resp = await elasticSearch.GetMappings()
+
+    console.log(JSON.stringify(resp, null, 2))
+
+    return resp;
+}
+
+getMappings()

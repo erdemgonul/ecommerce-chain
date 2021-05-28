@@ -22,43 +22,24 @@ const self = {
     const createdUser = await userDAL.createUser(userName, firstName, lastName, email, password);
 
     if (createdUser && createdUser._id) {
-      AWSSESWrapper.SendEmailWithTemplate(createdUser.email, 'USER_REGISTERED', {"recipient_name": createdUser.firstName});
+      AWSSESWrapper.SendEmailWithTemplate(createdUser.email, 'USER_REGISTERED', { recipient_name: createdUser.firstName });
 
       return createdUser;
-    } else {
-      return {error: `User creation failed!`};
     }
+    return { error: 'User creation failed!' };
   },
 
   async verifyTwoFactorCode(username, code) {
     const user = await userDAL.getUserByUsername(username);
 
     if (user.lastTwoFactorCode && code === user.lastTwoFactorCode) {
-      let lastTime = user.lastLogoutOn;
-
-      if (!user.lastLogoutOn) {
-        lastTime = user.createdOn;
-      }
-
-      const hashedString = util.authHashString(lastTime, user.password);
-
-      let userRole = user.role
-
-      if (!user.role) {
-        userRole = 'customer'
-      }
-
-      const token = jwt.sign({ id: user._id, hash: hashedString, role: userRole }, process.env.JWT_SECRET, {
-        expiresIn: process.env.ACCESS_TOKEN_EXPIRY_TIME || '1h'
-      });
-
-      const result = await userDAL.updateUserDetails(user._id, {lastTwoFactorCode: null});
+      const result = await userDAL.updateUserDetails(user._id, { lastTwoFactorCode: null });
 
       if (!result) {
         return { error: 'Unable to clear Two Factor Code !' };
       }
 
-      return token;
+      return await self._generateTokenAndStartSession(user);
     }
 
     return { error: 'Invalid code !' };
@@ -82,43 +63,51 @@ const self = {
       }
 
       if (user.twoFactorAuthenticationEnabled) {
-        const twoFactorCode = Math.floor(100000 + Math.random() * 900000);
-        const result = await userDAL.updateUserDetails(user._id, {lastTwoFactorCode: twoFactorCode});
-
-        if (!result) {
-          return { error: 'Unable to save Two Factor Code !' };
-        }
-
-        AWSSESWrapper.SendEmailWithTemplate(user, 'TWO_FACTOR_CODE_REQUESTED', {"recipient_name": user.firstName, "two_factor_code": twoFactorCode});
-
-        return { state: 'TWO_FACTOR_AUTH' };
+        return await self._handleTwoFactorRequest(user);
       }
 
-      let lastTime = user.lastLogoutOn;
-
-      if (!user.lastLogoutOn) {
-        lastTime = user.createdOn;
-      }
-
-      const hashedString = util.authHashString(lastTime, user.password);
-
-      let userRole = user.role
-
-      if (!user.role) {
-        userRole = 'customer'
-      }
-
-      const token = jwt.sign({ id: user._id, hash: hashedString, role: userRole }, process.env.JWT_SECRET, {
-        expiresIn: process.env.ACCESS_TOKEN_EXPIRY_TIME || '1h'
-      });
-
-      return token;
+      return await self._generateTokenAndStartSession(user);
     }
     return { error: 'User does not exists !' };
   },
 
+  async _handleTwoFactorRequest(user) {
+    const twoFactorCode = Math.floor(100000 + Math.random() * 900000);
+    const result = await userDAL.updateUserDetails(user._id, { lastTwoFactorCode: twoFactorCode });
+
+    if (!result) {
+      return { error: 'Unable to save Two Factor Code !' };
+    }
+
+    AWSSESWrapper.SendEmailWithTemplate(user, 'TWO_FACTOR_CODE_REQUESTED', { recipient_name: user.firstName, two_factor_code: twoFactorCode });
+
+    return { state: 'TWO_FACTOR_AUTH' };
+  },
+
   async logout(userId) {
     return await userDAL.updateLastLogoutTime(userId);
+  },
+
+  async _generateTokenAndStartSession(user) {
+    let lastTime = user.lastLogoutOn;
+
+    if (!user.lastLogoutOn) {
+      lastTime = user.createdOn;
+    }
+
+    const hashedString = util.authHashString(lastTime, user.password);
+
+    let userRole = user.role;
+
+    if (!user.role) {
+      userRole = 'customer';
+    }
+
+    const token = jwt.sign({ id: user._id, hash: hashedString, role: userRole }, process.env.JWT_SECRET, {
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY_TIME || '1h'
+    });
+
+    return token;
   }
 };
 
