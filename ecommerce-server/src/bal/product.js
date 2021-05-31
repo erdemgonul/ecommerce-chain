@@ -1,5 +1,6 @@
 const productDAL = require('../dal/product');
 const categoryBAL = require('./category');
+const userLog = require('./userlog');
 const util = require('../util/index');
 const ElasticSearchWrapper = require('../common/elasticsearchwrapper');
 
@@ -58,7 +59,48 @@ const self = {
         return await productDAL.subtractQuantityFromProduct(sku, quantity);
     },
 
-    async getSuggestedProducts() {
+    _addCategoriesToInterestedCategories(categories, interestedCategories, weight) {
+        for (let category of categories) {
+            if (interestedCategories.has(category)) {
+                const newValue = interestedCategories.get(category) + weight;
+                interestedCategories.set(category, newValue);
+            } else {
+                interestedCategories.set(category, weight)
+            }
+        }
+    },
+
+    async getSuggestedProducts(userId) {
+        const logsOfUser = await userLog.getUserLogsByUserId(userId);
+
+        if (logsOfUser && logsOfUser.length >= 10) {
+            const interestedCategories = new Map();
+            const suggestedProducts = [];
+
+            for (let log of logsOfUser) {
+                if (log.logType === userLog.LogType.VIEW_PRODUCT) {
+                    self._addCategoriesToInterestedCategories(log.logData.productCategories, interestedCategories, 1);
+                } else if (log.logType === userLog.LogType.PLACE_ORDER) {
+                    self._addCategoriesToInterestedCategories(log.logData.productCategories, interestedCategories, 5);
+                }
+            }
+
+            for (let [category, categoryScore] of interestedCategories) {
+                console.log(category + ' = ' + categoryScore)
+
+                if (categoryScore >= 5) {
+                    const productsInCategory = await this.getAllProductsInCategory(category, true, true);
+
+                    for (let recommendedProduct of productsInCategory) {
+                        if (!suggestedProducts.includes(recommendedProduct))
+                            suggestedProducts.push(...productsInCategory);
+                    }
+                }
+            }
+
+            return suggestedProducts;
+        }
+
         return await productDAL.getSuggestedProducts();
     },
 
@@ -311,21 +353,31 @@ const self = {
         }
     },
 
-    async getProductByProductId(productId) {
+    async getProductByProductId(productId, userId, shouldLog) {
         const productDetails = await productDAL.getProductByProductId(productId);
 
-        if (productDetails) {
-            delete productDetails._id;
-            delete productDetails.__v;
-
-            return productDetails;
+        if (!productDetails) {
+            return {error: 'Product not found !'};
         }
-        return {error: 'Product not found !'};
+
+        delete productDetails._id;
+        delete productDetails.__v;
+
+        if (shouldLog && userId) {
+            const productViewLog = {
+                productId: productId,
+                productCategories: productDetails.categories
+            }
+
+            await userLog.createUserLog(userId, userLog.LogType.VIEW_PRODUCT, productViewLog)
+        }
+
+        return productDetails;
     },
 
-    async getAllProductsInCategory(category, strictMode) {
+    async getAllProductsInCategory(category, strictMode, filterZeroQuantity) {
         // check if product with id exists or not
-        const allProducts = await productDAL.getAllProductsInCategory(category, strictMode);
+        const allProducts = await productDAL.getAllProductsInCategory(category, strictMode, filterZeroQuantity);
         return allProducts;
     },
 };

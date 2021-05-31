@@ -13,7 +13,7 @@ router.post('/create', async (req, res) => {
 });
 
 router.post('/suggestedproducts', async (req, res) => {
-  const products = await productBAL.getSuggestedProducts();
+  const products = await productBAL.getSuggestedProducts(req.userId);
 
   if (products && !products.error) {
     res.send({ data: { products }, success: true });
@@ -33,7 +33,7 @@ router.post('/get/category', async (req, res) => {
 });
 
 router.post('/get', async (req, res) => {
-  const products = await productBAL.getProductByProductId(req.body.sku);
+  const products = await productBAL.getProductByProductId(req.body.sku, req.userId,  true);
 
   if (products && !products.error) {
     res.send({ data: products, success: true });

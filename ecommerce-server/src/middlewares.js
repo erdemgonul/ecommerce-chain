@@ -60,12 +60,12 @@ function isProductManager(req, res, next) {
 }
 
 function verifyToken(req, res, next) {
-  if (config.auth.noAuthEndpoints.includes(req.originalUrl)) {
-    return next();
-  }
-
   const authHeader = req.headers.authorization;
   const token = authHeader ? authHeader.substring(7) : null;
+
+  if (!token && config.auth.noAuthEndpoints.includes(req.originalUrl)) {
+    return next();
+  }
 
   if (!token) {
     return res.status(403).send({ error: 'No token provided!' });

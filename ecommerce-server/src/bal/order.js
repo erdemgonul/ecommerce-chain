@@ -1,6 +1,8 @@
 const moment = require('moment');
 
 const productBAL = require('./product');
+const userLog = require('./userlog');
+
 const orderDAL = require('../dal/order');
 
 const AWSLambdaFunctions = require('../common/lambda');
@@ -10,7 +12,7 @@ const ElasticSearchWrapper = require('../common/elasticsearchwrapper');
 const elasticSearch = new ElasticSearchWrapper(process.env.ELASTIC_SEARCH_REGION, process.env.ELASTIC_SEARCH_DOMAIN, process.env.ELASTIC_SEARCH_PRODUCT_INDEX, process.env.ELASTIC_SEARCH_PRODUCT_INDEXTYPE, true, process.env.ELASTIC_SEARCH_USERNAME, process.env.ELASTIC_SEARCH_PASSWORD);
 
 const self = {
-  async createOrder(user, shippingAddress, billingAddress, products) {
+  async createOrder(user, shippingAddress, billingAddress, products, shouldLog) {
     let orderTotal = 0;
 
     for (const product of products) {
@@ -28,6 +30,7 @@ const self = {
       }
 
       product.unitPrice = productData.price;
+      product.categories = productData.categories;
       orderTotal += productQuantity * productData.price;
 
       const subtractSuccess = await productBAL.subtractQuantityFromProduct(product.sku, productQuantity);
@@ -43,7 +46,7 @@ const self = {
       }
     }
 
-    const expireAt = moment.utc().add(3, 'minutes').toDate();
+    const expireAt = moment.utc().add(5, 'minutes').toDate();
     const createdOrder = await orderDAL.createOrder(user.id, shippingAddress, billingAddress, products, orderTotal, expireAt);
 
     if (createdOrder && createdOrder._id) {
@@ -54,6 +57,24 @@ const self = {
         templateName: 'ORDER_PAYMENT_REMINDER',
         templateData: { recipient_name: user.firstName }
       }, moment.utc().add(2, 'minutes').toISOString());
+
+      // Add to logs of user
+      if (shouldLog) {
+        const productCategories = [];
+
+        for (let product of products) {
+          productCategories.push(...product.categories)
+        }
+
+        const productIds = products.map(product => product.sku);
+
+        const orderPlaceLog = {
+          productIds: productIds,
+          productCategories: Array.from(new Set(productCategories))
+        }
+
+        await userLog.createUserLog(user.id, userLog.LogType.PLACE_ORDER, orderPlaceLog)
+      }
 
       return createdOrder;
     }

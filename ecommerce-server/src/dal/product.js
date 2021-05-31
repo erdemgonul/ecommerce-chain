@@ -164,18 +164,25 @@ const self = {
     }
   },
 
-  getAllProductsInCategory: async (categoryQuery, strictMode = false) => {
+  getAllProductsInCategory: async (categoryQuery, strictMode = false, filterZeroQuantity = false) => {
     try {
       const result = [];
-      let filter;
 
-      filter = categoryQuery;
+      let categoryFilter;
+
+      categoryFilter = categoryQuery;
 
       if (!strictMode) {
-        filter = new RegExp(`^${categoryQuery}`);
+        categoryFilter = new RegExp(`^${categoryQuery}`);
       }
 
-      const products = await Product.find({ categories: filter }).exec();
+      const filter = { categories: categoryFilter }
+
+      if (filterZeroQuantity) {
+        filter.quantity = { $ne: 0 }
+      }
+
+      const products = await Product.find(filter).exec();
 
       for (const product of products) {
         const productObj = product.toObject();
