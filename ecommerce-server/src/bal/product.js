@@ -73,7 +73,10 @@ const self = {
     },
 
     async getSuggestedProducts(userId) {
-        const logsOfUser = await userLog.getUserLogsByUserId(userId);
+        let logsOfUser;
+
+        if (userId)
+            logsOfUser = await userLog.getUserLogsByUserId(userId);
 
         if (logsOfUser && logsOfUser.length >= 5) {
             const interestedCategories = new Map();
