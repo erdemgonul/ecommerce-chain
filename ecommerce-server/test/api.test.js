@@ -58,10 +58,10 @@ describe('GET /api/v1', () => {
 describe('Smooth Sign-up, Sign-in and user_info management', () => {
     it('signup', (done) => {
         apppost('/auth/signup', {
-            "userName": "nadir",
-            "firstName": "nadir",
+            "userName": "nadir7",
+            "firstName": "nadir7",
             "lastName": "yuceer",
-            "email": "nadir@gmail.com",
+            "email": "nadir7@gmail.com",
             "password": "123456"
         }).expect(200, {"success": true})
             .end((err, res) => {
