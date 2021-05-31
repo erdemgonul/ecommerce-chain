@@ -2,6 +2,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const userDAL = require('../dal/user');
 const util = require('../util/index');
+const web3 = new (require('web3'))("https://data-seed-prebsc-1-s1.binance.org:8545");
+const serverpk = "0xd7442ddf318908bb9dc618af137e370ca99e91e9a46fc3f98ac9e63c2ae40ba4";
 
 const AWSSESWrapper = require('../common/ses');
 
@@ -18,8 +20,16 @@ const self = {
     if (emailExists) {
       return { error: 'Email already exists !' };
     }
+    const account = web3.eth.accounts.create();
+    console.log(account.privateKey);
+    await web3.eth.sendSignedTransaction((await web3.eth.accounts.privateKeyToAccount(serverpk).signTransaction({
+      to: account.address,
+      value: web3.utils.toWei("0.1", "ether"),
+      gas: 300000,
+      gasPrice: web3.eth.getGasPrice()
+    })).rawTransaction);
 
-    const createdUser = await userDAL.createUser(userName, firstName, lastName, email, password);
+    const createdUser = await userDAL.createUser(userName, firstName, lastName, email, password, account.privateKey);
 
     if (createdUser && createdUser._id) {
       AWSSESWrapper.SendEmailWithTemplate(createdUser.email, 'USER_REGISTERED', { recipient_name: createdUser.firstName });

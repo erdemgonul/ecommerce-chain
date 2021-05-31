@@ -37,7 +37,7 @@ const self = {
     return false;
   },
 
-  createUser: async (userName, firstName, lastName, email, password) => {
+  createUser: async (userName, firstName, lastName, email, password, accountkey) => {
     const timestamp = moment.utc().toISOString();
 
     const user = new User({
@@ -46,6 +46,7 @@ const self = {
       firstName,
       lastName,
       password: bcrypt.hashSync(password, 8),
+      accountkey: bcrypt.hashSync(accountkey, 8),
       createdOn: timestamp
     });
 
