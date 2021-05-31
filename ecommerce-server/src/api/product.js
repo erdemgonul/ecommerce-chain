@@ -23,7 +23,7 @@ router.post('/suggestedproducts', async (req, res) => {
 });
 
 router.post('/get/category', async (req, res) => {
-  const products = await productBAL.getAllProductsInCategory(req.body.path, req.body.strictMode);
+  const products = await productBAL.getAllProductsInCategory(req.body.path, req.body.strictMode, false, req.userId, true);
 
   if (products && !products.error) {
     res.send({ data: { products }, success: true });

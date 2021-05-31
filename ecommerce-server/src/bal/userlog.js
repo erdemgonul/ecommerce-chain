@@ -3,7 +3,9 @@ const userLogDAL = require('../dal/userlog');
 const self = {
   LogType : {
      VIEW_PRODUCT: 'VIEW_PRODUCT',
-     PLACE_ORDER: 'PLACE_ORDER'
+     VIEW_CATEGORY: 'VIEW_CATEGORY',
+     PLACE_ORDER: 'PLACE_ORDER',
+     PRODUCT_COMMENT: 'PRODUCT_COMMENT'
   },
 
   async createUserLog(userId, logType, logData) {

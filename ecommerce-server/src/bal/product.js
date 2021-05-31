@@ -4,6 +4,8 @@ const userLog = require('./userlog');
 const util = require('../util/index');
 const ElasticSearchWrapper = require('../common/elasticsearchwrapper');
 
+const moment = require('moment')
+
 const elasticSearch = new ElasticSearchWrapper(process.env.ELASTIC_SEARCH_REGION, process.env.ELASTIC_SEARCH_DOMAIN, process.env.ELASTIC_SEARCH_PRODUCT_INDEX, process.env.ELASTIC_SEARCH_PRODUCT_INDEXTYPE, true, process.env.ELASTIC_SEARCH_USERNAME, process.env.ELASTIC_SEARCH_PASSWORD);
 
 const self = {
@@ -73,32 +75,91 @@ const self = {
     async getSuggestedProducts(userId) {
         const logsOfUser = await userLog.getUserLogsByUserId(userId);
 
-        if (logsOfUser && logsOfUser.length >= 10) {
+        if (logsOfUser && logsOfUser.length >= 5) {
             const interestedCategories = new Map();
-            const suggestedProducts = [];
+            let suggestedProducts = [];
+            let recommendedCategoryCount = 0;
+            let willSuggest = false;
 
             for (let log of logsOfUser) {
+                let weight = 0;
+                let logData = log.logData.productCategories;
+                const logTimeDiff = moment.utc().diff(log.logDate, 'hours');
+
                 if (log.logType === userLog.LogType.VIEW_PRODUCT) {
-                    self._addCategoriesToInterestedCategories(log.logData.productCategories, interestedCategories, 1);
+                    weight = 1;
+
+                    if (logTimeDiff <= 1) {
+                        weight = 2;
+                    }
                 } else if (log.logType === userLog.LogType.PLACE_ORDER) {
-                    self._addCategoriesToInterestedCategories(log.logData.productCategories, interestedCategories, 5);
-                }
-            }
+                    weight = 10;
+                } else if (log.logType === userLog.LogType.VIEW_CATEGORY) {
+                    logData = [log.logData.category]
+                    weight = 2;
 
-            for (let [category, categoryScore] of interestedCategories) {
-                console.log(category + ' = ' + categoryScore)
+                    if (logTimeDiff <= 1) {
+                        weight = 4;
+                    }
+                } else if (log.logType === userLog.LogType.PRODUCT_COMMENT) {
+                    weight = 3;
 
-                if (categoryScore >= 5) {
-                    const productsInCategory = await this.getAllProductsInCategory(category, true, true);
-
-                    for (let recommendedProduct of productsInCategory) {
-                        if (!suggestedProducts.includes(recommendedProduct))
-                            suggestedProducts.push(...productsInCategory);
+                    if (logTimeDiff <= 1) {
+                        weight = 5;
                     }
                 }
+
+                if (weight > 0)
+                    self._addCategoriesToInterestedCategories(logData, interestedCategories, weight);
             }
 
-            return suggestedProducts;
+            let interestedCategoriesSorted = new Map([...interestedCategories].sort(([k, v], [k2, v2])=> {
+                if (v  > v2) {
+                    return -1;
+                }
+
+                if (v < v2) {
+                    return 1;
+                }
+
+                return 0;
+            }));
+
+            const productsInCategoryPromiseArray = [];
+
+            for (let [category, categoryScore] of interestedCategoriesSorted) {
+                console.log(category + ' = ' + categoryScore)
+
+                if (recommendedCategoryCount >= 5)
+                    break;
+
+                if (categoryScore >= 10) {
+                    recommendedCategoryCount++;
+                    willSuggest = true;
+                    productsInCategoryPromiseArray.push(self.getAllProductsInCategory(category, true, true));
+                }
+            }
+
+            suggestedProducts = (await Promise.all(productsInCategoryPromiseArray))[0];
+
+            /*
+            for (let recommendedProduct of productsToRecommend) {
+                if (!suggestedProducts.includes(recommendedProduct))
+                    suggestedProducts.push(...productsToRecommend);
+            } */
+
+            if (willSuggest) {
+                if (suggestedProducts.length < 8) {
+                    // Add some products that are not recommended to keep frontpage full
+                    const amountToFill = 8 - suggestedProducts.length;
+                    const excludeList = suggestedProducts.map(product => product.sku);
+                    const productsToFill = await productDAL.getSuggestedProducts(amountToFill, excludeList);
+
+                    return [...suggestedProducts, ...productsToFill];
+                }
+
+                return suggestedProducts;
+            }
         }
 
         return await productDAL.getSuggestedProducts();
@@ -375,9 +436,20 @@ const self = {
         return productDetails;
     },
 
-    async getAllProductsInCategory(category, strictMode, filterZeroQuantity) {
+    async getAllProductsInCategory(category, strictMode, filterZeroQuantity, userId, shouldLog) {
         // check if product with id exists or not
         const allProducts = await productDAL.getAllProductsInCategory(category, strictMode, filterZeroQuantity);
+
+        if (shouldLog && category.includes('/') && allProducts.length) {
+            console.warn(category)
+
+            const categoryLog = {
+                category: category,
+            }
+
+            await userLog.createUserLog(userId, userLog.LogType.VIEW_CATEGORY, categoryLog)
+         }
+
         return allProducts;
     },
 };

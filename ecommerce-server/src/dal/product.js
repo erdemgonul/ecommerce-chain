@@ -144,11 +144,18 @@ const self = {
     }
   },
 
-  getSuggestedProducts: async () => {
+  getSuggestedProducts: async (count, excludeList) => {
     try {
       const result = [];
+      let products;
 
-      const products = await Product.find({ quantity: { $ne: 0 } }).exec();
+      if (excludeList)
+        products = await Product.find({quantity: { $ne: 0 }, sku: { $nin: excludeList }}).limit(count).exec();
+      else if (count)
+        products = await Product.find({ quantity: { $ne: 0 } }).limit(count).exec();
+      else
+        products = await Product.find({ quantity: { $ne: 0 } }).exec();
+
       // const products = await Product.find({ "quantity": { $ne: 0 }}, ['title', 'price', 'image']).exec();
 
       for (const product of products) {
