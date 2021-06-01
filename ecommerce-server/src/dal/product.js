@@ -62,9 +62,9 @@ const self = {
     return false;
   },
 
-  createProduct: async (sku, title, description, image, quantity, price, product_details, shipping_details, categories) => {
+  createProduct: async (sku, title, description, image, quantity, price, product_details, shipping_details, categories, sellerId) => {
     const product = new Product({
-      sku, title, description, image, quantity, price, product_details, shipping_details, categories
+      sku, title, description, image, quantity, price, product_details, shipping_details, categories, sellerId
     });
 
     try {
@@ -84,11 +84,13 @@ const self = {
     }
   },
 
-  getProductByProductId: async (productId) => {
+  getProductByProductId: async (productId, projectionFields) => {
     try {
-      const product = await Product.findOne({
+      const filter = {
         sku: productId
-      }).exec();
+      }
+
+      const product = await Product.findOne(filter, projectionFields).exec();
 
       if (product) {
         return product.toObject();
@@ -144,13 +146,23 @@ const self = {
     }
   },
 
-  getSuggestedProducts: async (count, excludeList) => {
+  getSuggestedProducts: async (count, excludeList, randomOrder) => {
     try {
       const result = [];
       let products;
+      let needsConverting = true;
 
-      if (excludeList)
-        products = await Product.find({quantity: { $ne: 0 }, sku: { $nin: excludeList }}).limit(count).exec();
+      if (excludeList && count) {
+        if (randomOrder) {
+          products = await Product.aggregate([
+            {$match: {quantity: { $ne: 0 }, sku: { $nin: excludeList }}}, // filter the results
+            {$sample: {size: count}} // You want to get 5 docs
+          ]).exec();
+          needsConverting = false;
+        }
+        else
+          products = await Product.find({quantity: { $ne: 0 }, sku: { $nin: excludeList }}).limit(count).exec();
+      }
       else if (count)
         products = await Product.find({ quantity: { $ne: 0 } }).limit(count).exec();
       else
@@ -159,6 +171,12 @@ const self = {
       // const products = await Product.find({ "quantity": { $ne: 0 }}, ['title', 'price', 'image']).exec();
 
       for (const product of products) {
+        if (!needsConverting) {
+          delete product._id;
+          delete product.__v;
+          result.push(product);
+          continue;
+        }
         const productObj = product.toObject();
         delete productObj._id;
         delete productObj.__v;
@@ -202,7 +220,7 @@ const self = {
     } catch (err) {
       return err;
     }
-  },
+  }
 };
 
 module.exports = self;

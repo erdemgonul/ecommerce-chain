@@ -73,6 +73,10 @@ function verifyToken(req, res, next) {
 
   jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
     if (err || !decoded.id || !decoded.hash || !decoded.role) {
+      if (config.auth.noAuthEndpoints.includes(req.originalUrl)) {
+        return next();
+      }
+
       return res.status(401).send({ error: 'Unauthorized!' });
     }
 

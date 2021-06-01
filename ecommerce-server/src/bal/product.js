@@ -9,7 +9,7 @@ const moment = require('moment')
 const elasticSearch = new ElasticSearchWrapper(process.env.ELASTIC_SEARCH_REGION, process.env.ELASTIC_SEARCH_DOMAIN, process.env.ELASTIC_SEARCH_PRODUCT_INDEX, process.env.ELASTIC_SEARCH_PRODUCT_INDEXTYPE, true, process.env.ELASTIC_SEARCH_USERNAME, process.env.ELASTIC_SEARCH_PASSWORD);
 
 const self = {
-    async createProduct(sku, title, description, image, quantity, price, product_details, shipping_details, categories) {
+    async createProduct(sku, title, description, image, quantity, price, product_details, shipping_details, categories, sellerId) {
         // check if product with id exists or not
         const productIdExists = await productDAL.isProductIdExists(sku);
 
@@ -25,7 +25,7 @@ const self = {
             return {error: 'Product with given product id already exists !'};
         }
 
-        const createdProduct = await productDAL.createProduct(sku, title, description, image, quantity, price, product_details, shipping_details, categories);
+        const createdProduct = await productDAL.createProduct(sku, title, description, image, quantity, price, product_details, shipping_details, categories, sellerId);
 
         if (createdProduct && createdProduct.sku) {
             try {
@@ -73,6 +73,8 @@ const self = {
     },
 
     async getSuggestedProducts(userId) {
+        // TODO-E: RECOMMEND MAX 20 ITEMS
+
         let logsOfUser;
 
         if (userId)
@@ -116,7 +118,7 @@ const self = {
                     self._addCategoriesToInterestedCategories(logData, interestedCategories, weight);
             }
 
-            let interestedCategoriesSorted = new Map([...interestedCategories].sort(([k, v], [k2, v2])=> {
+            const interestedCategoriesSorted = new Map([...interestedCategories].sort(([k, v], [k2, v2])=> {
                 if (v  > v2) {
                     return -1;
                 }
@@ -143,7 +145,8 @@ const self = {
                 }
             }
 
-            suggestedProducts = (await Promise.all(productsInCategoryPromiseArray))[0];
+            suggestedProducts = (await Promise.all(productsInCategoryPromiseArray));
+            suggestedProducts = [].concat.apply([], suggestedProducts);
 
             /*
             for (let recommendedProduct of productsToRecommend) {
@@ -156,7 +159,9 @@ const self = {
                     // Add some products that are not recommended to keep frontpage full
                     const amountToFill = 8 - suggestedProducts.length;
                     const excludeList = suggestedProducts.map(product => product.sku);
-                    const productsToFill = await productDAL.getSuggestedProducts(amountToFill, excludeList);
+                    const productsToFill = await productDAL.getSuggestedProducts(amountToFill, excludeList, true);
+
+                    // console.log(productsToFill.map(product => product.title), suggestedProducts.length)
 
                     return [...suggestedProducts, ...productsToFill];
                 }
@@ -165,7 +170,7 @@ const self = {
             }
         }
 
-        return await productDAL.getSuggestedProducts();
+        return await productDAL.getSuggestedProducts(8);
     },
 
     async deleteProductWithId(productId, deleteFromElasticSearch = true) {
@@ -417,8 +422,8 @@ const self = {
         }
     },
 
-    async getProductByProductId(productId, userId, shouldLog) {
-        const productDetails = await productDAL.getProductByProductId(productId);
+    async getProductByProductId(productId, userId, shouldLog, projectionExpression) {
+        const productDetails = await productDAL.getProductByProductId(productId, projectionExpression);
 
         if (!productDetails) {
             return {error: 'Product not found !'};
@@ -454,7 +459,7 @@ const self = {
          }
 
         return allProducts;
-    },
+    }
 };
 
 module.exports = self;

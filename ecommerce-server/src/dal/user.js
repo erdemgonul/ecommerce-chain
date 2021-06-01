@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const db = require('../models');
-
+const util = require('../util')
 const User = db.user;
 const moment = require('moment');
 
@@ -37,7 +37,7 @@ const self = {
     return false;
   },
 
-  createUser: async (userName, firstName, lastName, email, password, accountkey) => {
+  createUser: async (userName, firstName, lastName, email, password, cryptoAccountPrivateKey, cryptoAccountPublicKey) => {
     const timestamp = moment.utc().toISOString();
 
     const user = new User({
@@ -46,7 +46,8 @@ const self = {
       firstName,
       lastName,
       password: bcrypt.hashSync(password, 8),
-      accountkey: bcrypt.hashSync(accountkey, 8),
+      cryptoAccountPrivateKey: util.aesEncrypt(cryptoAccountPrivateKey),
+      cryptoAccountPublicKey: cryptoAccountPublicKey,
       createdOn: timestamp
     });
 

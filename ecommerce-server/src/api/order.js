@@ -32,6 +32,18 @@ router.post('/get', async (req, res) => {
   }
 });
 
+router.post('/finish', async (req, res) => {
+  const finishOrderResponse = await orderBAL.finishPayment(req.user, req.body.orderId);
+
+  console.log(finishOrderResponse)
+
+  if (finishOrderResponse && !finishOrderResponse.error) {
+    res.send({ data: finishOrderResponse, success: true });
+  } else {
+    res.send(finishOrderResponse);
+  }
+});
+
 router.post('/delete', async (req, res) => {
   const orders = await orderBAL.deleteOrderWithId(req.body.orderId);
 

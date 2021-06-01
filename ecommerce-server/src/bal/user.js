@@ -12,6 +12,8 @@ const self = {
       delete userDetails._id;
       delete userDetails.__v;
       delete userDetails.lastTwoFactorCode;
+      delete userDetails.cryptoAccountPrivateKey;
+
       return userDetails;
     }
 
@@ -36,6 +38,7 @@ const self = {
       delete userDetails._id;
       delete userDetails.__v;
       delete userDetails.lastTwoFactorCode;
+      delete userDetails.cryptoAccountPrivateKey;
 
       return userDetails;
     }

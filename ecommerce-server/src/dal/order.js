@@ -52,6 +52,16 @@ const self = {
     }
   },
 
+  updateOrderDetails: async (orderId, detailsToChange) => {
+    const updatedOrder = await Order.findOneAndUpdate({
+      _id: orderId
+    }, detailsToChange);
+
+    if (updatedOrder) {
+      return true;
+    }
+  },
+
   getOrderByOrderId: async (orderId) => {
     try {
       const order = await Order.findOne({
