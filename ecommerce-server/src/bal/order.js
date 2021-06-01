@@ -60,6 +60,9 @@ const self = {
         templateData: { recipient_name: user.firstName }
       }, moment.utc().add(2, 'minutes').toISOString());
 
+      // Append the cancellation token to order
+      await orderDAL.updateOrderDetails(createdOrder._id, {reminderMailCancellationToken: scheduledEmailResponse.executionArn})
+
       // Add to logs of user
       if (shouldLog) {
         const productCategories = [];
@@ -169,13 +172,18 @@ const self = {
       return err;
     }
 
-    return paymentResult;
-
     // Remove scheduled order remainder mail
+    try {
+      const cancelResponse = await AWSLambdaFunctions.cancelScheduledMail(order.reminderMailCancellationToken);
+      console.log('Mail Cancel response:')
+      console.log(cancelResponse)
+    } catch (err) {} // Do nothing, machine might be expired
 
     // Call invoiceBAL.generateInvoice <- set a record on db and generate pdf
 
     // Return generated pdf or invoice
+
+    return paymentResult;
   },
 
   async deleteOrderWithId(orderId) {

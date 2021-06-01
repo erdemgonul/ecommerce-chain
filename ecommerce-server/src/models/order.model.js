@@ -11,7 +11,8 @@ const Product = mongoose.model(
     products: Array,
     orderTotal: Number,
     expireAt: Date,
-    paymentDate: Date
+    paymentDate: Date,
+    reminderMailCancellationToken: String
   })
 );
 

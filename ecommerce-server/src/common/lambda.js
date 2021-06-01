@@ -14,4 +14,10 @@ async function invokeMailScheduler(email, deliveryDate) {
   }).promise();
 }
 
-module.exports = { invokeMailScheduler };
+async function cancelScheduledMail(executionArn) {
+  return await stepFunctions.stopExecution({
+    executionArn: executionArn
+  }).promise()
+}
+
+module.exports = { invokeMailScheduler, cancelScheduledMail };
