@@ -1,10 +1,13 @@
 const PDFDocument = require("pdfkit");
+const fs = require("fs");
 
 function createInvoice(invoice) {
+
     let doc = new PDFDocument({ size: "A4", margin: 50 });
-
     generateHeader(doc);
-
+    generateCustomerInformation(doc, invoice)
+    generateInvoiceTable(doc, invoice)
+    generateFooter(doc)
     doc.end();
 
     return doc;
@@ -41,13 +44,6 @@ function generateCustomerInformation(doc, invoice) {
         .font("Helvetica")
         .text("Invoice Date:", 50, customerInformationTop + 15)
         .text(formatDate(new Date()), 150, customerInformationTop + 15)
-        .text("Balance Due:", 50, customerInformationTop + 30)
-        .text(
-            formatCurrency(invoice.subtotal - invoice.paid),
-            150,
-            customerInformationTop + 30
-        )
-
         .font("Helvetica-Bold")
         .text(invoice.shippingAddress, 300, customerInformationTop)
         .moveDown();
@@ -57,14 +53,15 @@ function generateCustomerInformation(doc, invoice) {
 
 function generateInvoiceTable(doc, invoice) {
     let i;
+    let sum=0;
     const invoiceTableTop = 330;
 
     doc.font("Helvetica-Bold");
     generateTableRow(
         doc,
         invoiceTableTop,
+        "Stock Code",
         "Item",
-        "Description",
         "Unit Cost",
         "Quantity",
         "Line Total"
@@ -72,18 +69,19 @@ function generateInvoiceTable(doc, invoice) {
     generateHr(doc, invoiceTableTop + 20);
     doc.font("Helvetica");
 
-    for (i = 0; i < invoice.items.length; i++) {
-        const item = invoice.items[i];
+    for (i = 0; i < invoice.products.length; i++) {
+        const item = invoice.products[i];
         const position = invoiceTableTop + (i + 1) * 30;
         generateTableRow(
             doc,
             position,
-            item.item,
-            item.description,
-            formatCurrency(item.amount / item.quantity),
+            item.sku,
+            item.title,
+            formatCurrency(item.unitPrice),
             item.quantity,
-            formatCurrency(item.amount)
+            formatCurrency(item.unitPrice*item.quantity)
         );
+        sum+=(item.unitPrice*item.quantity);
 
         generateHr(doc, position + 20);
     }
@@ -94,41 +92,17 @@ function generateInvoiceTable(doc, invoice) {
         subtotalPosition,
         "",
         "",
-        "Subtotal",
+        "Total",
         "",
-        formatCurrency(invoice.subtotal)
+        formatCurrency(sum)
     );
-
-    const paidToDatePosition = subtotalPosition + 20;
-    generateTableRow(
-        doc,
-        paidToDatePosition,
-        "",
-        "",
-        "Paid To Date",
-        "",
-        formatCurrency(invoice.paid)
-    );
-
-    const duePosition = paidToDatePosition + 25;
-    doc.font("Helvetica-Bold");
-    generateTableRow(
-        doc,
-        duePosition,
-        "",
-        "",
-        "Balance Due",
-        "",
-        formatCurrency(invoice.subtotal - invoice.paid)
-    );
-    doc.font("Helvetica");
 }
 
 function generateFooter(doc) {
     doc
         .fontSize(10)
         .text(
-            "Payment is due within 15 days. Thank you for your business.",
+            "Thank you for using EcommerceChain.",
             50,
             780,
             { align: "center", width: 500 }
@@ -162,8 +136,8 @@ function generateHr(doc, y) {
         .stroke();
 }
 
-function formatCurrency(cents) {
-    return "$" + (cents / 100).toFixed(2);
+function formatCurrency(price) {
+    return "" + (price).toFixed(2) + "TL";
 }
 
 function formatDate(date) {
@@ -171,7 +145,7 @@ function formatDate(date) {
     const month = date.getMonth() + 1;
     const year = date.getFullYear();
 
-    return year + "/" + month + "/" + day;
+    return day + "/" + month + "/" + year;
 }
 
 module.exports = {
