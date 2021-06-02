@@ -31,7 +31,6 @@ function HomeProduct({ product, itemStyle }) {
       search: "?sku=" + product.sku,
     });
       window.scrollTo(0, 0)
-
   }
 }
 

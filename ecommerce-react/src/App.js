@@ -12,6 +12,9 @@ import CategoryProducts from "./CategoryProducts";
 import Search from "./Search";
 import Checkout from "./Checkout";
 import Profile from "./Profile";
+import SalesManagerPage from "./SalesManagerPage";
+import ProductManagerPage from "./ProductManagerPage";
+
 import { getToken, onMessageListener } from "./firebase";
 import { useState, useEffect } from "react";
 function App() {
@@ -37,6 +40,9 @@ function App() {
         <div className="flex flex-col w-full h-full">
           <Menu />
           <Switch>
+            <Route path="/salesmanager" component={() => <SalesManagerPage />} />
+            <Route path="/productmanager" component={() => <ProductManagerPage />} />
+
             <Route path="/product" component={() => <ProductPage />} />
             <Route path="/profile" component={() => <Profile />} />
             <Route path="/signup" component={() => <Signup />} />

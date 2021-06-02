@@ -3,8 +3,7 @@ import HomeProduct from "./HomeProduct";
 import { useLocation } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
 import { getProducts } from "./redux/actions";
-import axios from 'axios';
-
+import axios from "axios";
 
 function Products() {
   const [itemStyle, setItemStyle] = useState(
@@ -22,12 +21,13 @@ function Products() {
   }, [location, categories]);
 
   async function getFirst() {
-    axios.post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/product/suggestedproducts`)
-      .then(res => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/product/suggestedproducts`
+      )
+      .then((res) => {
         setProducts(res.data.data.products);
-      })
-
-   
+      });
   }
 
   const Products = () => {
