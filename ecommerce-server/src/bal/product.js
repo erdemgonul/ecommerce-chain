@@ -1,5 +1,6 @@
 const productDAL = require('../dal/product');
 const categoryBAL = require('./category');
+const invoiceBAL = require('./invoice');
 const userLog = require('./userlog');
 const util = require('../util/index');
 const ElasticSearchWrapper = require('../common/elasticsearchwrapper');
@@ -428,6 +429,9 @@ const self = {
         if (!productDetails) {
             return {error: 'Product not found !'};
         }
+
+        const purchasedBefore = await invoiceBAL.isInvoiceExistForProduct(userId, productId);
+        productDetails.purchasedBefore = purchasedBefore;
 
         delete productDetails._id;
         delete productDetails.__v;

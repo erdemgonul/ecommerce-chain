@@ -12,12 +12,6 @@ const middlewares = require('./middlewares');
 const api = require('./api');
 
 const app = express();
-const util = require('./util');
-
-/*
-const invoiceData = {}
-util.generateInvoicePDF(invoiceData
-) */
 
 paymentBAL.loadContract().then(function (res) {
   // paymentBAL.fund('0xd7d3f3CDd2EfCAbA60726D05A1c93EB09b2727Af',2000);

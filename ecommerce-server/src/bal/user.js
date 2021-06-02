@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const userDAL = require('../dal/user');
+const paymentBAL = require('./payment');
 
 const self = {
   async getUserDetailsByUsername(username) {
@@ -20,10 +21,14 @@ const self = {
     return { error: 'User not found !' };
   },
 
-  async getUserDetailsById(userId, fullDetails = false) {
+  async getUserDetailsById(userId, fullDetails = false, forCurrentUser=false) {
     const userDetails = await userDAL.getUserByUserId(userId);
 
     if (userDetails) {
+      if (forCurrentUser) {
+        userDetails.balance = await paymentBAL.getBalance(userDetails.cryptoAccountPublicKey);
+      }
+
       if (fullDetails) {
         userDetails.id = userDetails._id;
         delete userDetails._id;

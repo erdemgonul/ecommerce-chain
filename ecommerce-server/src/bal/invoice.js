@@ -1,11 +1,13 @@
 const moment = require('moment');
 const util = require('../util')
 const invoiceDAL = require('../dal/invoice');
+const awsS3 = require('../common/s3')
 
 const self = {
   async createInvoice(createdBy, orderId, paymentInfo, products, shippingAddress, billingAddress) {
     // generate a pdf and store it on s3
-    let pdfUrl = 'test'
+    let invoiceFileName = orderId + '.pdf';
+    let pdfUrl = process.env.S3_INVOICE_URL + invoiceFileName
 
     const createdInvoice = await invoiceDAL.createInvoice(orderId, pdfUrl, paymentInfo, products, createdBy.id, shippingAddress, billingAddress);
 
@@ -22,10 +24,10 @@ const self = {
 
       console.log(JSON.stringify(invoiceData, null, 2));
 
-      // const generatedPDF = util.generateInvoicePDF(invoiceData)
+      const generatedPDF = util.generateInvoicePDF(invoiceData);
 
-      // Upload to s3
-
+      // Upload to S3
+      await awsS3.uploadInvoicePDF(generatedPDF, invoiceFileName);
 
       return createdInvoice;
     }
@@ -35,6 +37,10 @@ const self = {
 
   async getInvoicesOfCurrentUser(userId) {
     return await invoiceDAL.getInvoicesOfCurrentUser(userId);
+  },
+
+  async isInvoiceExistForProduct(userId, productId) {
+    return await invoiceDAL.isInvoiceExistForProduct(userId, productId);
   },
 
   async getInvoiceByInvoiceId(invoiceId) {

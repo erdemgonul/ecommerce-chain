@@ -50,6 +50,28 @@ const self = {
     }
   },
 
+  isInvoiceExistForProduct: async (userId, productId) => {
+    try {
+      const invoice = await Invoice.findOne({
+        createdBy: userId,
+        products: {
+          $elemMatch: {
+            sku: productId
+          }
+        }
+      }).exec();
+
+      if (invoice && invoice._id) {
+        console.log(invoice)
+        return true;
+      }
+
+      return false;
+    } catch (err) {
+      return false;
+    }
+  },
+
   updateInvoiceDetails: async (invoiceId, detailsToChange) => {
     const updatedInvoice = await Invoice.findOneAndUpdate({
       _id: invoiceId

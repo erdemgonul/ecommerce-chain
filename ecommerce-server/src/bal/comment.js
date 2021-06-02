@@ -3,15 +3,15 @@ const moment = require('moment');
 const userLog = require('./userlog');
 
 const productBAL = require('./product')
-const orderBAL = require('./order')
+const invoiceBAL = require('./invoice')
 const commentDAL = require('../dal/comment');
 
 const self = {
   async createComment(productId, userId, commentText, rating, shouldLog) {
-    let isPurchased = false; // TODO-E: CHECK IF REALLY PURCHASED  + add a purchased before thing to product/get and similiar endpoints
+    const isPurchased = await invoiceBAL.isInvoiceExistForProduct(userId, productId);
     const previousCommentsOfUser = await commentDAL.getCommentsOfUserOnProduct(userId, productId);
 
-    if (isPurchased) { // TODO-E: check for coalescing
+    if (isPurchased) {
       let hasRatedComment = false;
 
       if (!rating)
@@ -27,6 +27,9 @@ const self = {
       if (hasRatedComment)
         return { error: 'Rating cannot be given multiple times !' };
     } else {
+      if (rating)
+        return { error: 'You cant rate purchased products that you didnt purchase!' };
+
       const previousCommentsOfUser = await commentDAL.getCommentsOfUserOnProduct(userId, productId);
 
       if (previousCommentsOfUser.length >= 2)

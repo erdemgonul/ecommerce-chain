@@ -7,6 +7,7 @@ const category = require('./category');
 const order = require('./order');
 const notification = require('./notification');
 const comment = require('./comment');
+const invoice = require('./invoice');
 
 const router = express.Router();
 
@@ -23,5 +24,6 @@ router.use('/category', category);
 router.use('/order', order);
 router.use('/notification', notification);
 router.use('/comment', comment);
+router.use('/invoice', invoice);
 
 module.exports = router;

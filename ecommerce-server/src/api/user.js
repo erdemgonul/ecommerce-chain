@@ -12,7 +12,7 @@ router.post('/get/details', async (req, res) => {
       res.send(result);
     }
   } else {
-    const result = await userBAL.getUserDetailsById(req.userId);
+    const result = await userBAL.getUserDetailsById(req.userId, false, true);
     if (result && !result.error) {
       res.send({ data: result, success: true });
     } else {

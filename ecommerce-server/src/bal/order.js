@@ -198,6 +198,12 @@ const self = {
 
     // Return generated invoice
     if (createdInvoice && createdInvoice._id) {
+      // send mail
+      AWSSESWrapper.SendEmailWithTemplate(currentUser, 'ORDER_COMPLETED', {
+        recipient_name: currentUser.firstName,
+        invoicePDFUrl: createdInvoice.pdfUrl
+      });
+
       return createdInvoice;
     }
 
