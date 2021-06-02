@@ -31,6 +31,7 @@ db.product = require('./product.model');
 db.order = require('./order.model');
 db.userlog = require('./userlog.model');
 db.comment = require('./comment.model');
+db.invoice = require('./invoice.model');
 
 function setupIndexes() {
   mongoose.connection.collections.categories.ensureIndex({ path: 1, parent: 1 }, { unique: true }, (err, res) => {
@@ -62,6 +63,10 @@ function setupIndexes() {
   });
 
   mongoose.connection.collections.userlogs.ensureIndex({ userId: 1, logDate: 1 }, { unique: true }, (err, res) => {
+    console.log(`${res} index set.`);
+  });
+
+  mongoose.connection.collections.invoices.ensureIndex({ orderId: 1 }, { unique: true }, (err, res) => {
     console.log(`${res} index set.`);
   });
 }

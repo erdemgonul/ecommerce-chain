@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const invoicePDFGenerator = require('./invoicePDFGenerator');
 
 const self = {
   authHashString(lastTime, hashedPassword) {
@@ -49,6 +50,10 @@ const self = {
     decrypted = Buffer.concat([decrypted, decipher.final()]);
 
     return decrypted.toString();
+  },
+
+  generateInvoicePDF(invoiceData) {
+    return invoicePDFGenerator.createInvoice(invoiceData);
   }
 };
 

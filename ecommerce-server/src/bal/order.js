@@ -4,6 +4,7 @@ const productBAL = require('./product');
 const userLog = require('./userlog');
 const util = require('../util')
 const paymentBAL = require('./payment')
+const invoiceBAL = require('./invoice')
 const orderDAL = require('../dal/order');
 const userBAL = require('./user')
 const AWSLambdaFunctions = require('../common/lambda');
@@ -105,10 +106,25 @@ const self = {
 
     const currentUserDecodedPrivateKey = util.aesDecrypt(currentUser.cryptoAccountPrivateKey);
 
+    const transactions = []
+
     for (let [sellerId, amountToPay] of paymentMap) {
         const sellerUser = await userBAL.getUserDetailsById(sellerId, true);
 
-        transferArray.push(paymentBAL.transfer(currentUserDecodedPrivateKey, sellerUser.cryptoAccountPublicKey, amountToPay).catch(err => {
+        const transaction = {
+          sellerUser: {
+            username: sellerUser.username,
+            email: sellerUser.email,
+            id: sellerUser.id
+          },
+          amountPaid: amountToPay,
+          transactionId: ''
+        }
+
+        transferArray.push(paymentBAL.transfer(currentUserDecodedPrivateKey, sellerUser.cryptoAccountPublicKey, amountToPay).then(function (transactionId) {
+          transaction.transactionId = transactionId;
+          transactions.push(transaction)
+        }).catch(err => {
           throw { error: 'Payment error ! Please make sure you have enough balance to pay !' };
         }));
         transferCount++;
@@ -117,7 +133,7 @@ const self = {
     const transferResults = await Promise.all(transferArray);
 
     if (transferResults.length === transferCount) {
-      return transferResults;
+      return transactions;
     }
 
     return { error: 'Payment error !' };
@@ -151,8 +167,6 @@ const self = {
     }
 
     if (order.createdBy.toString() !== currentUser.id.toString()) {
-      console.log(order.createdBy, currentUser.id)
-
       return { error: 'You cant pay for other user\'s orders' };
     }
 
@@ -175,15 +189,19 @@ const self = {
     // Remove scheduled order remainder mail
     try {
       const cancelResponse = await AWSLambdaFunctions.cancelScheduledMail(order.reminderMailCancellationToken);
-      console.log('Mail Cancel response:')
+      console.log('Mail cancel response:')
       console.log(cancelResponse)
     } catch (err) {} // Do nothing, machine might be expired
 
-    // Call invoiceBAL.generateInvoice <- set a record on db and generate pdf
+    // Call invoiceBAL.generateInvoice <- set a record on db and generate pdf. add pdf url to invoice. store pdf on s3 or maybe directly on server ?
+    const createdInvoice = await invoiceBAL.createInvoice(currentUser, orderId, paymentResult, order.products, order.shippingAddress, order.billingAddresses)
 
-    // Return generated pdf or invoice
+    // Return generated invoice
+    if (createdInvoice && createdInvoice._id) {
+      return createdInvoice;
+    }
 
-    return paymentResult;
+    return { error: 'Failed to create invoice !' };
   },
 
   async deleteOrderWithId(orderId) {
