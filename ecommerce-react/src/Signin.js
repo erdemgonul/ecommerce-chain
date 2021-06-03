@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import Modal from "react-modal";
+import {Toast} from "./Toast";
 const customStyles = {
   content: {
     top: "50%",
@@ -30,6 +31,7 @@ const Signin = () => {
       .then((res) => {
         console.log(res);
         if (res.data.error) {
+          Toast(res.data.error);
         } else {
           console.log("hey");
           sessionStorage.setItem("jwt", res.data.accessToken);
@@ -68,6 +70,7 @@ const Signin = () => {
             window.location.replace("/");
           }
         }
+        else Toast(res.data.error);
       })
       .catch((err) => {
         console.log(err);

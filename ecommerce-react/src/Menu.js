@@ -13,6 +13,8 @@ import { MdEmail, MdMenu } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { setCategories } from "./redux/actions";
 import axios from "axios";
+import {Toast} from "./Toast";
+
 
 function Menu() {
   const history = useHistory();
@@ -39,7 +41,10 @@ function Menu() {
     axios
       .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/category/get/all`)
       .then((res) => {
-        setCategoriesy(res.data.data.categories);
+        if(res.data.error){
+          Toast(res.data.error);
+        }
+        else setCategoriesy(res.data.data.categories);
       });
   }
 

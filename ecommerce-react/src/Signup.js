@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React from "react";
+import {Toast} from "./Toast";
 import { useHistory } from "react-router-dom";
 
 const Signup = () => {
@@ -16,8 +17,10 @@ const Signup = () => {
 
         axios.post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/auth/signup`, { userName: username, password: password, firstName: firstname, lastName: lastname, email: email },)
             .then(res => {
-
-                history.push({
+                if(res.data.error){
+                    Toast(res.data.error);
+                }
+                else history.push({
                     pathname: "/",
 
                 });

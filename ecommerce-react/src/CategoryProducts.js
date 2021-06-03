@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import HomeProduct from "./HomeProduct";
 import axios from "axios";
+import {Toast} from "./Toast";
 import { useHistory } from "react-router-dom";
 
 function CategoryProducts() {
@@ -55,7 +56,10 @@ function CategoryProducts() {
         }
       )
       .then((res) => {
-        setProducts(res.data.data.products);
+        if(res.data.error){
+          Toast(res.data.error);
+        }
+        else setProducts(res.data.data.products);
       });
 
     axios
@@ -71,7 +75,10 @@ function CategoryProducts() {
         }
       )
       .then((res) => {
-        setFilters(res.data.data);
+        if(res.data.error){
+          Toast(res.data.error);
+        }
+        else setFilters(res.data.data);
       });
   }
 
@@ -98,7 +105,10 @@ function CategoryProducts() {
         }
       )
       .then((res) => {
-        setProducts(res.data.data.products);
+        if(res.data.error){
+          Toast(res.data.error);
+        }
+        else setProducts(res.data.data.products);
       });
   }
 

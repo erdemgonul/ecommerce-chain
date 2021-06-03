@@ -3,6 +3,7 @@ import HomeProduct from "./HomeProduct";
 import { useLocation } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
+import {Toast} from "./Toast";
 import { FaAngleDown, FaAngleUp } from "react-icons/fa";
 
 function Products() {
@@ -27,7 +28,10 @@ function Products() {
         `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/product/suggestedproducts`
       )
       .then((res) => {
-        setProducts(res.data.data.products);
+        if(res.data.error){
+          Toast(res.data.error);
+        }
+        else setProducts(res.data.data.products);
       });
   }
 

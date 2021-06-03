@@ -7,8 +7,7 @@ import { useLocation } from "react-router";
 
 import { deleteFromCart } from "./redux/actions/index";
 import { useDispatch } from "react-redux";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import {Toast} from "./Toast";
 import OrderElement from "./OrderElement";
 const Profile = () => {
   const history = useHistory();
@@ -33,13 +32,18 @@ const Profile = () => {
         null
       )
       .then((res) => {
-        console.log("wtf", res.data.data);
-        setUser(res.data.data);
-        setTwoFA(res.data.data.twoFactorAuthenticationEnabled);
-        console.log("twofa", twoFA);
-        getAddresses();
-        getPreviousProducts();
-        getPreviousInvoices();
+        if(res.data.error){
+          Toast(res.data.error);
+        }
+        else {
+          console.log("wtf", res.data.data);
+          setUser(res.data.data);
+          setTwoFA(res.data.data.twoFactorAuthenticationEnabled);
+          console.log("twofa", twoFA);
+          getAddresses();
+          getPreviousProducts();
+          getPreviousInvoices();
+        }
       })
       .catch((err) => {
         console.log(err);
@@ -58,17 +62,13 @@ const Profile = () => {
       )
       .then((res) => {
         console.log(res);
-        toast("👏 Address added into your account!", {
-          position: "bottom-right",
-          autoClose: 2500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-
-        getAddresses();
+        if(res.data.error){
+          Toast(res.data.error);
+        }
+        else{
+          Toast("👏 Address added into your account!");
+          getAddresses();
+        }
       })
       .catch((err) => {
         console.log(err);
@@ -83,7 +83,10 @@ const Profile = () => {
       )
       .then((res) => {
         console.log(res.data.data.shippingAddress);
-        setAddresses(res.data.data.shippingAddresses);
+        if(res.data.error){
+          Toast(res.data.error);
+        }
+        else setAddresses(res.data.data.shippingAddresses);
       })
       .catch((err) => {
         console.log(err);
@@ -95,7 +98,10 @@ const Profile = () => {
       .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/order/get/all`, null)
       .then((res) => {
         console.log(res.data.data);
-        setPreviousProducts(res.data.data);
+        if(res.data.error){
+          Toast(res.data.error);
+        }
+        else setPreviousProducts(res.data.data);
       })
       .catch((err) => {
         console.log(err);
@@ -110,7 +116,10 @@ const Profile = () => {
       )
       .then((res) => {
         console.log(res.data.data);
-        setInvoices(res.data.data);
+        if(res.data.error){
+          Toast(res.data.error);
+        }
+        else setInvoices(res.data.data);
       })
       .catch((err) => {
         console.log(err);
@@ -127,15 +136,10 @@ const Profile = () => {
       )
       .then((res) => {
         console.log(res);
-        toast("👏 2FA Changed!", {
-          position: "bottom-right",
-          autoClose: 2500,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
+        if(res.data.error){
+          Toast(res.data.error);
+        }
+        else Toast("👏 2FA Changed!");
       })
       .catch((err) => {
         console.log(err);

@@ -1,4 +1,5 @@
 import axios from "axios";
+import {Toast} from "./Toast";
 import React, { useState } from "react";
 import Modal from "react-modal";
 const customStyles = {
@@ -21,6 +22,10 @@ const FundPage = () => {
         amount: amount,
       })
       .then((res) => {
+        if(res.data.error){
+          Toast(res.data.error);
+        }
+        else Toast("Your wallet has been funded succesfully!");
         console.log(res);
       })
       .catch((err) => {

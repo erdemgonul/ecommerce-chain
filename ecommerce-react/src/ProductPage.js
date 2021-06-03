@@ -5,9 +5,8 @@ import { FiPlus, FiMinus } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import { addToCart } from "./redux/actions/index";
 import "./product.css";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import {Toast} from "./Toast";
 import Comment from "./Comment";
 import CreateComment from "./CreateComment";
 
@@ -26,17 +25,24 @@ function ProductPage() {
         sku: parsedQuery.sku,
       })
       .then((res) => {
-        setProduct(res.data.data);
+        if (res.data.error) {
+          Toast(res.data.error);
+        } else {
+          setProduct(res.data.data);
         axios
-          .post(
-            `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/comment/get/approved/all`,
-            {
-              sku: parsedQuery.sku,
-            }
-          )
-          .then((res) => {
-            setComments(res.data.data);
-          });
+            .post(
+                `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/comment/get/approved/all`,
+                {
+                  sku: parsedQuery.sku,
+                }
+            )
+            .then((res) => {
+              if(res.data.error){
+                Toast(res.data.error);
+              }
+              else setComments(res.data.data);
+            });
+      }
       });
   }, [location]);
 
@@ -124,15 +130,7 @@ function ProductPage() {
   async function addCart() {
     dispatch(addToCart({ number: productBuyQuantity, product: product }));
 
-    toast("👏 Product Added To Cart!", {
-      position: "bottom-right",
-      autoClose: 2500,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
+    Toast("👏 Product Added To Cart!");
   }
 }
 

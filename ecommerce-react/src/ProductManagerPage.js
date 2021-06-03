@@ -1,4 +1,5 @@
 import axios from "axios";
+import {Toast} from "./Toast";
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -45,7 +46,10 @@ const ProductManagerPage = () => {
     await axios
       .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/category/get/all`)
       .then((res) => {
-        setCategories(res.data.data.categories);
+        if(res.data.error){
+          Toast(res.data.error);
+        }
+        else setCategories(res.data.data.categories);
       });
   };
   const getProducts = async () => {
@@ -58,7 +62,10 @@ const ProductManagerPage = () => {
         }
       )
       .then((res) => {
-        setProducts(res.data.data.products);
+        if(res.data.error){
+          Toast(res.data.error);
+        }
+        else setProducts(res.data.data.products);
       });
   };
   const editProduct = async (product) => {};
@@ -71,7 +78,11 @@ const ProductManagerPage = () => {
           deleteFromElasticSearch: true,
         }
       )
-      .then((res) => {})
+      .then((res) => {
+        if(res.data.error) {
+          Toast(res.data.error);
+        }
+      })
       .catch((e) => console.log(e));
   };
   const Products = () => {
@@ -124,6 +135,9 @@ const ProductManagerPage = () => {
         shipping_details:shipping_details
       })
       .then((res) => {
+        if(res.data.error){
+          Toast(res.data.error);
+        }
         console.log(res);
       });
   };
