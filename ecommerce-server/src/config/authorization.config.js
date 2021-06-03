@@ -5,5 +5,4 @@ module.exports = {
   ,'/api/v1/comment/get/approved/all'],
   productManagerEndpoints: ['/api/v1/comment/approve', '/api/v1/product/create', '/api/v1/category/create', '/api/v1/product/delete', '/api/v1/comment/get/all', '/api/v1/comment/get/nonapproved/all'],
   salesManagerEndpoints: ['/api/v1/invoice/get/every'],
-
 };
