@@ -20,6 +20,7 @@ const Profile = () => {
   const [previousProducts, setPreviousProducts] = useState([]);
   const [twoFA, setTwoFA] = useState(true);
   const [orderStatus, setOrderStatus] = useState("");
+  const [invoices, setInvoices] = useState([]);
 
   const location = useLocation();
 
@@ -27,14 +28,18 @@ const Profile = () => {
 
   useEffect(() => {
     axios
-      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/get/details`, null)
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/get/details`,
+        null
+      )
       .then((res) => {
-        console.log("wtf",res.data.data);
+        console.log("wtf", res.data.data);
         setUser(res.data.data);
         setTwoFA(res.data.data.twoFactorAuthenticationEnabled);
-        console.log("twofa",twoFA)
+        console.log("twofa", twoFA);
         getAddresses();
         getPreviousProducts();
+        getPreviousInvoices();
       })
       .catch((err) => {
         console.log(err);
@@ -44,10 +49,13 @@ const Profile = () => {
   const saveAddress = (e) => {
     e.preventDefault();
     axios
-      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/change/details`, {
-        shippingAddresses: [shippingAddress],
-        newShippingAddress: true,
-      })
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/change/details`,
+        {
+          shippingAddresses: [shippingAddress],
+          newShippingAddress: true,
+        }
+      )
       .then((res) => {
         console.log(res);
         toast("👏 Address added into your account!", {
@@ -69,7 +77,10 @@ const Profile = () => {
 
   const getAddresses = () => {
     axios
-      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/get/details`, null)
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/get/details`,
+        null
+      )
       .then((res) => {
         console.log(res.data.data.shippingAddress);
         setAddresses(res.data.data.shippingAddresses);
@@ -91,13 +102,29 @@ const Profile = () => {
       });
   };
 
+  const getPreviousInvoices = () => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/invoice/get/all`,
+        null
+      )
+      .then((res) => {
+        console.log(res.data.data);
+        setInvoices(res.data.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   const changeTwoFactorAuth = (val) => {
-
     setTwoFA(val);
     axios
-      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/change/details`, {
-        twoFactorAuthenticationEnabled: val,
-      })
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/change/details`,
+        {
+          twoFactorAuthenticationEnabled: val,
+        }
+      )
       .then((res) => {
         console.log(res);
         toast("👏 2FA Changed!", {
@@ -109,7 +136,6 @@ const Profile = () => {
           draggable: true,
           progress: undefined,
         });
-
       })
       .catch((err) => {
         console.log(err);
@@ -129,6 +155,7 @@ const Profile = () => {
     }
     return null;
   };
+
   const PreviousProducts = () => {
     if (cart) {
       return previousProducts.map((product, index) => (
@@ -142,12 +169,37 @@ const Profile = () => {
     }
     return null;
   };
+
+  const PreviousInvoices = () => {
+    return (
+      <div className="flex flex-col space-y-4 text-lg">
+        {invoices.map((invoice, index) => (
+          <div className="flex flex-col items-start space-y-2 border-b">
+            <p>Created By: {invoice.createdBy}</p>
+            <p>Created On : {invoice.createdOn}</p>
+            <p>Invoice ID : {invoice.id}</p>
+            <p>Order ID : {invoice.orderId}</p>
+            <p>
+              Pdf Url :{" "}
+              <a className="bg-green-500 px-4 text-white" href={invoice.pdfUrl}>
+                Download PDF
+              </a>
+            </p>
+            <p>Shipping address : {invoice.shippingAddress}</p>
+            <p>Success : {invoice.success == true ? "Succesful" : "FAİLED"}</p>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   function deleteFromCarty(sku) {
     dispatch(deleteFromCart(sku));
   }
+
   function signOut() {
-    sessionStorage.removeItem('jwt');
-    window.location.replace('/');
+    sessionStorage.removeItem("jwt");
+    window.location.replace("/");
   }
 
   return (
@@ -157,15 +209,6 @@ const Profile = () => {
           Profile
         </h1>
 
-        {/* <div className="flex-grow flex-shrink overflow-y-auto pt-4 px-4">
-          {<CartProducts />}
-        </div> */}
-        <h1 className="text-2xl font-medium text-primary mt-4 mb-12 text-center">
-          Previous Orders
-        </h1>
-        <div className="flex-grow flex-shrink overflow-y-auto pt-4 px-4">
-          {<PreviousProducts />}
-        </div>
         <div className="flex flex-col my-8">
           <div className="flex flex-col">
             <p className="my-4 text-left text-xl  font-bold">
@@ -236,12 +279,24 @@ const Profile = () => {
           </div>
         </div>
       </div>
+      <h1 className="text-2xl font-medium text-primary mt-4 mb-12 text-center">
+        Previous Orders
+      </h1>
+      <div className="flex-grow flex-shrink overflow-y-auto pt-4 px-4">
+        {<PreviousProducts />}
+      </div>
+      <h1 className="text-2xl font-medium text-primary mt-4 mb-12 text-center">
+        Your Invoices
+      </h1>
+      <div className="flex-grow flex-shrink overflow-y-auto pt-4 px-4">
+        {<PreviousInvoices />}
+      </div>
       <button
-              onClick={()=>signOut()}
-              className={`bg-green-500 py-2 px-4 text-sm text-white rounded border border-green focus:outline-none focus:border-green-dark`}
-            >
-              Sign Out
-            </button>
+        onClick={() => signOut()}
+        className={`bg-green-500 py-2 px-4 text-sm text-white rounded border border-green focus:outline-none focus:border-green-dark`}
+      >
+        Sign Out
+      </button>
     </div>
   );
 };
