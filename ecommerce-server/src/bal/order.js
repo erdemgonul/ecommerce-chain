@@ -2,7 +2,6 @@ const moment = require('moment');
 
 const productBAL = require('./product');
 const userLog = require('./userlog');
-const util = require('../util')
 const paymentBAL = require('./payment')
 const invoiceBAL = require('./invoice')
 const orderDAL = require('../dal/order');

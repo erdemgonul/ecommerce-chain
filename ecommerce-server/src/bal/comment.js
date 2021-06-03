@@ -75,6 +75,10 @@ const self = {
         return await commentDAL.getCommentsOfProduct(sku, approvedOnly, nonApprovedOnly);
     },
 
+    async getAllNonApprovedComments() {
+        return await commentDAL.getAllNonApprovedComments();
+    },
+
     async getCommentByCommentId(commentId) {
         const commentDetails = await commentDAL.getCommentByCommentId(commentId);
 
