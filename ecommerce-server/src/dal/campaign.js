@@ -8,7 +8,7 @@ const self = {
     const createdOn = moment.utc().toDate();
 
     const campaign = new Campaign({
-      campaignType, validUntil, isActive, discountAmount
+      campaignType, validUntil, isActive, discountAmount, createdOn
     });
 
     try {
@@ -33,7 +33,13 @@ const self = {
       const campaigns = await Campaign.find(filter).exec();
 
       for (let campaign of campaigns) {
-        result.push(campaign.toObject())
+        const campaignObject = campaign.toObject();
+
+        campaignObject.id = campaignObject._id;
+        delete campaignObject._id;
+        delete campaignObject.__v;
+
+        result.push(campaignObject)
       }
 
       return result
@@ -67,7 +73,12 @@ const self = {
       }).exec();
 
       if (campaign && campaign._id) {
-        return campaign.toObject();
+        const campaignObject = campaign.toObject();
+
+        campaignObject.id = campaignObject._id;
+        delete campaignObject._id;
+        delete campaignObject.__v;
+        return campaignObject;
       }
     } catch (err) {
       return err;

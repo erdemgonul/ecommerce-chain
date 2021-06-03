@@ -5,6 +5,7 @@ const self = {
         const createdCampaign = await campaignDAL.createCampaign(campaignType, validUntil, isActive, discountAmount);
 
         if (createdCampaign) {
+            console.log(createdCampaign)
             return createdCampaign;
         }
 

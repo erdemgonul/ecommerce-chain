@@ -234,9 +234,11 @@ const self = {
                 return {error: 'Campaign is no longer valid !'};
             }
 
-            if (!campaign || !campaign.id) {
+            if (!campaignRetrieved || !campaignRetrieved.id) {
                 return {error: 'Campaign not found !'};
             }
+
+            campaign = campaignRetrieved;
         }
 
         let paymentResult;
