@@ -9,6 +9,7 @@ const notification = require('./notification');
 const comment = require('./comment');
 const invoice = require('./invoice');
 const payment = require('./payment');
+const campaign = require('./campaign');
 
 const router = express.Router();
 
@@ -27,5 +28,6 @@ router.use('/notification', notification);
 router.use('/comment', comment);
 router.use('/invoice', invoice);
 router.use('/payment', payment);
+router.use('/campaign', campaign);
 
 module.exports = router;

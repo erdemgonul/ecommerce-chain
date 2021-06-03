@@ -53,7 +53,7 @@ router.post('/cancel', async (req, res) => {
 });
 
 router.post('/finish', async (req, res) => {
-  const finishOrderResponse = await orderBAL.finishPayment(req.user, req.body.orderId);
+  const finishOrderResponse = await orderBAL.finishPayment(req.user, req.body.orderId, req.body.campaignId);
 
   if (finishOrderResponse && !finishOrderResponse.error) {
     res.send({ data: finishOrderResponse, success: true });

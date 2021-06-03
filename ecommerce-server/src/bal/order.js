@@ -7,6 +7,7 @@ const paymentBAL = require('./payment')
 const invoiceBAL = require('./invoice')
 const orderDAL = require('../dal/order');
 const userBAL = require('./user')
+const campaignBAL = require('./campaign');
 const AWSLambdaFunctions = require('../common/lambda');
 const AWSSESWrapper = require('../common/ses');
 const ElasticSearchWrapper = require('../common/elasticsearchwrapper');
@@ -87,11 +88,28 @@ const self = {
         return {error: 'Order creation failed!'};
     },
 
-    async _payOrder(currentUser, order) {
+    async _cancelNonPaidOrders(productId) {
+        const ordersContainingProduct = await self.getOrdersOfContainingProduct(productId, true);
+
+        if (ordersContainingProduct && ordersContainingProduct.length) {
+            for (let order of ordersContainingProduct) {
+                const cancelResponse = await self.cancelOrder(order.id);
+
+                if (cancelResponse.error) {
+                    return cancelResponse;
+                }
+            }
+        }
+    },
+
+    async _payOrder(currentUser, order, campaign) {
+        let totalAmountToPay = 0;
+
         const paymentMap = new Map();
 
         for (let product of order.products) {
             const sellerId = product.sellerId;
+            totalAmountToPay += product.unitPrice;
 
             if (paymentMap.has(sellerId)) {
                 const newValue = paymentMap.get(sellerId) + product.unitPrice;
@@ -99,6 +117,25 @@ const self = {
             } else {
                 paymentMap.set(sellerId, product.unitPrice)
             }
+        }
+
+        const balance = await paymentBAL.getBalance(currentUser.cryptoAccountPublicKey);
+        let discountAmount = 0;
+
+        if (campaign) {
+            if (campaign.campaignType === 'FIXED_DISCOUNT') {
+                discountAmount = campaign.discountAmount;
+            }
+        }
+
+        if (discountAmount + balance < totalAmountToPay) {
+            return {error: 'Not enough balance to pay your order !'};
+        }
+
+        if (discountAmount > 0) {
+            // fund user the discount
+            console.log('FUNDING THE USER BECAUSE OF CAMPAIGN: ' + discountAmount)
+            await paymentBAL.fund(currentUser.cryptoAccountPublicKey, discountAmount);
         }
 
         const transferArray = [];
@@ -174,8 +211,9 @@ const self = {
         }
     },
 
-    async finishPayment(currentUser, orderId) {
+    async finishPayment(currentUser, orderId, campaignId) {
         const order = await orderDAL.getOrderByOrderId(orderId);
+        let campaign;
 
         if (!order) {
             return {error: 'Order does not exists!'};
@@ -189,10 +227,23 @@ const self = {
             return {error: 'You cant pay for other user\'s orders'};
         }
 
+        if (campaignId) {
+            let campaignRetrieved = await campaignBAL.getCampaignById(campaignId);
+            const validTimeDiff = moment.utc().diff(campaignRetrieved.validUntil, 'second');
+
+            if (validTimeDiff >= 0) {
+                return {error: 'Campaign is no longer valid !'};
+            }
+
+            if (!campaign || !campaign.id) {
+                return {error: 'Campaign not found !'};
+            }
+        }
+
         let paymentResult;
 
         try {
-            paymentResult = await self._payOrder(currentUser, order);
+            paymentResult = await self._payOrder(currentUser, order, campaign);
         } catch (err) {
             return err;
         }

@@ -32,6 +32,7 @@ db.order = require('./order.model');
 db.userlog = require('./userlog.model');
 db.comment = require('./comment.model');
 db.invoice = require('./invoice.model');
+db.campaign = require('./campaign.model');
 
 function setupIndexes() {
   mongoose.connection.collections.categories.ensureIndex({ path: 1, parent: 1 }, { unique: true }, (err, res) => {
