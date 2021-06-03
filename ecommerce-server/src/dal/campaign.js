@@ -26,7 +26,11 @@ const self = {
     try {
       const result = [];
 
+      // compare dates
       const filter = {
+        validUntil: {
+          $gte: moment.utc().toDate()
+        },
         isActive: true
       }
 

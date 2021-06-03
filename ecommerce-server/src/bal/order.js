@@ -121,7 +121,7 @@ const self = {
         const balance = await paymentBAL.getBalance(currentUser.cryptoAccountPublicKey);
         let discountAmount = 0;
 
-        if (campaign) {
+        if (campaign && campaign.isActive) {
             if (campaign.campaignType === 'FIXED_DISCOUNT') {
                 discountAmount = campaign.discountAmount;
             }
@@ -229,6 +229,9 @@ const self = {
         if (campaignId) {
             let campaignRetrieved = await campaignBAL.getCampaignById(campaignId);
             const validTimeDiff = moment.utc().diff(campaignRetrieved.validUntil, 'second');
+
+            if (!campaignRetrieved.isActive)
+                return {error: 'Campaign is no longer active !'};
 
             if (validTimeDiff >= 0) {
                 return {error: 'Campaign is no longer valid !'};
