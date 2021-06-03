@@ -61,6 +61,30 @@ const self = {
         }
     },
 
+    getAllNonApprovedComments: async () => {
+        try {
+            const result = [];
+            const filter = {
+                isApproved: false
+            };
+
+            const comments = await Comment.find(filter).sort({createdOn: -1}).exec();
+
+            for (const comment of comments) {
+                const commentObj = comment.toObject();
+                commentObj.id = commentObj._id;
+
+                delete commentObj._id;
+                delete commentObj.__v;
+                result.push(commentObj);
+            }
+
+            return result;
+        } catch (err) {
+            return err;
+        }
+    },
+
     getCommentsOfProduct: async (sku, approvedOnly, nonApprovedOnly) => {
         try {
             const result = [];

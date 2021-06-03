@@ -34,7 +34,12 @@ router.post('/get/approved/all', async (req, res) => {
 });
 
 router.post('/get/nonapproved/all', async (req, res) => {
-  const comments = await commentBAL.getCommentsOfProduct(req.body.sku, false, true);
+  let comments;
+
+  if (req.body.sku)
+    comments = await commentBAL.getCommentsOfProduct(req.body.sku, false, true);
+  else
+    comments = await commentBAL.getAllNonApprovedComments();
 
   if (comments && !comments.error) {
     res.send({ data: comments, success: true });
