@@ -20,10 +20,13 @@ const Signin = () => {
 
   const submitTwoFactorAuth = () => {
     axios
-      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/auth/twofactorauth/verify`, {
-        userName: username,
-        twoFactorCode: parseInt(twoFA),
-      })
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/auth/twofactorauth/verify`,
+        {
+          userName: username,
+          twoFactorCode: parseInt(twoFA),
+        }
+      )
       .then((res) => {
         console.log(res);
         if (res.data.error) {
@@ -41,11 +44,16 @@ const Signin = () => {
 
   const signIn = (e) => {
     console.log("eeee");
+    let x = {
+      userName: username,
+      password: password,
+    };
+    if (localStorage.getItem("firebasetoken")) {
+      x["notificationToken"] = localStorage.getItem("firebasetoken");
+    }
+
     axios
-      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/auth/signin`, {
-        userName: username,
-        password: password,
-      })
+      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/auth/signin`, x)
       .then((res) => {
         console.log(res);
         if (res.data.success) {
