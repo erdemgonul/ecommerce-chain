@@ -69,6 +69,11 @@ function Menu() {
 
   return (
     <div className="flex-col shadow-md pb-2 lg:pb-4 ">
+      <div className="w-full flex h-8 bg-indigo-500">
+        <p className="hidden lg:flex text-white text-base ml-4 items-center self-center">
+          Ecommerce Chain
+        </p>
+      </div>
       <div className="flex  xl:flex lg:flex lg:pb-2 justify-between lg:px-10 lg:mt-8 mt-2">
         <div className="flex">
           <button onClick={() => setToggleMenu(!toggleMenu)} className="h-full">
@@ -144,7 +149,7 @@ function Menu() {
                   pathname: "/profile",
                 })
               }
-              className="h-full ml-4 hidden md:flex"
+              className="h-full ml-4 hidden md:flex items-center justify-center"
             >
               <b>My Profile</b>
             </button>

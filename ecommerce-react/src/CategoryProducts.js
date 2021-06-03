@@ -176,7 +176,7 @@ function CategoryProducts() {
   return (
     <>
       <div className="lg:mx-20 h-full flex flex-col">
-        <div className="flex-col lg:flex-row mt-4 ml-4 lg:ml-0 lg:space-x-4">
+        <div className=" flex flex-col lg:flex-row mt-4 ml-4 lg:ml-0 lg:space-x-4">
           <Filters />
         </div>
         <div className="flex">
