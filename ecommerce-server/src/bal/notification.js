@@ -3,17 +3,23 @@ const userBAL = require('./user');
 
 const self = {
     async sendNotification(title, body, imageUrl, notificationToken) {
+        const message = {
+            tokens: [notificationToken],
+            notification: {
+                title: title,
+                body: body,
+                imageUrl,
+            },
+        }
+
+        if (Array.isArray(notificationToken)) {
+            message.tokens = notificationToken;
+        }
+
         try {
             await firebaseAdmin
                 .messaging()
-                .sendMulticast({
-                    tokens: [notificationToken],
-                    notification: {
-                        title: title,
-                        body: body,
-                        imageUrl,
-                    },
-                })
+                .sendMulticast(message)
                 .then((e) => console.log(e))
                 .catch((err) => console.log(err));
 
