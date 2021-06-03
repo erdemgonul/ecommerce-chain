@@ -32,10 +32,18 @@ router.post('/get', async (req, res) => {
   }
 });
 
+router.post('/edit', async (req, res) => {
+  const order = await orderBAL.updateOrderDetails(req.body);
+
+  if (order && !order.error) {
+    res.send({ data: order, success: true });
+  } else {
+    res.send(order);
+  }
+});
+
 router.post('/finish', async (req, res) => {
   const finishOrderResponse = await orderBAL.finishPayment(req.user, req.body.orderId);
-
-  console.log(finishOrderResponse)
 
   if (finishOrderResponse && !finishOrderResponse.error) {
     res.send({ data: finishOrderResponse, success: true });

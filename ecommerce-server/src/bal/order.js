@@ -139,6 +139,25 @@ const self = {
     return { error: 'Payment error !' };
   },
 
+  async updateOrderDetails(payload) {
+    const detailsToChange = payload;
+    const orderId = payload.orderId;
+
+    delete detailsToChange.orderId;
+
+    if (detailsToChange && Object.keys(detailsToChange).length === 0 && detailsToChange.constructor === Object) {
+      return { error: 'Invalid change request !' };
+    }
+
+    const updateResult = await orderDAL.updateOrderDetails(orderId, detailsToChange);
+
+    if (!updateResult) {
+      throw { error: 'Order update failed!' };
+    }
+
+    return updateResult;
+  },
+
   async _updateOrderToCompleted(orderId) {
     const detailsToChange = {
       status: 'ORDER_COMPLETED',
