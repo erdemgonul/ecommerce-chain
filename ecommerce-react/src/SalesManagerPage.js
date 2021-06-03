@@ -20,6 +20,7 @@ const SalesManagerPage = () => {
   const [previousProducts, setPreviousProducts] = useState([]);
   const [twoFA, setTwoFA] = useState(true);
   const [orderStatus, setOrderStatus] = useState("");
+  const [comments, setComments] = useState([]);
 
   const location = useLocation();
 
@@ -27,12 +28,15 @@ const SalesManagerPage = () => {
 
   useEffect(() => {
     axios
-      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/get/details`, null)
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/get/details`,
+        null
+      )
       .then((res) => {
-        console.log("wtf",res.data.data);
+        console.log("wtf", res.data.data);
         setUser(res.data.data);
         setTwoFA(res.data.data.twoFactorAuthenticationEnabled);
-        console.log("twofa",twoFA)
+        console.log("twofa", twoFA);
         getAddresses();
         getPreviousProducts();
       })
@@ -44,10 +48,13 @@ const SalesManagerPage = () => {
   const saveAddress = (e) => {
     e.preventDefault();
     axios
-      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/change/details`, {
-        shippingAddresses: [shippingAddress],
-        newShippingAddress: true,
-      })
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/change/details`,
+        {
+          shippingAddresses: [shippingAddress],
+          newShippingAddress: true,
+        }
+      )
       .then((res) => {
         console.log(res);
         toast("👏 Address added into your account!", {
@@ -69,7 +76,10 @@ const SalesManagerPage = () => {
 
   const getAddresses = () => {
     axios
-      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/get/details`, null)
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/get/details`,
+        null
+      )
       .then((res) => {
         console.log(res.data.data.shippingAddress);
         setAddresses(res.data.data.shippingAddresses);
@@ -90,14 +100,27 @@ const SalesManagerPage = () => {
         console.log(err);
       });
   };
-
+  const getAllComments = () => {
+    axios
+      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/order/get/all`, null)
+      .then((res) => {
+        console.log(res.data.data);
+        setComments(res.data.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+  
   const changeTwoFactorAuth = (val) => {
-
     setTwoFA(val);
     axios
-      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/change/details`, {
-        twoFactorAuthenticationEnabled: val,
-      })
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/user/change/details`,
+        {
+          twoFactorAuthenticationEnabled: val,
+        }
+      )
       .then((res) => {
         console.log(res);
         toast("👏 2FA Changed!", {
@@ -109,7 +132,6 @@ const SalesManagerPage = () => {
           draggable: true,
           progress: undefined,
         });
-
       })
       .catch((err) => {
         console.log(err);
@@ -146,8 +168,8 @@ const SalesManagerPage = () => {
     dispatch(deleteFromCart(sku));
   }
   function signOut() {
-    sessionStorage.removeItem('jwt');
-    window.location.replace('/');
+    sessionStorage.removeItem("jwt");
+    window.location.replace("/");
   }
 
   return (
@@ -237,11 +259,11 @@ const SalesManagerPage = () => {
         </div>
       </div>
       <button
-              onClick={()=>signOut()}
-              className={`bg-green-500 py-2 px-4 text-sm text-white rounded border border-green focus:outline-none focus:border-green-dark`}
-            >
-              Sign Out
-            </button>
+        onClick={() => signOut()}
+        className={`bg-green-500 py-2 px-4 text-sm text-white rounded border border-green focus:outline-none focus:border-green-dark`}
+      >
+        Sign Out
+      </button>
     </div>
   );
 };
