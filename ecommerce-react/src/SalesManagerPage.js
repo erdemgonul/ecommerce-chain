@@ -39,6 +39,7 @@ const SalesManagerPage = () => {
         console.log("twofa", twoFA);
         getAddresses();
         getPreviousProducts();
+        getAllComments();
       })
       .catch((err) => {
         console.log(err);
@@ -102,7 +103,10 @@ const SalesManagerPage = () => {
   };
   const getAllComments = () => {
     axios
-      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/order/get/all`, null)
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/comment/get/nonapproved/all`,
+        null
+      )
       .then((res) => {
         console.log(res.data.data);
         setComments(res.data.data);
@@ -111,7 +115,18 @@ const SalesManagerPage = () => {
         console.log(err);
       });
   };
-  
+  const approveComment = (commentId) => {
+    axios
+      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/comment/approve`, {
+        commentId: commentId,
+      })
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   const changeTwoFactorAuth = (val) => {
     setTwoFA(val);
     axios
@@ -164,6 +179,21 @@ const SalesManagerPage = () => {
     }
     return null;
   };
+
+  const Comments = () => {
+    return comments.map((comment, index) => (
+      <div className="flex">
+        <p>Comment: {comment.commentText}</p>
+        {comment.rating && <p>{comment.rating}/5</p>}
+        <button
+          onClick={() => approveComment(comment.id)}
+          className="bg-green-500 text-white px-2 py-1"
+        >
+          Approve Comment
+        </button>
+      </div>
+    ));
+  };
   function deleteFromCarty(sku) {
     dispatch(deleteFromCart(sku));
   }
@@ -179,9 +209,12 @@ const SalesManagerPage = () => {
           SalesManagerPage
         </h1>
 
-        {/* <div className="flex-grow flex-shrink overflow-y-auto pt-4 px-4">
-          {<CartProducts />}
-        </div> */}
+        <h1 className="text-2xl font-medium text-primary mt-4 mb-12 text-center">
+          Unapproved Comments
+        </h1>
+        <div className="flex-grow flex-shrink overflow-y-auto pt-4 px-4">
+          {<Comments />}
+        </div>
         <h1 className="text-2xl font-medium text-primary mt-4 mb-12 text-center">
           Previous Orders
         </h1>
