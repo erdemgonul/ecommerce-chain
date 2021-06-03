@@ -33,7 +33,28 @@ const self = {
 
       const invoices = await Invoice.find({
         createdBy: userId
-      }).exec();
+      }).sort({createdOn: -1}).exec();
+
+      for (const invoice of invoices) {
+        const invoiceObj = invoice.toObject();
+        invoiceObj.id = invoiceObj._id;
+
+        delete invoiceObj._id;
+        delete invoiceObj.__v;
+        result.push(invoiceObj);
+      }
+
+      return result;
+    } catch (err) {
+      return err;
+    }
+  },
+
+  getAllInvoices: async () => {
+    try {
+      const result = [];
+
+      const invoices = await Invoice.find().sort({createdOn: -1}).exec();
 
       for (const invoice of invoices) {
         const invoiceObj = invoice.toObject();

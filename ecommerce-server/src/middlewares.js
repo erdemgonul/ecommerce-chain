@@ -59,6 +59,14 @@ function isProductManager(req, res, next) {
   return res.status(401).send({ error: 'Unauthorized!' });
 }
 
+function isSalesManager(req, res, next) {
+  if (req.userRole === 'salesManager' || !config.auth.salesManagerEndpoints.includes(req.originalUrl)) {
+    return next();
+  }
+
+  return res.status(401).send({ error: 'Unauthorized!' });
+}
+
 function verifyToken(req, res, next) {
   const authHeader = req.headers.authorization;
   const token = authHeader ? authHeader.substring(7) : null;
@@ -113,5 +121,6 @@ module.exports = {
   errorHandler,
   validateRequest,
   verifyToken,
-  isProductManager
+  isProductManager,
+  isSalesManager
 };

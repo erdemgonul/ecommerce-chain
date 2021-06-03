@@ -35,7 +35,7 @@ const self = {
 
       const orders = await Order.find({
         createdBy: userId
-      }).exec();
+      }).sort({createdOn: -1}).exec();
 
       for (const order of orders) {
         const orderObj = order.toObject();

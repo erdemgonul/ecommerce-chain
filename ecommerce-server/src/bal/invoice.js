@@ -39,6 +39,10 @@ const self = {
     return await invoiceDAL.getInvoicesOfCurrentUser(userId);
   },
 
+  async getAllInvoices() {
+    return await invoiceDAL.getAllInvoices();
+  },
+
   async isInvoiceExistForProduct(userId, productId) {
     return await invoiceDAL.isInvoiceExistForProduct(userId, productId);
   },

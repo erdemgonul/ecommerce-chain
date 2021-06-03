@@ -53,4 +53,14 @@ router.post('/delete', async (req, res) => {
   }
 });
 
+router.post('/approve', async (req, res) => {
+  const approveResponse = await commentBAL.approveCommentWithId(req.user, req.body.commentId);
+
+  if (approveResponse && !approveResponse.error) {
+    res.send({ success: true });
+  } else {
+    res.send(approveResponse);
+  }
+});
+
 module.exports = router;
