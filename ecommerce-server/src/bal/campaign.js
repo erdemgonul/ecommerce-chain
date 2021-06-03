@@ -3,7 +3,7 @@ const moment = require('moment')
 const notificationBAL = require('./notification');
 
 const self = {
-    async createCampaign(campaignType, validUntil, isActive, discountAmount, notifyUsers) {
+    async createCampaign(campaignType, validUntil, isActive, discountAmount, notificationDetails) {
         if (isActive) {
             const validTimeDiff = moment.utc().diff(validUntil, 'second');
 
@@ -15,8 +15,8 @@ const self = {
         const createdCampaign = await campaignDAL.createCampaign(campaignType, validUntil, isActive, discountAmount);
 
         if (createdCampaign) {
-            if (notifyUsers) {
-
+            if (notificationDetails && notificationDetails.title && notificationDetails.body) {
+                await notificationBAL.sendNotificationToEveryone(notificationDetails.title, notificationDetails.body)
             }
 
             return createdCampaign;
