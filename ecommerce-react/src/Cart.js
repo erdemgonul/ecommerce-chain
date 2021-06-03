@@ -71,6 +71,7 @@ function Cart({ closeCart }) {
   );
 
   async function proceedCheckout() {
+    closeCart();
     history.push({
       pathname: "/checkout",
 

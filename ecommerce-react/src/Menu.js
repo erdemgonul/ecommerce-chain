@@ -36,9 +36,11 @@ function Menu() {
   }
 
   function getCategories() {
-    axios.post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/category/get/all`).then((res) => {
-      setCategoriesy(res.data.data.categories);
-    });
+    axios
+      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/category/get/all`)
+      .then((res) => {
+        setCategoriesy(res.data.data.categories);
+      });
   }
 
   function showCart(shouldShow) {
@@ -78,7 +80,7 @@ function Menu() {
 
           <button
             onClick={() => history.push("/")}
-            className="font-light text-3xl md:text-4xl text-black lg:ml-4 lg:ml-0 self-center "
+            className="font-light text-3xl md:text-4xl text-black lg:ml-4 self-center "
           >
             EcommerceChain
           </button>
@@ -112,7 +114,7 @@ function Menu() {
           </div>
           <CartLink click={() => showCart(true)} />
           {!logged && (
-            <div className="flex border-l-2 border-gray-500 space-x-4 ml-4 pl-4">
+            <div className="hidden lg:flex border-l-2 border-gray-500 space-x-4 ml-4 pl-4">
               <button
                 onClick={() =>
                   history.push({
