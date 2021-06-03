@@ -10,6 +10,7 @@ const campaignBAL = require('./campaign');
 const AWSLambdaFunctions = require('../common/lambda');
 const AWSSESWrapper = require('../common/ses');
 const ElasticSearchWrapper = require('../common/elasticsearchwrapper');
+const notificationBAL = require('./notification');
 
 const elasticSearch = new ElasticSearchWrapper(process.env.ELASTIC_SEARCH_REGION, process.env.ELASTIC_SEARCH_DOMAIN, process.env.ELASTIC_SEARCH_PRODUCT_INDEX, process.env.ELASTIC_SEARCH_PRODUCT_INDEXTYPE, true, process.env.ELASTIC_SEARCH_USERNAME, process.env.ELASTIC_SEARCH_PASSWORD);
 
@@ -54,6 +55,8 @@ const self = {
 
         if (createdOrder && createdOrder._id) {
             AWSSESWrapper.SendEmailWithTemplate(user, 'ORDER_CREATED', {recipient_name: user.firstName});
+
+            notificationBAL.sendNotification('EcommerceChain - Your order is created !', 'If you do not make a payment, your order will be deleted after 2 days.', null, user.notificationTokens)
 
             const scheduledEmailResponse = await AWSLambdaFunctions.invokeMailScheduler({
                 to: [user.email],
@@ -278,6 +281,8 @@ const self = {
                 recipient_name: currentUser.firstName,
                 invoicePDFUrl: createdInvoice.pdfUrl
             });
+
+            notificationBAL.sendNotification('EcommerceChain - Your payment is successful!', 'Your order will be shipped in 1 business day.', null, user.notificationTokens)
 
             return createdInvoice;
         }
