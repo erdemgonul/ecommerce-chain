@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import Comment from "./Comment";
+import CreateComment from "./CreateComment";
 
 function ProductPage() {
   const [product, setProduct] = useState(null);
@@ -98,18 +99,22 @@ function ProductPage() {
               </button>
             </div>
             <button
-              className="bg-black w-full hover:bg-purple-900 mt-4 lg:mt-10 rounded-md text-white font-medium text-md py-3 px-4 rounded-sm mb-2"
+              className="bg-black w-full hover:bg-purple-900 mt-4 lg:mt-10 rounded-md text-white font-medium text-md py-3 px-4 mb-2"
               onClick={() => addCart()}
             >
-              {"ADD TO CART"}
+              ADD TO CART
             </button>
           </div>
         </div>
+        <div className="flex flex-col items-start w-full">
+          <p className="text-3xl font-bold">Post a comment</p>
+          <CreateComment product={product} />
+        </div>
         <div className="flex flex-col items-start space-y-4">
           <p className="text-3xl font-bold">Comments</p>
-        {
-          comments.map((e)=> <Comment comment={e}/>)
-        }
+          {comments.map((e) => (
+            <Comment comment={e} />
+          ))}
         </div>
       </div>
     </>

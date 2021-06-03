@@ -18,6 +18,10 @@ function Cart({ closeCart }) {
   const cart = useSelector((state) => state.cart);
   const CartProducts = () => {
     if (cart) {
+      let tot = 0;
+      cart.forEach((e) => (tot += e.product.price));
+      setTotalPrice(tot);
+
       return cart.map((product, index) => (
         <CartElement
           product={product}
@@ -29,7 +33,6 @@ function Cart({ closeCart }) {
     }
     return null;
   };
-
 
   return (
     <>
@@ -54,15 +57,14 @@ function Cart({ closeCart }) {
             <div className="justify-between flex px-2 mb-6 items-center">
               <p className="text-sm font-medium"> {"Total"}</p>
               <p className="flex text-left mr-4 text-gray-800">
-
                 {totalPrice} TL
-            </p>
+              </p>
             </div>
             <button
               className="bg-indigo-600 w-full hover:bg-purple-900 text-white font-medium text-sm py-3 px-4 rounded-sm mb-2"
               onClick={() => proceedCheckout()}
             >
-              {"ORDER"}
+              ORDER
             </button>
           </div>
         </div>
@@ -74,14 +76,12 @@ function Cart({ closeCart }) {
     closeCart();
     history.push({
       pathname: "/checkout",
-
     });
   }
 
-  function ifCartHasFree(cartItems) { }
+  function ifCartHasFree(cartItems) {}
   function deleteFromCarty(sku) {
     dispatch(deleteFromCart(sku));
-
   }
 }
 
