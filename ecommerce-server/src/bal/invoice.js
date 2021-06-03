@@ -57,7 +57,21 @@ const self = {
 
       return invoiceDetails;
     }
-    return { error: 'Product not found !' };
+    return { error: 'Invoice not found !' };
+  },
+
+  async getInvoiceByOrderId(orderId) {
+    const invoiceDetails = await invoiceDAL.getInvoiceByOrderId(orderId);
+
+    if (invoiceDetails) {
+      invoiceDetails.id = invoiceDetails._id;
+      delete invoiceDetails._id;
+      delete invoiceDetails.__v;
+
+      return invoiceDetails;
+    }
+
+    return { error: 'Invoice not found !' };
   },
 };
 

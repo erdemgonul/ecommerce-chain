@@ -6,11 +6,12 @@ const Order = db.order;
 const self = {
   createOrder: async (createdBy, shippingAddress, billingAddress, products, orderTotal, expireAt) => {
     const createdOn = moment.utc().toISOString();
+    const updatedOn = createdOn;
 
     const status = 'ORDER_PLACED';
 
     const order = new Order({
-      shippingAddress, billingAddress, products, orderTotal, createdOn, createdBy, status, expireAt
+      shippingAddress, billingAddress, products, orderTotal, createdOn, createdBy, status, expireAt, updatedOn
     });
 
     try {
@@ -35,7 +36,7 @@ const self = {
 
       const orders = await Order.find({
         createdBy: userId
-      }).sort({createdOn: -1}).exec();
+      }).sort({updatedOn: -1}).exec();
 
       for (const order of orders) {
         const orderObj = order.toObject();
@@ -53,6 +54,10 @@ const self = {
   },
 
   updateOrderDetails: async (orderId, detailsToChange) => {
+    const updatedOn = moment.utc().toDate();
+
+    detailsToChange.updatedOn = updatedOn;
+
     const updatedOrder = await Order.findOneAndUpdate({
       _id: orderId
     }, detailsToChange);

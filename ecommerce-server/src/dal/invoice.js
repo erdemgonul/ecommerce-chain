@@ -116,6 +116,20 @@ const self = {
       return err;
     }
   },
+
+  getInvoiceByOrderId: async (orderId) => {
+    try {
+      const invoice = await Invoice.findOne({
+        orderId: orderId
+      }).exec();
+
+      if (invoice) {
+        return invoice.toObject();
+      }
+    } catch (err) {
+      return err;
+    }
+  },
 };
 
 module.exports = self;

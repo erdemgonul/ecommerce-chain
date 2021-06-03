@@ -14,241 +14,294 @@ const ElasticSearchWrapper = require('../common/elasticsearchwrapper');
 const elasticSearch = new ElasticSearchWrapper(process.env.ELASTIC_SEARCH_REGION, process.env.ELASTIC_SEARCH_DOMAIN, process.env.ELASTIC_SEARCH_PRODUCT_INDEX, process.env.ELASTIC_SEARCH_PRODUCT_INDEXTYPE, true, process.env.ELASTIC_SEARCH_USERNAME, process.env.ELASTIC_SEARCH_PASSWORD);
 
 const self = {
-  async createOrder(user, shippingAddress, billingAddress, products, shouldLog) {
-    let orderTotal = 0;
+    async createOrder(user, shippingAddress, billingAddress, products, shouldLog) {
+        let orderTotal = 0;
 
-    for (const product of products) {
-      const productId = product.sku;
-      const productQuantity = product.quantity;
+        for (const product of products) {
+            const productId = product.sku;
+            const productQuantity = product.quantity;
 
-      const productData = await productBAL.getProductByProductId(productId);
+            const productData = await productBAL.getProductByProductId(productId);
 
-      if (!productData) {
-        return { error: `Product with sku: ${productId} not found!` };
-      }
+            if (!productData) {
+                return {error: `Product with sku: ${productId} not found!`};
+            }
 
-      if (productData.quantity - productQuantity < 0) {
-        return { error: `Not enough stock for ${productId}!` };
-      }
+            if (productData.quantity - productQuantity < 0) {
+                return {error: `Not enough stock for ${productId}!`};
+            }
 
-      product.unitPrice = productData.price;
-      product.categories = productData.categories;
-      product.sellerId = productData.sellerId;
-      orderTotal += productQuantity * productData.price;
+            product.unitPrice = productData.price;
+            product.categories = productData.categories;
+            product.sellerId = productData.sellerId;
+            orderTotal += productQuantity * productData.price;
 
-      const subtractSuccess = await productBAL.subtractQuantityFromProduct(product.sku, productQuantity);
+            const subtractSuccess = await productBAL.subtractQuantityFromProduct(product.sku, productQuantity);
 
-      if (!subtractSuccess) {
-        return { error: `Reducing quantity failed for ${productId}!` };
-      }
+            if (!subtractSuccess) {
+                return {error: `Reducing quantity failed for ${productId}!`};
+            }
 
-      try {
-        await productBAL.updateProductOnElasticSearch(productData);
-      } catch (err) {
-        return { error: 'Elastic search error !' };
-      }
-    }
-
-    const expireAt = moment.utc().add(2, 'days').toDate();
-    const createdOrder = await orderDAL.createOrder(user.id, shippingAddress, billingAddress, products, orderTotal, expireAt);
-
-    if (createdOrder && createdOrder._id) {
-      AWSSESWrapper.SendEmailWithTemplate(user, 'ORDER_CREATED', { recipient_name: user.firstName });
-
-      const scheduledEmailResponse = await AWSLambdaFunctions.invokeMailScheduler({
-        to: [user.email],
-        templateName: 'ORDER_PAYMENT_REMINDER',
-        templateData: { recipient_name: user.firstName }
-      }, moment.utc().add(2, 'minutes').toISOString());
-
-      // Append the cancellation token to order
-      await orderDAL.updateOrderDetails(createdOrder._id, {reminderMailCancellationToken: scheduledEmailResponse.executionArn})
-
-      // Add to logs of user
-      if (shouldLog) {
-        const productCategories = [];
-
-        for (let product of products) {
-          productCategories.push(...product.categories)
+            try {
+                await productBAL.updateProductOnElasticSearch(productData);
+            } catch (err) {
+                return {error: 'Elastic search error !'};
+            }
         }
 
-        const productIds = products.map(product => product.sku);
+        const expireAt = moment.utc().add(2, 'days').toDate();
+        const createdOrder = await orderDAL.createOrder(user.id, shippingAddress, billingAddress, products, orderTotal, expireAt);
 
-        const orderPlaceLog = {
-          productIds: productIds,
-          productCategories: Array.from(new Set(productCategories))
+        if (createdOrder && createdOrder._id) {
+            AWSSESWrapper.SendEmailWithTemplate(user, 'ORDER_CREATED', {recipient_name: user.firstName});
+
+            const scheduledEmailResponse = await AWSLambdaFunctions.invokeMailScheduler({
+                to: [user.email],
+                templateName: 'ORDER_PAYMENT_REMINDER',
+                templateData: {recipient_name: user.firstName}
+            }, moment.utc().add(2, 'minutes').toISOString());
+
+            // Append the cancellation token to order
+            await orderDAL.updateOrderDetails(createdOrder._id, {reminderMailCancellationToken: scheduledEmailResponse.executionArn})
+
+            // Add to logs of user
+            if (shouldLog) {
+                const productCategories = [];
+
+                for (let product of products) {
+                    productCategories.push(...product.categories)
+                }
+
+                const productIds = products.map(product => product.sku);
+
+                const orderPlaceLog = {
+                    productIds: productIds,
+                    productCategories: Array.from(new Set(productCategories))
+                }
+
+                await userLog.createUserLog(user.id, userLog.LogType.PLACE_ORDER, orderPlaceLog)
+            }
+
+            return createdOrder;
+        }
+        return {error: 'Order creation failed!'};
+    },
+
+    async _payOrder(currentUser, order) {
+        const paymentMap = new Map();
+
+        for (let product of order.products) {
+            const sellerId = product.sellerId;
+
+            if (paymentMap.has(sellerId)) {
+                const newValue = paymentMap.get(sellerId) + product.unitPrice;
+                paymentMap.set(sellerId, newValue);
+            } else {
+                paymentMap.set(sellerId, product.unitPrice)
+            }
         }
 
-        await userLog.createUserLog(user.id, userLog.LogType.PLACE_ORDER, orderPlaceLog)
-      }
+        const transferArray = [];
+        let transferCount = 0;
 
-      return createdOrder;
-    }
-    return { error: 'Order creation failed!' };
-  },
+        const currentUserDecodedPrivateKey = currentUser.cryptoAccountPrivateKey;
 
-  async _payOrder(currentUser, order) {
-    const paymentMap = new Map();
+        const transactions = []
 
-    for (let product of order.products) {
-      const sellerId = product.sellerId;
+        for (let [sellerId, amountToPay] of paymentMap) {
+            const sellerUser = await userBAL.getUserDetailsById(sellerId, true);
 
-      if (paymentMap.has(sellerId)) {
-        const newValue = paymentMap.get(sellerId) + product.unitPrice;
-        paymentMap.set(sellerId, newValue);
-      } else {
-        paymentMap.set(sellerId, product.unitPrice)
-      }
-    }
+            const transaction = {
+                sellerUser: {
+                    username: sellerUser.username,
+                    email: sellerUser.email,
+                    id: sellerUser.id
+                },
+                amountPaid: amountToPay,
+                transactionId: ''
+            }
 
-    const transferArray = [];
-    let transferCount = 0;
-
-    const currentUserDecodedPrivateKey = util.aesDecrypt(currentUser.cryptoAccountPrivateKey);
-
-    const transactions = []
-
-    for (let [sellerId, amountToPay] of paymentMap) {
-        const sellerUser = await userBAL.getUserDetailsById(sellerId, true);
-
-        const transaction = {
-          sellerUser: {
-            username: sellerUser.username,
-            email: sellerUser.email,
-            id: sellerUser.id
-          },
-          amountPaid: amountToPay,
-          transactionId: ''
+            transferArray.push(paymentBAL.transfer(currentUserDecodedPrivateKey, sellerUser.cryptoAccountPublicKey, amountToPay).then(function (transactionId) {
+                transaction.transactionId = transactionId;
+                transactions.push(transaction)
+            }).catch(err => {
+                throw {error: 'Payment error ! Please make sure you have enough balance to pay !'};
+            }));
+            transferCount++;
         }
 
-        transferArray.push(paymentBAL.transfer(currentUserDecodedPrivateKey, sellerUser.cryptoAccountPublicKey, amountToPay).then(function (transactionId) {
-          transaction.transactionId = transactionId;
-          transactions.push(transaction)
-        }).catch(err => {
-          throw { error: 'Payment error ! Please make sure you have enough balance to pay !' };
-        }));
-        transferCount++;
-    }
+        const transferResults = await Promise.all(transferArray);
 
-    const transferResults = await Promise.all(transferArray);
+        if (transferResults.length === transferCount) {
+            return transactions;
+        }
 
-    if (transferResults.length === transferCount) {
-      return transactions;
-    }
+        return {error: 'Payment error !'};
+    },
 
-    return { error: 'Payment error !' };
-  },
+    async updateOrderDetails(payload) {
+        const detailsToChange = payload;
+        const orderId = payload.orderId;
 
-  async updateOrderDetails(payload) {
-    const detailsToChange = payload;
-    const orderId = payload.orderId;
+        delete detailsToChange.orderId;
 
-    delete detailsToChange.orderId;
+        if (detailsToChange && Object.keys(detailsToChange).length === 0 && detailsToChange.constructor === Object) {
+            return {error: 'Invalid change request !'};
+        }
 
-    if (detailsToChange && Object.keys(detailsToChange).length === 0 && detailsToChange.constructor === Object) {
-      return { error: 'Invalid change request !' };
-    }
+        const updateResult = await orderDAL.updateOrderDetails(orderId, detailsToChange);
 
-    const updateResult = await orderDAL.updateOrderDetails(orderId, detailsToChange);
+        if (!updateResult) {
+            return {error: 'Order update failed!'};
+        }
 
-    if (!updateResult) {
-      throw { error: 'Order update failed!' };
-    }
+        return updateResult;
+    },
 
-    return updateResult;
-  },
+    async _updateOrderToCompleted(orderId) {
+        const detailsToChange = {
+            status: 'ORDER_COMPLETED',
+            paymentDate: moment.utc().toDate(),
+            expireAt: moment.utc().add(1, 'year').toDate()
+        }
 
-  async _updateOrderToCompleted(orderId) {
-    const detailsToChange = {
-      status: 'ORDER_COMPLETED',
-      paymentDate: moment.utc().toDate(),
-      expireAt: moment.utc().add(1, 'year').toDate()
-    }
+        const updateResult = await orderDAL.updateOrderDetails(orderId, detailsToChange);
 
-    const updateResult = await orderDAL.updateOrderDetails(orderId, detailsToChange);
+        console.log(updateResult)
 
-    console.log(updateResult)
+        if (!updateResult) {
+            throw {error: 'Order update failed!'};
+        }
+    },
 
-    if (!updateResult) {
-      throw { error: 'Order update failed!' };
-    }
-  },
+    async finishPayment(currentUser, orderId) {
+        const order = await orderDAL.getOrderByOrderId(orderId);
 
-  async finishPayment(currentUser, orderId) {
-    const order = await orderDAL.getOrderByOrderId(orderId);
+        if (!order) {
+            return {error: 'Order does not exists!'};
+        }
 
-    if (!order) {
-      return { error: 'Order does not exists!' };
-    }
+        if (order.status !== 'ORDER_PLACED') {
+            return {error: 'You cant pay for already paid orders !'};
+        }
 
-    if (order.status !== 'ORDER_PLACED') {
-      return { error: 'You cant pay for already paid orders !' };
-    }
+        if (order.createdBy.toString() !== currentUser.id.toString()) {
+            return {error: 'You cant pay for other user\'s orders'};
+        }
 
-    if (order.createdBy.toString() !== currentUser.id.toString()) {
-      return { error: 'You cant pay for other user\'s orders' };
-    }
+        let paymentResult;
 
-    let paymentResult;
+        try {
+            paymentResult = await self._payOrder(currentUser, order);
+        } catch (err) {
+            return err;
+        }
 
-    try {
-      paymentResult = await self._payOrder(currentUser, order);
-    } catch (err) {
-      return err;
-    }
+        // Update order state and postpone expiration by a year
 
-    // Update order state and postpone expiration by a year
+        try {
+            await self._updateOrderToCompleted(order)
+        } catch (err) {
+            return err;
+        }
 
-    try {
-      await self._updateOrderToCompleted(order)
-    } catch (err) {
-      return err;
-    }
+        // Remove scheduled order remainder mail
+        try {
+            const cancelResponse = await AWSLambdaFunctions.cancelScheduledMail(order.reminderMailCancellationToken);
+            console.log('Mail cancel response:')
+            console.log(cancelResponse)
+        } catch (err) {
+        } // Do nothing, machine might be expired
 
-    // Remove scheduled order remainder mail
-    try {
-      const cancelResponse = await AWSLambdaFunctions.cancelScheduledMail(order.reminderMailCancellationToken);
-      console.log('Mail cancel response:')
-      console.log(cancelResponse)
-    } catch (err) {} // Do nothing, machine might be expired
+        // Call invoiceBAL.generateInvoice <- set a record on db and generate pdf. add pdf url to invoice. store pdf on s3 or maybe directly on server ?
+        const createdInvoice = await invoiceBAL.createInvoice(currentUser, orderId, paymentResult, order.products, order.shippingAddress, order.billingAddresses)
 
-    // Call invoiceBAL.generateInvoice <- set a record on db and generate pdf. add pdf url to invoice. store pdf on s3 or maybe directly on server ?
-    const createdInvoice = await invoiceBAL.createInvoice(currentUser, orderId, paymentResult, order.products, order.shippingAddress, order.billingAddresses)
+        // Return generated invoice
+        if (createdInvoice && createdInvoice._id) {
+            // send mail
+            AWSSESWrapper.SendEmailWithTemplate(currentUser, 'ORDER_COMPLETED', {
+                recipient_name: currentUser.firstName,
+                invoicePDFUrl: createdInvoice.pdfUrl
+            });
 
-    // Return generated invoice
-    if (createdInvoice && createdInvoice._id) {
-      // send mail
-      AWSSESWrapper.SendEmailWithTemplate(currentUser, 'ORDER_COMPLETED', {
-        recipient_name: currentUser.firstName,
-        invoicePDFUrl: createdInvoice.pdfUrl
-      });
+            return createdInvoice;
+        }
 
-      return createdInvoice;
-    }
+        return {error: 'Failed to create invoice !'};
+    },
 
-    return { error: 'Failed to create invoice !' };
-  },
+    async deleteOrderWithId(orderId) {
+        return await orderDAL.deleteOrderWithId(orderId);
+    },
 
-  async deleteOrderWithId(orderId) {
-    return await orderDAL.deleteOrderWithId(orderId);
-  },
+    async getOrdersOfCurrentUser(userId) {
+        return await orderDAL.getOrdersOfCurrentUser(userId);
+    },
 
-  async getOrdersOfCurrentUser(userId) {
-    return await orderDAL.getOrdersOfCurrentUser(userId);
-  },
+    async getOrderByOrderId(orderId) {
+        const orderDetails = await orderDAL.getOrderByOrderId(orderId);
 
-  async getOrderByOrderId(orderId) {
-    const orderDetails = await orderDAL.getOrderByOrderId(orderId);
+        if (orderDetails && orderDetails._id) {
+            orderDetails.id = orderDetails._id;
+            delete orderDetails._id;
+            delete orderDetails.__v;
 
-    if (orderDetails) {
-      orderDetails.id = orderDetails._id;
-      delete orderDetails._id;
-      delete orderDetails.__v;
+            return orderDetails;
+        }
 
-      return orderDetails;
-    }
-    return { error: 'Product not found !' };
-  },
+        return {error: 'Order not found !'};
+    },
+
+    async cancelOrder(orderId) {
+        const orderDetails = await self.getOrderByOrderId(orderId);
+
+        if (orderDetails.error) {
+            return orderDetails;
+        }
+
+        if (orderDetails.status === 'ORDER_COMPLETED') {
+            // order is already paid, refund the orderTotal to payer from each product owner
+            const invoice = await invoiceBAL.getInvoiceByOrderId(orderId);
+
+            if (invoice && invoice.id) {
+                const paymentInfoArray = invoice.paymentInfo;
+
+                const refundPromiseArr = []
+
+                const buyerId = invoice.createdBy;
+                const buyerUserDetails = await userBAL.getUserDetailsById(buyerId, true);
+
+                for (let payment of paymentInfoArray) {
+                  const sellerUserId = payment.sellerUser.id;
+                  const sellerUserDetails = await userBAL.getUserDetailsById(sellerUserId, true);
+                  const amount = payment.amountPaid;
+
+                  refundPromiseArr.push(paymentBAL.transfer(sellerUserDetails.cryptoAccountPrivateKey, buyerUserDetails.cryptoAccountPublicKey, amount).catch(async err => {
+                    // seller does not have enough money in his acount, we will cover up the costs
+                    await paymentBAL.fund(buyerUserDetails.cryptoAccountPublicKey, amount);
+                  }));
+                }
+
+                await Promise.all(refundPromiseArr);
+            } else {
+                return {error: 'Invoice for order not found !'};
+            }
+        }
+
+        // change order status to cancelled
+        const detailsToChange = {
+            status: 'ORDER_CANCELLED',
+            expireAt: moment.utc().add(1, 'year').toDate()
+        }
+
+        const updateResult = await orderDAL.updateOrderDetails(orderId, detailsToChange);
+
+        if (!updateResult) {
+            return {error: 'Order update failed!'};
+        }
+
+        return updateResult;
+    },
 };
 
 module.exports = self;

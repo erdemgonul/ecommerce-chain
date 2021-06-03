@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const userDAL = require('../dal/user');
 const paymentBAL = require('./payment');
+const util = require('../util');
 
 const self = {
   async getUserDetailsByUsername(username) {
@@ -30,6 +31,11 @@ const self = {
       }
 
       if (fullDetails) {
+        // also decrypt private key
+        const currentUserDecodedPrivateKey = util.aesDecrypt(userDetails.cryptoAccountPrivateKey);
+
+        userDetails.cryptoAccountPrivateKey = currentUserDecodedPrivateKey;
+
         userDetails.id = userDetails._id;
         delete userDetails._id;
         delete userDetails.__v;
