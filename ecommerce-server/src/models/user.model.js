@@ -16,7 +16,8 @@ const User = mongoose.model(
         twoFactorAuthenticationEnabled: Boolean,
         shippingAddresses: Array,
         billingAddresses: Array,
-        lastTwoFactorCode: Number
+        lastTwoFactorCode: Number,
+        notificationTokens: []
     })
 );
 

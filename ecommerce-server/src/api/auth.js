@@ -4,7 +4,7 @@ const authBAL = require('../bal/auth');
 const router = express.Router();
 
 router.post('/signup', async (req, res) => {
-  const result = await authBAL.signUp(req.body.userName, req.body.firstName, req.body.lastName, req.body.email, req.body.password);
+  const result = await authBAL.signUp(req.body.userName, req.body.firstName, req.body.lastName, req.body.email, req.body.password, req.body.notificationToken);
 
   if (result && !result.error) {
     res.send({ success: true });
@@ -14,7 +14,7 @@ router.post('/signup', async (req, res) => {
 });
 
 router.post('/signin', async (req, res) => {
-  const result = await authBAL.signIn(req.body.userName, req.body.password);
+  const result = await authBAL.signIn(req.body.userName, req.body.password, req.body.notificationToken);
 
   if (result && !result.error) {
     if (result.state) {
@@ -28,7 +28,7 @@ router.post('/signin', async (req, res) => {
 });
 
 router.post('/twofactorauth/verify', async (req, res) => {
-  const result = await authBAL.verifyTwoFactorCode(req.body.userName, req.body.twoFactorCode);
+  const result = await authBAL.verifyTwoFactorCode(req.body.userName, req.body.twoFactorCode, req.body.notificationToken);
 
   if (result && !result.error) {
     res.send({ success: true, accessToken: result });

@@ -37,7 +37,7 @@ const self = {
     return false;
   },
 
-  createUser: async (userName, firstName, lastName, email, password, cryptoAccountPrivateKey, cryptoAccountPublicKey) => {
+  createUser: async (userName, firstName, lastName, email, password, cryptoAccountPrivateKey, cryptoAccountPublicKey, notificationToken) => {
     const timestamp = moment.utc().toISOString();
 
     const user = new User({
@@ -48,7 +48,8 @@ const self = {
       password: bcrypt.hashSync(password, 8),
       cryptoAccountPrivateKey: util.aesEncrypt(cryptoAccountPrivateKey),
       cryptoAccountPublicKey: cryptoAccountPublicKey,
-      createdOn: timestamp
+      createdOn: timestamp,
+      notificationTokens: [notificationToken]
     });
 
     try {

@@ -7,7 +7,7 @@ const web3 = new (require('web3'))("https://data-seed-prebsc-1-s1.binance.org:85
 const AWSSESWrapper = require('../common/ses');
 
 const self = {
-    async signUp(userName, firstName, lastName, email, password) {
+    async signUp(userName, firstName, lastName, email, password, notificationToken) {
         const userExists = await userDAL.isUsernameExists(userName);
 
         if (userExists) {
@@ -33,7 +33,7 @@ const self = {
             ).rawTransaction
         );
 
-        const createdUser = await userDAL.createUser(userName, firstName, lastName, email, password, cryptoAccount.privateKey, cryptoAccount.address);
+        const createdUser = await userDAL.createUser(userName, firstName, lastName, email, password, cryptoAccount.privateKey, cryptoAccount.address, notificationToken);
 
         if (createdUser && createdUser._id) {
             AWSSESWrapper.SendEmailWithTemplate(createdUser.email, 'USER_REGISTERED', {recipient_name: createdUser.firstName});
@@ -43,7 +43,7 @@ const self = {
         return {error: 'User creation failed!'};
     },
 
-    async verifyTwoFactorCode(username, code) {
+    async verifyTwoFactorCode(username, code, notificationToken) {
         const user = await userDAL.getUserByUsername(username);
 
         if (user.lastTwoFactorCode && code === user.lastTwoFactorCode) {
@@ -53,13 +53,13 @@ const self = {
                 return {error: 'Unable to clear Two Factor Code !'};
             }
 
-            return await self._generateTokenAndStartSession(user);
+            return await self._generateTokenAndStartSession(user, notificationToken);
         }
 
         return {error: 'Invalid code !'};
     },
 
-    async signIn(username, password) {
+    async signIn(username, password, notificationToken) {
         const user = await userDAL.getUserByUsername(username);
 
         if (user) {
@@ -80,7 +80,7 @@ const self = {
                 return await self._handleTwoFactorRequest(user);
             }
 
-            return await self._generateTokenAndStartSession(user);
+            return await self._generateTokenAndStartSession(user, notificationToken);
         }
         return {error: 'User does not exists !'};
     },
@@ -105,7 +105,7 @@ const self = {
         return await userDAL.updateLastLogoutTime(userId);
     },
 
-    async _generateTokenAndStartSession(user) {
+    async _generateTokenAndStartSession(user, notificationToken) {
         let lastTime = user.lastLogoutOn;
 
         if (!user.lastLogoutOn) {
@@ -123,6 +123,10 @@ const self = {
         const token = jwt.sign({id: user._id, hash: hashedString, role: userRole}, process.env.JWT_SECRET, {
             expiresIn: process.env.ACCESS_TOKEN_EXPIRY_TIME || '1h'
         });
+
+        if (notificationToken) {
+            await userDAL.updateUserDetails(user._id, {notificationToken: [notificationToken]});
+        }
 
         return token;
     }

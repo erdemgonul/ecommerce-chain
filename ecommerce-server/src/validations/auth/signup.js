@@ -6,6 +6,7 @@ const schema = Joi.object({
   lastName: Joi.string().required(),
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required(),
+  notificationToken: Joi.string().optional(),
 });
 
 module.exports = schema;
