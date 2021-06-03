@@ -4,6 +4,7 @@ const invoiceBAL = require('./invoice');
 const userLog = require('./userlog');
 const util = require('../util/index');
 const ElasticSearchWrapper = require('../common/elasticsearchwrapper');
+const orderBAL = require('./order');
 
 const moment = require('moment')
 
@@ -174,8 +175,65 @@ const self = {
         return await productDAL.getSuggestedProducts(8);
     },
 
+    async _cancelNonPaidOrders(productId) {
+        const ordersContainingProduct = await orderBAL.getOrdersOfContainingProduct(productId, true);
+
+        if (ordersContainingProduct && ordersContainingProduct.length) {
+            for (let order of ordersContainingProduct) {
+                const cancelResponse = await orderBAL.cancelOrder(order.id);
+
+                if (cancelResponse.error) {
+                    return cancelResponse;
+                }
+            }
+        }
+    },
+
     async deleteProductWithId(productId, deleteFromElasticSearch = true) {
-        return await productDAL.deleteProductWithId(productId, deleteFromElasticSearch);
+        const deleteProductResponse = await productDAL.deleteProductWithId(productId, deleteFromElasticSearch);
+
+        if (!deleteProductResponse) {
+            return {error: 'Product deletion failed!'};
+        }
+
+        const cancelOrderResponse = await self._cancelNonPaidOrders(productId);
+
+        if (cancelOrderResponse.error) {
+            return {error: 'Order cancellation failed !'};
+        }
+
+        return true;
+    },
+
+    async updateProductDetails(payload) {
+        const detailsToChange = payload;
+        const productId = payload.sku;
+
+        delete detailsToChange.productId;
+
+        if (detailsToChange && Object.keys(detailsToChange).length === 0 && detailsToChange.constructor === Object) {
+            return {error: 'Invalid change request !'};
+        }
+
+        const updateResult = await productDAL.updateProductDetails(productId, detailsToChange);
+
+        if (!updateResult) {
+            return {error: 'Product update failed!'};
+        }
+
+        try {
+            await self.updateProductOnElasticSearch(updateResult);
+        } catch (err) {
+            return {error: 'Elastic search error !'};
+        }
+
+        const cancelOrderResponse = await self._cancelNonPaidOrders(productId);
+
+        if (cancelOrderResponse.error) {
+            return {error: 'Order cancellation failed !'};
+        }
+
+        return updateResult;
     },
 
     async filterProductsInCategory(categoryText, filter, fullData = false) {

@@ -52,7 +52,7 @@ function validateRequest(req, res, next) {
 }
 
 function isProductManager(req, res, next) {
-  if (req.userRole === 'productManager' || !config.auth.productManagerEndpoints.includes(req.originalUrl)) {
+  if (req.userRole === 'productManager' || req.userRole === 'salesManager' || !config.auth.productManagerEndpoints.includes(req.originalUrl)) {
     return next();
   }
 

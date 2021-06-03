@@ -53,6 +53,34 @@ const self = {
     }
   },
 
+  getOrdersOfContainingProduct: async (productId, placedOnly) => {
+    try {
+      const result = [];
+      const filter = {
+        "products.sku": productId
+      }
+
+      if (placedOnly) {
+        filter.status = 'ORDER_PLACED';
+      }
+
+      const orders = await Order.find(filter).sort({updatedOn: -1}).exec();
+
+      for (const order of orders) {
+        const orderObj = order.toObject();
+        orderObj.id = orderObj._id;
+
+        delete orderObj._id;
+        delete orderObj.__v;
+        result.push(orderObj);
+      }
+
+      return result;
+    } catch (err) {
+      return err;
+    }
+  },
+
   updateOrderDetails: async (orderId, detailsToChange) => {
     const updatedOn = moment.utc().toDate();
 

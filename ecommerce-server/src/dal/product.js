@@ -39,6 +39,16 @@ const self = {
     return false;
   },
 
+  updateProductDetails: async (productId, detailsToChange) => {
+    const updatedProduct = await Product.findOneAndUpdate({
+      sku: productId
+    }, detailsToChange);
+
+    if (updatedProduct && updatedProduct._id) {
+      return updatedProduct.toObject();
+    }
+  },
+
   subtractQuantityFromProduct: async (productId, amountToSubtract) => {
     try {
       const product = await Product.findOne({
@@ -122,7 +132,7 @@ const self = {
 
       return false;
     } catch (err) {
-      return err;
+      return false;
     }
   },
 

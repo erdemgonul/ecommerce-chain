@@ -238,6 +238,10 @@ const self = {
         return await orderDAL.getOrdersOfCurrentUser(userId);
     },
 
+    async getOrdersOfContainingProduct(productId, placedOnly) {
+        return await orderDAL.getOrdersOfContainingProduct(productId, placedOnly);
+    },
+
     async getOrderByOrderId(orderId) {
         const orderDetails = await orderDAL.getOrderByOrderId(orderId);
 

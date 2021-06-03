@@ -42,6 +42,16 @@ router.post('/get', async (req, res) => {
   }
 });
 
+router.post('/edit', async (req, res) => {
+  const product = await productBAL.updateProductDetails(req.body);
+
+  if (product && !product.error) {
+    res.send({ data: product, success: true });
+  } else {
+    res.send(product);
+  }
+});
+
 router.post('/delete', async (req, res) => {
   const products = await productBAL.deleteProductWithId(req.body.sku, req.body.deleteFromElasticSearch);
 
