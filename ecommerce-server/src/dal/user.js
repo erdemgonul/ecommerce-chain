@@ -77,6 +77,23 @@ const self = {
     }
   },
 
+  getAllNotificationTokens: async () => {
+    try {
+      const result = [];
+
+      const allTokens = await User.find({ notificationTokens: { $ne: null } }, ['notificationTokens']).exec();
+
+      for (const token of allTokens) {
+        if (token.notificationTokens && token.notificationTokens.length)
+          result.push(...token.notificationTokens);
+      }
+
+      return result;
+    } catch (err) {
+      return err;
+    }
+  },
+
   getUserByUserId: async (userId) => {
     try {
       const user = await User.findOne({

@@ -4,7 +4,7 @@ const campaignBAL = require('../bal/campaign');
 const router = express.Router();
 
 router.post('/create', async (req, res) => {
-  const result = await campaignBAL.createCampaign(req.body.campaignType, req.body.validUntil, req.body.isActive, req.body.discountAmount);
+  const result = await campaignBAL.createCampaign(req.body.campaignType, req.body.validUntil, req.body.isActive, req.body.discountAmount, req.body.notifyUsers);
 
   if (result && !result.error) {
     res.send({ success: true, campaignId: result._id });
