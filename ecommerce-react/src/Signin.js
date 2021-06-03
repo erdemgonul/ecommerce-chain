@@ -1,6 +1,5 @@
 import axios from "axios";
-import React, { useState, useEffect } from "react";
-import { useHistory } from "react-router-dom";
+import React, { useState } from "react";
 import Modal from "react-modal";
 const customStyles = {
   content: {
@@ -14,7 +13,6 @@ const customStyles = {
 };
 
 const Signin = () => {
-  const history = useHistory();
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [twoFA, setTwoFA] = useState("");

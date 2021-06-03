@@ -7,10 +7,12 @@ import { addToCart } from "./redux/actions/index";
 import "./product.css";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from 'axios';
+import axios from "axios";
+import Comment from "./Comment";
 
 function ProductPage() {
   const [product, setProduct] = useState(null);
+  const [comments, setComments] = useState([]);
 
   const [productBuyQuantity, setProductBuyQuantity] = useState(1);
   const location = useLocation();
@@ -18,10 +20,23 @@ function ProductPage() {
 
   useEffect(() => {
     let parsedQuery = queryString.parse(location.search);
-    axios.post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/product/get`, { sku: parsedQuery.sku })
-      .then(res => {
-        setProduct(res.data.data);
+    axios
+      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/product/get`, {
+        sku: parsedQuery.sku,
       })
+      .then((res) => {
+        setProduct(res.data.data);
+        axios
+          .post(
+            `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/comment/get/approved/all`,
+            {
+              sku: parsedQuery.sku,
+            }
+          )
+          .then((res) => {
+            setComments(res.data.data);
+          });
+      });
   }, [location]);
 
   function updateQuantity(quantity) {
@@ -37,13 +52,11 @@ function ProductPage() {
       <div>
         <img src={`data:image/jpeg;base64,${product.image}`} alt="i" />
       </div>
-
     );
   };
 
   const Product = () => (
     <>
-
       <div className="lg:flex-col mx-2 lg:mx-10 py-4 lg:py-10  justify-between ">
         <div className="flex flex-col lg:flex-row w-full">
           <div className="flex w-full">
@@ -91,16 +104,20 @@ function ProductPage() {
               {"ADD TO CART"}
             </button>
           </div>
-
+        </div>
+        <div className="flex flex-col items-start space-y-4">
+          <p className="text-3xl font-bold">Comments</p>
+        {
+          comments.map((e)=> <Comment comment={e}/>)
+        }
         </div>
       </div>
-
     </>
   );
   return <div className="lg:mx-32 lg:mt-20">{product && <Product />}</div>;
 
   async function addCart() {
-    dispatch(addToCart({ number: productBuyQuantity, product:product }));
+    dispatch(addToCart({ number: productBuyQuantity, product: product }));
 
     toast("👏 Product Added To Cart!", {
       position: "bottom-right",
@@ -112,8 +129,6 @@ function ProductPage() {
       progress: undefined,
     });
   }
-
-
 }
 
 export default ProductPage;

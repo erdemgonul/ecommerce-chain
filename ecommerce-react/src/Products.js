@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import HomeProduct from "./HomeProduct";
 import { useLocation } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
-import { getProducts } from "./redux/actions";
 import axios from "axios";
 
 function Products() {
