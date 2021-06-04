@@ -20,10 +20,13 @@ const Signup = () => {
                 if(res.data.error){
                     Toast(res.data.error);
                 }
-                else history.push({
-                    pathname: "/",
+                else {
+                    Toast("Signup successful!");
 
-                });
+                    history.push({
+                        pathname: "/signin",
+                    });
+                }
             }).catch(err => {
             if (err.response.data.message){
                 Toast(err.response.data.message);
