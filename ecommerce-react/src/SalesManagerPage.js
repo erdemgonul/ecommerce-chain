@@ -135,6 +135,8 @@ const SalesManagerPage = () => {
         console.log(res.data);
         if (res.data.error) {
           Toast(res.data.error);
+        }else{
+            window.location.reload();
         }
       })
       .catch((err) => {
