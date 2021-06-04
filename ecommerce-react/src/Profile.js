@@ -174,9 +174,6 @@ const Profile = () => {
         <div className="flex flex-col space-y-4 text-lg">
           {invoices.map((invoice, index) => (
               <div className="flex flex-col items-start space-y-2 border-b">
-                <p className="text-left text-base my-2"><b>Created By:</b> {invoice.createdBy}</p>
-                <p className="text-left text-base my-2"><b>Created On:</b> {invoice.createdOn}</p>
-                <p className="text-left text-base my-2"><b>Invoice ID:</b> {invoice.id}</p>
                 <p className="text-left text-base my-2"><b>Order ID:</b> {invoice.orderId}</p>
                 <p className="text-left text-base my-2"><b>Shipping Address:</b> {invoice.shippingAddress}</p>
                 <a className="bg-green-500 px-4 text-white" href={invoice.pdfUrl}>

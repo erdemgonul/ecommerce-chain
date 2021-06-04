@@ -37,11 +37,11 @@ function CreateCampaign() {
       });
   };
   return (
-    <div className={"flex  border-t py-4 border-gray-400 w-full "}>
+    <div className={"flex py-4 w-full "}>
       <div className="flex flex-col ml-4 justify-between w-full">
         <div className="flex  w-full">
           <p className="text-left flex-col flex text-lg my-2 w-1/2">
-            Discount Amount:
+            <b>Discount Amount:</b>      <br/>
             <input
               type="number"
               className="border rounded-lg w-full"
@@ -49,7 +49,8 @@ function CreateCampaign() {
               value={discountAmount}
             />
             <div className="flex  items-start space-x-2 mt-4">
-              <p>Campaign Type:</p>
+              <p><b>Campaign Type:</b></p>
+              <br/>
               <select
                 className="border border-gray-600 rounded-lg"
                 onChange={(e) => setCampaignType(e.target.value)}
@@ -58,7 +59,8 @@ function CreateCampaign() {
                 <option value="FIXED_DISCOUNT">Fixed Discount</option>
               </select>
             </div>
-            Valid Until:
+            <br/>
+            <b>Valid Until:</b>
             <DatePicker onChange={setValidUntil} value={validUntil} />
             <button
               className="bg-green-500 text-white px-4 py-1 mt-4"
