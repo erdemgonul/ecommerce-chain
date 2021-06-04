@@ -4,6 +4,7 @@ import { useHistory } from "react-router-dom";
 import { useSelector } from "react-redux";
 import CartElement from "./CartElement";
 import { useLocation } from "react-router";
+import CreateCampaign from "./CreateCampaign";
 
 import { deleteFromCart } from "./redux/actions/index";
 import { useDispatch } from "react-redux";
@@ -21,6 +22,10 @@ const SalesManagerPage = () => {
   const [twoFA, setTwoFA] = useState(true);
   const [orderStatus, setOrderStatus] = useState("");
   const [comments, setComments] = useState([]);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [validUntil, setValidUntil] = useState(null);
+  const [isActive, setActive] = useState(true);
+  const [notifyUsers, setNotifyUsers] = useState(true);
 
   const location = useLocation();
 
@@ -213,7 +218,12 @@ const SalesManagerPage = () => {
         <h1 className="text-2xl font-medium text-primary mt-4 mb-12 text-center">
           SalesManagerPage
         </h1>
-
+        <h1 className="text-2xl font-medium text-primary mt-4 mb-12 text-center">
+          Create Campaign
+        </h1>
+        <div className="flex-grow flex-shrink overflow-y-auto pt-4 px-4">
+          {<CreateCampaign />}
+        </div>
         <h1 className="text-2xl font-medium text-primary mt-4 mb-12 text-center">
           Unapproved Comments
         </h1>
