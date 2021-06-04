@@ -28,7 +28,13 @@ function OrderElement({ product, deleteFromCart }) {
       })
       .catch((err) => {
         console.log(err);
-        Toast(err);
+        if (err.response.status === 403) {
+          Toast("You need to login to pay for an order !");
+        } else {
+          if (err.response.data.message){
+            Toast(err.response.data.message);
+          }
+        }
         window.location.replace("/");
       });
   };
