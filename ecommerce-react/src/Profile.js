@@ -7,7 +7,7 @@ import { useLocation } from "react-router";
 
 import { deleteFromCart } from "./redux/actions/index";
 import { useDispatch } from "react-redux";
-import {Toast} from "./Toast";
+import { Toast } from "./Toast";
 import OrderElement from "./OrderElement";
 const Profile = () => {
   const history = useHistory();
@@ -32,10 +32,9 @@ const Profile = () => {
         null
       )
       .then((res) => {
-        if(res.data.error){
+        if (res.data.error) {
           Toast(res.data.error);
-        }
-        else {
+        } else {
           console.log("wtf", res.data.data);
           setUser(res.data.data);
           setTwoFA(res.data.data.twoFactorAuthenticationEnabled);
@@ -46,6 +45,7 @@ const Profile = () => {
         }
       })
       .catch((err) => {
+        window.location.replace("/")
         console.log(err);
       });
   }, [location]);
@@ -62,10 +62,9 @@ const Profile = () => {
       )
       .then((res) => {
         console.log(res);
-        if(res.data.error){
+        if (res.data.error) {
           Toast(res.data.error);
-        }
-        else{
+        } else {
           Toast("👏 Address added into your account!");
           getAddresses();
         }
@@ -83,10 +82,9 @@ const Profile = () => {
       )
       .then((res) => {
         console.log(res.data.data.shippingAddress);
-        if(res.data.error){
+        if (res.data.error) {
           Toast(res.data.error);
-        }
-        else setAddresses(res.data.data.shippingAddresses);
+        } else setAddresses(res.data.data.shippingAddresses);
       })
       .catch((err) => {
         console.log(err);
@@ -98,10 +96,9 @@ const Profile = () => {
       .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/order/get/all`, null)
       .then((res) => {
         console.log(res.data.data);
-        if(res.data.error){
+        if (res.data.error) {
           Toast(res.data.error);
-        }
-        else setPreviousProducts(res.data.data);
+        } else setPreviousProducts(res.data.data);
       })
       .catch((err) => {
         console.log(err);
@@ -116,10 +113,9 @@ const Profile = () => {
       )
       .then((res) => {
         console.log(res.data.data);
-        if(res.data.error){
+        if (res.data.error) {
           Toast(res.data.error);
-        }
-        else setInvoices(res.data.data);
+        } else setInvoices(res.data.data);
       })
       .catch((err) => {
         console.log(err);
@@ -136,10 +132,9 @@ const Profile = () => {
       )
       .then((res) => {
         console.log(res);
-        if(res.data.error){
+        if (res.data.error) {
           Toast(res.data.error);
-        }
-        else Toast("👏 2FA Changed!");
+        } else Toast("👏 2FA Changed!");
       })
       .catch((err) => {
         console.log(err);

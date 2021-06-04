@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import OrderElementChild from "./OrderElementChild";
 import axios from "axios";
-import {Toast} from "./Toast";
+import { Toast } from "./Toast";
 
 function OrderElement({ product, deleteFromCart }) {
   const makePayment = () => {
@@ -10,13 +10,14 @@ function OrderElement({ product, deleteFromCart }) {
         orderId: product.id,
       })
       .then((res) => {
-        if(res.data.error){
+        if (res.data.error) {
           Toast(res.data.error);
-        }
-        else console.log("wtf", res.data.data);
+        } else console.log("wtf", res.data.data);
       })
       .catch((err) => {
         console.log(err);
+        Toast(err);
+        window.location.replace("/");
       });
   };
 

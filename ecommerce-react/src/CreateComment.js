@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import OrderElementChild from "./OrderElementChild";
 import axios from "axios";
-import {Toast} from "./Toast";
+import { Toast } from "./Toast";
 
 function CreateComment(product) {
   const [commentText, setCommentText] = useState("");
@@ -21,11 +21,15 @@ function CreateComment(product) {
         reqBody
       )
       .then((res) => {
-        if(res.data.error){
+        if (res.data.error) {
           Toast(res.data.error);
+        } else {
+          Toast(
+            "Comment added successfully. After approve, it will displayed!"
+          );
+          setTimeout(() => window.location.reload(), 3000);
+          console.log(res);
         }
-        else Toast("Comment added successfully!");
-        console.log(res);
       });
   };
   return (

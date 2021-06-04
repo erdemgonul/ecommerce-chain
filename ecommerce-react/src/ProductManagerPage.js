@@ -139,7 +139,7 @@ const ProductManagerPage = () => {
           Toast(res.data.error);
         }
         console.log(res);
-      });
+      }).catch(err =>         window.location.replace("/"));
   };
 
   return (

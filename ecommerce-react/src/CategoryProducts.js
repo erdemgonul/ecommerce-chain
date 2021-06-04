@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import HomeProduct from "./HomeProduct";
 import axios from "axios";
-import {Toast} from "./Toast";
+import { Toast } from "./Toast";
 import { useHistory } from "react-router-dom";
+import { FaAngleDown, FaAngleUp } from "react-icons/fa";
 
 function CategoryProducts() {
   const history = useHistory();
   const [products, setProducts] = useState([]);
   const [filters, setFilters] = useState(null);
   const [valueFilter, setValueFilter] = useState({});
+  const [priceDown, setPriceDown] = useState(false);
 
   const [category, setCategory] = useState("");
 
@@ -43,6 +45,12 @@ function CategoryProducts() {
       getProductsByFilter();
     }
   }
+
+  const sortPrice = () => {
+    setPriceDown(!priceDown);
+    if (priceDown) products.sort((a, b) => (a.price > b.price ? 1 : -1));
+    else products.sort((a, b) => (a.price < b.price ? 1 : -1));
+  };
   async function getFirst() {
     axios
       .post(
@@ -56,10 +64,9 @@ function CategoryProducts() {
         }
       )
       .then((res) => {
-        if(res.data.error){
+        if (res.data.error) {
           Toast(res.data.error);
-        }
-        else setProducts(res.data.data.products);
+        } else setProducts(res.data.data.products);
       });
 
     axios
@@ -75,10 +82,9 @@ function CategoryProducts() {
         }
       )
       .then((res) => {
-        if(res.data.error){
+        if (res.data.error) {
           Toast(res.data.error);
-        }
-        else setFilters(res.data.data);
+        } else setFilters(res.data.data);
       });
   }
 
@@ -105,10 +111,9 @@ function CategoryProducts() {
         }
       )
       .then((res) => {
-        if(res.data.error){
+        if (res.data.error) {
           Toast(res.data.error);
-        }
-        else setProducts(res.data.data.products);
+        } else setProducts(res.data.data.products);
       });
   }
 
@@ -186,9 +191,14 @@ function CategoryProducts() {
   return (
     <>
       <div className="lg:mx-20 h-full flex flex-col">
-        <div className=" flex flex-col lg:flex-row mt-4 ml-4 lg:ml-0 lg:space-x-4">
+        <div className=" flex flex-col lg:flex-row mt-4 ml-4 lg:ml-0 lg:space-x-4 lg:justify-between lg:items-center ">
           <Filters />
+          <button onClick={() => sortPrice()} className="flex">
+            Sort By Price
+            {priceDown ? <FaAngleDown size="25" /> : <FaAngleUp size="25" />}
+          </button>
         </div>
+
         <div className="flex">
           <div className="flex-shrink flex-grow mr-4 w-4/5">
             <div className="flex mt-10 justify-end mx-8"></div>

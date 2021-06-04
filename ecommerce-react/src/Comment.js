@@ -10,10 +10,12 @@ function Comment({ comment }) {
             <p className="text-left text-lg font-bold my-2">
               {comment.createdOn.split("T")[0]}
             </p>
-            <p className="text-left text-lg font-bold my-2">
-              <b>RATING: </b>
-              {comment.rating}/5
-            </p>
+            {comment.rating && (
+              <p className="text-left text-lg font-bold my-2">
+                <b>RATING: </b>
+                {comment.rating}/5
+              </p>
+            )}
           </div>
           <p className="text-left text-2xl">{comment.commentText}</p>
         </div>
