@@ -2,13 +2,12 @@ const firebaseAdmin = require('firebase-admin');
 const userBAL = require('./user');
 
 const self = {
-    async sendNotification(title, body, imageUrl, notificationToken) {
+    async sendNotification(title, body, notificationToken) {
         const message = {
             tokens: [notificationToken],
             notification: {
                 title: title,
-                body: body,
-                imageUrl,
+                body: body
             },
         }
 
@@ -29,13 +28,13 @@ const self = {
         }
     },
 
-    async sendNotificationToEveryone(title, body, imageUrl) {
+    async sendNotificationToEveryone(title, body) {
         try {
             // get all user's notification tokens
             const allNotificationTokens = await userBAL.getAllNotificationTokens();
 
             for (let token of allNotificationTokens) {
-                await self.sendNotification(title, body, imageUrl, token);
+                await self.sendNotification(title, body, token);
             }
 
             return true;

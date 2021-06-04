@@ -56,7 +56,7 @@ const self = {
         if (createdOrder && createdOrder._id) {
             AWSSESWrapper.SendEmailWithTemplate(user, 'ORDER_CREATED', {recipient_name: user.firstName});
 
-            notificationBAL.sendNotification('EcommerceChain - Your order is created !', 'If you do not make a payment, your order will be deleted after 2 days.', null, user.notificationTokens)
+            notificationBAL.sendNotification('EcommerceChain - Your order is created !', 'If you do not make a payment, your order will be deleted after 2 days.',  user.notificationTokens)
 
             const scheduledEmailResponse = await AWSLambdaFunctions.invokeMailScheduler({
                 to: [user.email],
@@ -282,7 +282,7 @@ const self = {
                 invoicePDFUrl: createdInvoice.pdfUrl
             });
 
-            notificationBAL.sendNotification('EcommerceChain - Your payment is successful!', 'Your order will be shipped in 1 business day.', null, user.notificationTokens)
+            notificationBAL.sendNotification('EcommerceChain - Your payment is successful!', 'Your order will be shipped in 1 business day.', user.notificationTokens)
 
             return createdInvoice;
         }
