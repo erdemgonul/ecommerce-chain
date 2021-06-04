@@ -127,7 +127,7 @@ const ProductManagerPage = () => {
         description: description,
         quantity: quantity,
         price: price,
-        categories: [category],
+        categories: category==null ? ["clothing"]:[category],
         image: image,
         product_details: {},
         shipping_details: shipping_details,
