@@ -62,7 +62,7 @@ function OrderElement({ product, deleteFromCart }) {
     <div className={"flex  border-b py-4 "}>
       <div className="flex flex-col ml-4 justify-between w-full">
         <div className="items-start justify-start">
-          <p className="text-left text-sm font-bold">Order Id: {product.id}</p>
+          <p className="text-left text-base my-2"><b>Order Id:</b> {product.id}</p>
 
           <p className="text-left text-base my-2">
             <b>Total Price: </b>
