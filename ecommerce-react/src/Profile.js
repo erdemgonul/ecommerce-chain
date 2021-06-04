@@ -17,7 +17,7 @@ const Profile = () => {
   const [shippingAddress, setShippingAddress] = useState("");
   const [addresses, setAddresses] = useState([]);
   const [previousProducts, setPreviousProducts] = useState([]);
-  const [twoFA, setTwoFA] = useState(true);
+  const [twoFA, setTwoFA] = useState(false);
   const [orderStatus, setOrderStatus] = useState("");
   const [invoices, setInvoices] = useState([]);
 
@@ -45,7 +45,7 @@ const Profile = () => {
         }
       })
       .catch((err) => {
-        window.location.replace("/")
+        window.location.replace("/");
         console.log(err);
       });
   }, [location]);

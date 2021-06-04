@@ -4,15 +4,46 @@ import axios from "axios";
 import { Toast } from "./Toast";
 
 function OrderElement({ product, deleteFromCart }) {
+  const [campaigns, setCampaigns] = useState([]);
+  const [campaign, setCampaign] = useState(null);
+
+  useEffect(() => {
+    getCampaigns();
+  }, []);
+
   const makePayment = () => {
+    let x = {
+      orderId: product.id,
+    };
+    if (campaign) x["campaignId"] = campaign;
     axios
-      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/order/finish`, {
-        orderId: product.id,
-      })
+      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/order/finish`, x)
       .then((res) => {
         if (res.data.error) {
           Toast(res.data.error);
-        } else console.log("wtf", res.data.data);
+        } else {
+          Toast("Order payment completed,redirection to homepage");
+          setTimeout(() => window.location.replace("/"), 2000);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        Toast(err);
+        window.location.replace("/");
+      });
+  };
+  const getCampaigns = () => {
+    axios
+      .post(
+        `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/campaign/get/active/all`,
+        {
+          campaignId: "60b7e058914ca25b385d897c",
+        }
+      )
+      .then((res) => {
+        if (res.data.error) {
+          Toast(res.data.error);
+        } else setCampaigns(res.data.data);
       })
       .catch((err) => {
         console.log(err);
@@ -38,12 +69,27 @@ function OrderElement({ product, deleteFromCart }) {
               : product.status}
           </p>
           {product.status == "ORDER_PLACED" && (
-            <button
-              className="text-left bg-green-500 text-white px-2 py-1"
-              onClick={() => makePayment()}
-            >
-              Make Payment
-            </button>
+            <div className="items-start flex">
+              <select
+                className="border border-gray-600 rounded-lg"
+                onChange={(val) => setCampaign(val.target.value)}
+                value={campaign}
+              >
+                {campaigns.map((f, index) => {
+                  return (
+                    <option value={f.id}>
+                      {f.discountAmount} Coin Discount
+                    </option>
+                  );
+                })}
+              </select>
+              <button
+                className="text-left bg-green-500 text-white px-2 py-1"
+                onClick={() => makePayment()}
+              >
+                Make Payment
+              </button>
+            </div>
           )}
         </div>
         {product.products.map((product, index) => (

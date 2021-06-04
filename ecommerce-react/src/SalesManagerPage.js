@@ -141,6 +141,21 @@ const SalesManagerPage = () => {
         console.log(err);
       });
   };
+  const deleteComment = (commentId) => {
+    axios
+      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/comment/delete`, {
+        commentId: commentId,
+      })
+      .then((res) => {
+        console.log(res.data);
+        if (res.data.error) {
+          Toast(res.data.error);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   const changeTwoFactorAuth = (val) => {
     setTwoFA(val);
     axios
@@ -190,15 +205,25 @@ const SalesManagerPage = () => {
 
   const Comments = () => {
     return comments.map((comment, index) => (
-      <div className="flex">
-        <p>Comment: {comment.commentText}</p>
+      <div className="flex flex-col items-start space-y-2">
+        <p>
+          <b>Comment:</b> {comment.commentText}
+        </p>
         {comment.rating && <p>{comment.rating}/5</p>}
-        <button
-          onClick={() => approveComment(comment.id)}
-          className="bg-green-500 text-white px-2 py-1"
-        >
-          Approve Comment
-        </button>
+        <div className="flex space-x-4">
+          <button
+            onClick={() => approveComment(comment.id)}
+            className="bg-green-500 text-white px-2 py-1"
+          >
+            Approve Comment
+          </button>
+          <button
+            onClick={() => deleteComment(comment.id)}
+            className="bg-red-500 text-white px-2 py-1"
+          >
+            Decline Comment
+          </button>
+        </div>
       </div>
     ));
   };
