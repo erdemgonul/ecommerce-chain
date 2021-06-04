@@ -75,7 +75,7 @@ function OrderElement({ product, deleteFromCart }) {
               : product.status}
           </p>
           {product.status == "ORDER_PLACED" && (
-            <div className="items-start flex">
+            <div className="items-start flex flex-col">
               <select
                 className="border border-gray-600 rounded-lg"
                 onChange={(val) => setCampaign(val.target.value)}
