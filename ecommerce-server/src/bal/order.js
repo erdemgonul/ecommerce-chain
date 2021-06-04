@@ -61,7 +61,7 @@ const self = {
             const scheduledEmailResponse = await AWSLambdaFunctions.invokeMailScheduler({
                 to: [user.email],
                 templateName: 'ORDER_PAYMENT_REMINDER',
-                templateData: {recipient_name: user.firstName}
+                templateData: {recipient_name: user.firstName, orderId: createdOrder._id}
             }, moment.utc().add(2, 'minutes').toISOString());
 
             // Append the cancellation token to order
