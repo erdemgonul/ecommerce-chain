@@ -39,6 +39,9 @@ const Signin = () => {
         }
       })
       .catch((err) => {
+        if (err.response.data.message){
+          Toast(err.response.data.message);
+        }
         console.log(err);
       });
     console.log(username, password);
