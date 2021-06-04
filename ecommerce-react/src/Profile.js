@@ -215,6 +215,9 @@ const Profile = () => {
             </p>
             {user != null && (
               <div className="flex flex-col items-start space-y-4">
+                <p div className="flex space-x-4 justify-center items-center">
+                  <b>Balance: </b> {user.balance} <button onClick={()=> window.location.replace('/fund')}className="bg-green-500 text-white text-sm px-2 py-1">Add Fund To Your Account</button>
+                </p>
                 <p>
                   <b>Email:</b> {user.email}
                 </p>
