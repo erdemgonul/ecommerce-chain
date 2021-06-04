@@ -8,14 +8,14 @@ import {
   FaShippingFast,
   FaSearch,
   FaTimes,
+  FaAccount,
 } from "react-icons/fa";
 import { MdEmail, MdMenu } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { setCategories } from "./redux/actions";
 import axios from "axios";
-import {Toast} from "./Toast";
-
-
+import { Toast } from "./Toast";
+import { GoPerson } from "react-icons/go";
 function Menu() {
   const history = useHistory();
   const [toggleMenu, setToggleMenu] = useState(true);
@@ -41,10 +41,9 @@ function Menu() {
     axios
       .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/category/get/all`)
       .then((res) => {
-        if(res.data.error){
+        if (res.data.error) {
           Toast(res.data.error);
-        }
-        else setCategoriesy(res.data.data.categories);
+        } else setCategoriesy(res.data.data.categories);
       });
   }
 
@@ -98,6 +97,7 @@ function Menu() {
         <div className={cartShowStyle}>
           <Cart closeCart={() => showCart(false)} />
         </div>
+
         <div className="flex items-center">
           <div className=" items-center hidden lg:flex rounded-full mr-4 px-4 py-1 border-gray-400 border ">
             <input
@@ -122,7 +122,16 @@ function Menu() {
               onClick={(event) => toSearch(event.target.value)}
             />
           </div>
-          <CartLink click={() => showCart(true)} />
+          <div className="flex">
+            <CartLink click={() => showCart(true)} />
+            <div className="flex lg:hidden">
+              <GoPerson
+                size="25"
+                className="self-center"
+                onClick={() => history.push("/profile")}
+              />
+            </div>
+          </div>
           {!logged && (
             <div className="hidden lg:flex border-l-2 border-gray-500 space-x-4 ml-4 pl-4">
               <button

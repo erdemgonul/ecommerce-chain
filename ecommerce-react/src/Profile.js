@@ -174,11 +174,9 @@ const Profile = () => {
       <div className="flex flex-col space-y-4 text-lg">
         {invoices.map((invoice, index) => (
           <div className="flex flex-col items-start space-y-2 border-b">
-            <p className="text-left text-base my-2"><b>Created By:</b> {invoice.createdBy}</p>
-            <p className="text-left text-base my-2"><b>Created On:</b> {invoice.createdOn}</p>
-            <p className="text-left text-base my-2"><b>Invoice ID:</b> {invoice.id}</p>
-            <p className="text-left text-base my-2"><b>Order ID:</b> {invoice.orderId}</p>
-            <p className="text-left text-base my-2"><b>Shipping Address:</b> {invoice.shippingAddress}</p>
+            <p className="text-left text-base my-2">
+              <b>Order ID:</b> {invoice.orderId}
+            </p>
             <a className="bg-green-500 px-4 text-white" href={invoice.pdfUrl}>
               Download PDF
             </a>
@@ -198,10 +196,16 @@ const Profile = () => {
   }
 
   return (
-    <div className="container mx-20 bg-gray-bg1 mb-20">
-      <div className="flex justify-start flex-col mt-10 bg-white rounded-lg pb-20 border border-primaryBorder shadow-default px-16">
+    <div className="container lg:mx-20 bg-gray-bg1 mb-20">
+      <div className="flex justify-start flex-col mt-10 bg-white rounded-lg pb-20 border border-primaryBorder shadow-default px-2 lg:px-16">
         <h1 className="text-2xl font-medium text-primary mt-4 mb-12 text-center">
-          Profile <button onClick={()=> history.push('editprofile')} className="bg-green-500 text-white text-sm px-2 py-1">Edit Profile</button>
+          Profile{" "}
+          <button
+            onClick={() => history.push("editprofile")}
+            className="bg-green-500 text-white text-sm px-2 py-1"
+          >
+            Edit Profile
+          </button>
         </h1>
 
         <div className="flex flex-col my-8">
@@ -212,7 +216,13 @@ const Profile = () => {
             {user != null && (
               <div className="flex flex-col items-start space-y-4">
                 <p div className="flex space-x-4 justify-center items-center">
-                  <b>Balance: </b> {user.balance} <button onClick={()=> window.location.replace('/fund')}className="bg-green-500 text-white text-sm px-2 py-1">Add Fund To Your Account</button>
+                  <b>Balance: </b> {user.balance}{" "}
+                  <button
+                    onClick={() => window.location.replace("/fund")}
+                    className="bg-green-500 text-white text-sm px-2 py-1"
+                  >
+                    Add Fund To Your Account
+                  </button>
                 </p>
                 <p>
                   <b>Email:</b> {user.email}
@@ -235,7 +245,7 @@ const Profile = () => {
             )}
           </div>
         </div>
-        <div className="flex justify-start items-center text-xl font-bold space-x-4 my-8">
+        <div className="flex justify-start items-center lg:text-xl font-bold lg:space-x-4 my-8">
           <input
             type="checkbox"
             name="fa"
