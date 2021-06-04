@@ -201,7 +201,7 @@ const Profile = () => {
     <div className="container mx-20 bg-gray-bg1 mb-20">
       <div className="flex justify-start flex-col mt-10 bg-white rounded-lg pb-20 border border-primaryBorder shadow-default px-16">
         <h1 className="text-2xl font-medium text-primary mt-4 mb-12 text-center">
-          Profile
+          Profile <button onClick={()=> history.push('editprofile')} className="bg-green-500 text-white text-sm px-2 py-1">Edit Profile</button>
         </h1>
 
         <div className="flex flex-col my-8">
