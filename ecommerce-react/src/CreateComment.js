@@ -30,7 +30,17 @@ function CreateComment(product) {
           setTimeout(() => window.location.reload(), 3000);
           console.log(res);
         }
-      });
+      }).catch((err) => {
+      if (err && err.response && err.response.data) {
+        if (err.response.status === 403) {
+          Toast("You need to login to post a comment !");
+        } else {
+          if (err.response.data.message){
+            Toast(err.response.data.message);
+          }
+        }
+      }
+    });
   };
   return (
     <div className={"flex  border-t py-4 border-gray-400 w-full "}>

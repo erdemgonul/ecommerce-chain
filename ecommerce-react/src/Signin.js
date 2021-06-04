@@ -73,7 +73,11 @@ const Signin = () => {
         else Toast(res.data.error);
       })
       .catch((err) => {
-        console.log(err);
+        if (err && err.response && err.response.data) {
+          if (err.response.data.message){
+            Toast(err.response.data.message);
+          }
+        }
       });
     console.log(username, password);
   };
