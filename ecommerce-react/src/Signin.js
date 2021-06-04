@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import Modal from "react-modal";
-import {Toast} from "./Toast";
+import { Toast } from "./Toast";
 const customStyles = {
   content: {
     top: "50%",
@@ -39,7 +39,7 @@ const Signin = () => {
         }
       })
       .catch((err) => {
-        if (err.response.data.message){
+        if (err.response.data.message) {
           Toast(err.response.data.message);
         }
         console.log(err);
@@ -72,12 +72,11 @@ const Signin = () => {
 
             window.location.replace("/");
           }
-        }
-        else Toast(res.data.error);
+        } else Toast(res.data.error);
       })
       .catch((err) => {
         if (err && err.response && err.response.data) {
-          if (err.response.data.message){
+          if (err.response.data.message) {
             Toast(err.response.data.message);
           }
         }
@@ -120,6 +119,14 @@ const Signin = () => {
             className={`bg-green-500 py-2 px-4 text-sm text-white rounded border border-green focus:outline-none focus:border-green-dark`}
           >
             Login
+          </button>
+        </div>
+        <div className="flex justify-center items-center mt-6">
+          <button
+            onClick={() => window.location.replace("/signup")}
+            className={`bg-green-500 py-2 px-4 text-sm text-white rounded border border-green focus:outline-none focus:border-green-dark`}
+          >
+            GO TO SIGNUP PAGE
           </button>
         </div>
       </div>

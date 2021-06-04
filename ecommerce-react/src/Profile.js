@@ -45,7 +45,7 @@ const Profile = () => {
           }
         })
         .catch((err) => {
-          window.location.replace("/");
+          window.location.replace("/signin");
           console.log(err);
         });
   }, [location]);
