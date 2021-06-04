@@ -157,7 +157,7 @@ const Checkout = () => {
                   className="flex border py-2 my-2"
                   onClick={() => setShippingAddress(e)}
                 >
-                  <a className="text-blue-400 ml-4">{JSON.stringify(e)}</a>
+                  <a className="text-blue-400 ml-4">{JSON.stringify(e).replace('"','').replace('"','')}</a>
                 </div>
               ))}
           </div>
