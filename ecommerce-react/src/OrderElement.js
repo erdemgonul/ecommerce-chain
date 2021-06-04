@@ -31,11 +31,30 @@ function OrderElement({ product, deleteFromCart }) {
         if (err.response.status === 403) {
           Toast("You need to login to pay for an order !");
         } else {
-          if (err.response.data.message){
+          if (err.response.data.message) {
             Toast(err.response.data.message);
           }
         }
         window.location.replace("/");
+      });
+  };
+
+  const cancelOrder = () => {
+    axios
+      .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/order/cancel`, {
+        orderId: product.id,
+      })
+      .then((res) => {
+        console.log(res);
+        if (res.data.error) {
+          Toast(res.data.error);
+        } else {
+          Toast("👏 Order cancelled!");
+          window.location.reload();
+        }
+      })
+      .catch((err) => {
+        console.log(err);
       });
   };
   const getCampaigns = () => {
@@ -62,7 +81,9 @@ function OrderElement({ product, deleteFromCart }) {
     <div className={"flex  border-b py-4 "}>
       <div className="flex flex-col ml-4 justify-between w-full">
         <div className="items-start justify-start">
-          <p className="text-left text-base my-2"><b>Order Id:</b> {product.id}</p>
+          <p className="text-left text-base my-2">
+            <b>Order Id:</b> {product.id}
+          </p>
 
           <p className="text-left text-base my-2">
             <b>Total Price: </b>
@@ -90,10 +111,22 @@ function OrderElement({ product, deleteFromCart }) {
                 })}
               </select>
               <button
-                className="text-left bg-green-500 text-white px-2 py-1"
+                className="text-left bg-green-500 my-2 text-white px-2 py-1"
                 onClick={() => makePayment()}
               >
                 Make Payment
+              </button>
+              <button
+                className="text-left bg-red-500 my-2 text-white px-2 py-1"
+                onClick={() => cancelOrder()}
+              >
+                Cancel Order
+              </button>
+              <button
+                className="text-left bg-blue-500 my-2 text-white px-2 py-1"
+                onClick={() => console.log()}
+              >
+                Edit Order
               </button>
             </div>
           )}

@@ -109,7 +109,6 @@ const SalesManagerPage = () => {
       });
   };
 
-
   const changeTwoFactorAuth = (val) => {
     setTwoFA(val);
     axios
@@ -129,6 +128,7 @@ const SalesManagerPage = () => {
         console.log(err);
       });
   };
+
 
   const CartProducts = () => {
     if (cart) {
@@ -157,8 +157,6 @@ const SalesManagerPage = () => {
     return null;
   };
 
-  
-
   function deleteFromCarty(sku) {
     dispatch(deleteFromCart(sku));
   }
@@ -183,7 +181,7 @@ const SalesManagerPage = () => {
         <h1 className="text-2xl font-medium text-primary mt-4 mb-12 text-center">
           Unapproved Comments
         </h1>
-      
+
         <h1 className="text-2xl font-medium text-primary mt-4 mb-12 text-center">
           Previous Orders
         </h1>
