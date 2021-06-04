@@ -32,8 +32,8 @@ app.get('/', (req, res) => {
   });
 });
 
-app.use(middlewares.validateRequest);
 app.use(middlewares.verifyToken);
+app.use(middlewares.validateRequest);
 app.use(middlewares.isProductManager);
 app.use(middlewares.isSalesManager);
 
