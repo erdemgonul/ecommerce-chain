@@ -125,7 +125,7 @@ const self = {
         });
 
         if (notificationToken) {
-            await userDAL.updateUserDetails(user._id, {notificationToken: [notificationToken]});
+            await userDAL.updateUserDetails(user._id, {notificationTokens: [notificationToken]});
         }
 
         return token;
