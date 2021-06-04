@@ -4,7 +4,6 @@ import { useHistory } from "react-router-dom";
 import { useSelector } from "react-redux";
 import CartElement from "./CartElement";
 import { useLocation } from "react-router";
-
 import { deleteFromCart } from "./redux/actions/index";
 import { useDispatch } from "react-redux";
 import { Toast } from "./Toast";
@@ -73,8 +72,8 @@ const EditProfile = () => {
           Toast(res.data.error);
         } else {
           Toast("👏 Your informations changed!");
-          sessionStorage.removeItem('jwt');
-          window.location.replace('/');
+          sessionStorage.removeItem("jwt");
+          window.location.replace("/");
         }
       })
       .catch((err) => {

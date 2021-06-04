@@ -1,5 +1,5 @@
 import axios from "axios";
-import {Toast} from "./Toast";
+import { Toast } from "./Toast";
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -46,10 +46,9 @@ const ProductManagerPage = () => {
     await axios
       .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/category/get/all`)
       .then((res) => {
-        if(res.data.error){
+        if (res.data.error) {
           Toast(res.data.error);
-        }
-        else setCategories(res.data.data.categories);
+        } else setCategories(res.data.data.categories);
       });
   };
   const getProducts = async () => {
@@ -62,10 +61,9 @@ const ProductManagerPage = () => {
         }
       )
       .then((res) => {
-        if(res.data.error){
+        if (res.data.error) {
           Toast(res.data.error);
-        }
-        else setProducts(res.data.data.products);
+        } else setProducts(res.data.data.products);
       });
   };
   const editProduct = async (product) => {};
@@ -79,7 +77,7 @@ const ProductManagerPage = () => {
         }
       )
       .then((res) => {
-        if(res.data.error) {
+        if (res.data.error) {
           Toast(res.data.error);
         }
       })
@@ -116,7 +114,7 @@ const ProductManagerPage = () => {
 
   const onSubmit = (data) => {
     console.log("ee", data);
-    var shipping_details= {
+    var shipping_details = {
       weight: weight,
       height: height,
       width: width,
@@ -124,22 +122,23 @@ const ProductManagerPage = () => {
     };
     axios
       .post(`${process.env.REACT_APP_ENDPOINT_URL}/api/v1/product/create`, {
-        sku:sku,
-        title:title,
-        description:description,
+        sku: sku,
+        title: title,
+        description: description,
         quantity: quantity,
         price: price,
-        categories:[category],
-        image:image,
-        product_details:{},
-        shipping_details:shipping_details
+        categories: [category],
+        image: image,
+        product_details: {},
+        shipping_details: shipping_details,
       })
       .then((res) => {
-        if(res.data.error){
+        if (res.data.error) {
           Toast(res.data.error);
         }
         console.log(res);
-      }).catch(err =>         window.location.replace("/"));
+      })
+      .catch((err) => window.location.replace("/"));
   };
 
   return (
