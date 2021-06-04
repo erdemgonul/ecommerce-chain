@@ -58,7 +58,7 @@ const self = {
     },
 
     async deleteCommentWithId(user, commentId) {
-        if (user.role === 'productManager') {
+        if (user.role === 'productManager' || user.role === 'salesManager') {
             return await commentDAL.deleteCommentWithId(commentId);
         }
 
