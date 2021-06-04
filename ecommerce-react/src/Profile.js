@@ -195,8 +195,8 @@ const Profile = () => {
   }
 
   return (
-      <div className="container mx-20 bg-gray-bg1 mb-20">
-        <div className="flex justify-start flex-col mt-10 bg-white rounded-lg pb-20 border border-primaryBorder shadow-default px-16">
+      <div className="container lg:mx-20 bg-gray-bg1 mb-20">
+        <div className="flex justify-start flex-col mt-10 bg-white rounded-lg pb-20 border border-primaryBorder shadow-default px-2 lg:px-16">
           <h1 className="text-2xl font-medium text-primary mt-4 mb-12 text-center">
             Profile <button onClick={()=> history.push('editprofile')} className="bg-green-500 text-white text-sm px-2 py-1">Edit Profile</button>
           </h1>
@@ -236,7 +236,7 @@ const Profile = () => {
               )}
             </div>
           </div>
-          <div className="flex justify-start items-center text-xl font-bold space-x-4 my-8">
+          <div className="flex justify-start items-center text-xl font-bold lg:space-x-4 my-8">
             <input
                 type="checkbox"
                 name="fa"
