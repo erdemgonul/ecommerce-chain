@@ -24,7 +24,11 @@ const Signup = () => {
                     pathname: "/",
 
                 });
-            }).catch(err => { console.log(err) });
+            }).catch(err => {
+            if (err.response.data.message){
+                Toast(err.response.data.message);
+            }
+            });
     };
     return (
         <div className='h-screen flex bg-gray-bg1'>
@@ -83,7 +87,7 @@ const Signup = () => {
                         <button
                             className={`bg-green-500 py-2 px-4 text-sm text-white rounded border border-green focus:outline-none focus:border-green-dark`}
                         >
-                            Login
+                            Register
                         </button>
                     </div>
                 </form>
