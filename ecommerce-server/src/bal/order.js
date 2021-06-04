@@ -282,7 +282,7 @@ const self = {
                 invoicePDFUrl: createdInvoice.pdfUrl
             });
 
-            notificationBAL.sendNotification('EcommerceChain - Your payment is successful!', 'Your order will be shipped in 1 business day.', user.notificationTokens)
+            notificationBAL.sendNotification('EcommerceChain - Your payment is successful!', 'Your order will be shipped in 1 business day.', currentUser.notificationTokens)
 
             return createdInvoice;
         }
