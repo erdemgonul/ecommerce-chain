@@ -86,17 +86,18 @@ const EditProfile = () => {
     <div className="container mx-20 bg-gray-bg1 mb-20">
       <div className="flex justify-start flex-col mt-10 bg-white rounded-lg pb-20 border border-primaryBorder shadow-default px-16">
         <h1 className="text-2xl font-medium text-primary mt-4 mb-12 text-center">
-          Profile
+          Edit Your Profile
         </h1>
 
-        <div className="flex flex-col my-8">
+        <div className="flex flex-col my-8 ">
           <div className="flex flex-col">
-            <p className="my-4 text-left text-xl  font-bold">
-              User Informations
-            </p>
             {user != null && (
               <div className="flex flex-col items-start space-y-4">
                 <p>
+                  <b>Username: </b>
+                  {user.username}
+                </p>
+                <p className="text-left">
                   <b>Email:</b>
                   <input
                     type="text"
@@ -107,11 +108,7 @@ const EditProfile = () => {
                     value={email}
                   />
                 </p>
-                <p>
-                  <b>Username:</b>
-                  {user.username}
-                </p>
-                <p>
+                <p className="text-left">
                   <b>First Name:</b>
                   <input
                     type="text"
@@ -122,7 +119,7 @@ const EditProfile = () => {
                     value={firstName}
                   />
                 </p>
-                <p>
+                <p className="text-left">
                   <b>Last Name: </b>
                   <input
                     type="text"
@@ -139,7 +136,7 @@ const EditProfile = () => {
                     {user.role}
                   </p>
                 )}
-                <p>
+                <p className="text-left">
                   <b>Current Password: </b>
                   <input
                     type="text"
@@ -150,7 +147,7 @@ const EditProfile = () => {
                     value={oldPassword}
                   />
                 </p>
-                <p>
+                <p className="text-left">
                   <b>New Password: </b>
                   <input
                     type="text"
