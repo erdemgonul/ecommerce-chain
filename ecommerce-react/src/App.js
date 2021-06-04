@@ -15,6 +15,7 @@ import Profile from "./Profile";
 import SalesManagerPage from "./SalesManagerPage";
 import ProductManagerPage from "./ProductManagerPage";
 import FundPage from "./FundPage";
+import EditProfile from "./EditProfile";
 
 import { getToken, onMessageListener } from "./firebase";
 import { useState, useEffect } from "react";
@@ -51,6 +52,7 @@ function App() {
               path="/productmanager"
               component={() => <ProductManagerPage />}
             />
+            <Route path="/editprofile" component={() => <EditProfile />} />
 
             <Route path="/product" component={() => <ProductPage />} />
             <Route path="/profile" component={() => <Profile />} />
