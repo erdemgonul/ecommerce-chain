@@ -126,6 +126,10 @@ const self = {
 
         if (campaign && campaign.isActive) {
             if (campaign.campaignType === 'FIXED_DISCOUNT') {
+                if (order.orderTotal < discountAmount) {
+                    return {error: 'This campaign cannot be used with this order since order total is lower than the discount amount !'};
+                }
+
                 discountAmount = campaign.discountAmount;
             }
         }
