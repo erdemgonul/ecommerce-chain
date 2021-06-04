@@ -33,7 +33,9 @@ function OrderElement({ product, deleteFromCart }) {
           </p>
           <p className="text-left text-base my-2">
             <b>Order Status: </b>
-            {product.status == "ORDER_PLACED" ? "Waiting For Payment" : "?"}
+            {product.status == "ORDER_PLACED"
+              ? "Waiting For Payment"
+              : product.status}
           </p>
           {product.status == "ORDER_PLACED" && (
             <button
