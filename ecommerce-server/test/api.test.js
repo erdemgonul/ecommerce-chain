@@ -58,10 +58,10 @@ describe('GET /api/v1', () => {
 describe('Smooth Sign-up, Sign-in and user_info management', () => {
     it('signup', (done) => {
         apppost('/auth/signup', {
-            "userName": "nadir7",
-            "firstName": "nadir7",
+            "userName": "nadir",
+            "firstName": "nadir",
             "lastName": "yuceer",
-            "email": "nadir7@gmail.com",
+            "email": "nadir@gmail.com",
             "password": "123456"
         }).expect(200, {"success": true})
             .end((err, res) => {
@@ -119,7 +119,7 @@ describe('Corner cases', () => {
 describe('test of search implementation', () => {
     it('search', (done) => {
         apppost('/product/search', {
-            "query": "msi",
+            "query": "lenovo",
             "fullData": true
         }).expect(200)
             .expect(successcheck)
@@ -129,7 +129,7 @@ describe('test of search implementation', () => {
                 else {
                     let lookup = temp[0]['title'];
                     for (let i = 0; i < temp.length; i++) {
-                        if (!temp[i]['title'].toLowerCase().includes("msi")) return done(new Error("search element with no connection to the search query"));
+                        if (!temp[i]['title'].toLowerCase().includes("lenovo")) return done(new Error("search element with no connection to the search query"));
                     }
                     return done();
                 }
