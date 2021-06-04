@@ -11,6 +11,8 @@ function CategoryProducts() {
   const [filters, setFilters] = useState(null);
   const [valueFilter, setValueFilter] = useState({});
   const [priceDown, setPriceDown] = useState(false);
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(100000);
 
   const [category, setCategory] = useState("");
 
@@ -39,7 +41,11 @@ function CategoryProducts() {
     if (value.target.name == "priceMin" || value.target.name == "priceMax") {
       if (value.target.value == "") {
         value.target.value = 0;
-      } else value.target.value = parseFloat(value.target.value);
+      } else {
+        value.target.value = parseFloat(value.target.value);
+        valueFilter[value.target.name] = value.target.value;
+        setValueFilter(valueFilter);
+      }
     } else {
       valueFilter[value.target.name] = value.target.value;
       getProductsByFilter();
@@ -89,13 +95,11 @@ function CategoryProducts() {
   }
 
   async function getProductsByFilter() {
-    var a = valueFilter;
-    if (a["priceMin"] == null) {
-      a["priceMin"] = 0;
-    }
-    if (a["priceMax"] == null) {
-      a["priceMax"] = 100000;
-    }
+    var a = { ...valueFilter };
+    a["priceMin"] = minPrice;
+
+    a["priceMax"] = maxPrice;
+
     axios
       .post(
         `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/product/get/category/filter`,
@@ -147,11 +151,11 @@ function CategoryProducts() {
           <div className="flex flex-col items-start space-y-2">
             <label for={"priceMin"}>Minimum Price</label>
             <input
-              type="text"
+              type="number"
               name="priceMin"
               className="border border-gray-600 rounded-lg"
-              onChange={(val) => changeFilter(a, val)}
-              value={valueFilter["priceMin"]}
+              onChange={(val) => setMinPrice(parseFloat(val.target.value))}
+              value={minPrice}
             />
           </div>
         </>
@@ -161,12 +165,24 @@ function CategoryProducts() {
           <div className="flex flex-col items-start space-y-2">
             <label for={"priceMax"}>Maximum Price</label>
             <input
-              type="text"
+              type="number"
               name="priceMax"
               className="border border-gray-600 rounded-lg"
-              onChange={(val) => changeFilter(a, val)}
-              value={valueFilter["priceMax"]}
+              onChange={(val) => setMaxPrice(parseFloat(val.target.value))}
+              value={maxPrice}
             />
+          </div>
+        </>
+      );
+      x.push(
+        <>
+          <div className="flex items-end justify-end lg:-mb-8">
+            <button
+              className="bg-green-500 text-white text-xl px-4 py-1 rounded-lg"
+              onClick={() => getProductsByFilter()}
+            >
+              Filter
+            </button>
           </div>
         </>
       );
