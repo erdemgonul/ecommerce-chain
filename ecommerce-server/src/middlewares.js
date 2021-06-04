@@ -71,6 +71,9 @@ function verifyToken(req, res, next) {
   const authHeader = req.headers.authorization;
   const token = authHeader ? authHeader.substring(7) : null;
 
+  if (req.originalUrl === '/api/v1/auth/signin' || req.originalUrl === '/api/v1/auth/signup')
+    return next();
+
   if (!token && config.auth.noAuthEndpoints.includes(req.originalUrl)) {
     return next();
   }
