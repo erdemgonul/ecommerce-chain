@@ -69,7 +69,14 @@ const Checkout = () => {
         }
       })
       .catch((err) => {
-        Toast("Error!");
+        if (err.response.status === 403) {
+          Toast("You need to login to place a order !");
+        } else {
+          if (err.response.data.message){
+            Toast(err.response.data.message);
+          }
+        }
+        //Toast("Error!");
       });
   };
 
@@ -92,6 +99,13 @@ const Checkout = () => {
         getAddresses();
       })
       .catch((err) => {
+        if (err.response.status === 403) {
+          Toast("You need to login to save an adress !");
+        } else {
+          if (err.response.data.message){
+            Toast(err.response.data.message);
+          }
+        }
         console.log(err);
       });
   };
