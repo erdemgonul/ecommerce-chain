@@ -70,7 +70,7 @@ const ProductManagerPage = () => {
   const deleteProduct = async (sku) => {
     await axios
       .post(
-        `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/product/get/category`,
+        `${process.env.REACT_APP_ENDPOINT_URL}/api/v1/product/delete`,
         {
           sku: sku,
           deleteFromElasticSearch: true,
@@ -79,6 +79,9 @@ const ProductManagerPage = () => {
       .then((res) => {
         if (res.data.error) {
           Toast(res.data.error);
+        } else {
+          Toast("Delete success !");
+          window.location.reload();
         }
       })
       .catch((e) => console.log(e));
@@ -135,17 +138,26 @@ const ProductManagerPage = () => {
       .then((res) => {
         if (res.data.error) {
           Toast(res.data.error);
+        } else {
+          Toast('Product created !');
+          window.location.reload();
         }
         console.log(res);
       })
-      .catch((err) => window.location.replace("/"));
+      .catch((err) => {
+            if (err.response.data.message){
+              Toast(err.response.data.message);
+            }
+      }
+
+      );
   };
 
   return (
     <div className="container mx-20 bg-gray-bg1 mb-20">
       <div className="flex justify-start flex-col mt-10 bg-white rounded-lg pb-20 border border-primaryBorder shadow-default px-16">
         <h1 className="text-2xl font-medium text-primary mt-4 mb-12 text-center">
-          ProductManagerPage
+          Product Manager Page
         </h1>
         <Products />
         <form

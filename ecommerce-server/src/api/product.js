@@ -64,7 +64,7 @@ router.post('/delete', async (req, res) => {
   if (products && !products.error) {
     const cancelOrderResponse = await orderBAL._cancelNonPaidOrders(req.body.sku);
 
-    if (cancelOrderResponse.error) {
+    if (cancelOrderResponse && cancelOrderResponse.error) {
       return {error: 'Order cancellation failed !'};
     }
 
